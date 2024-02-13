@@ -1,7 +1,6 @@
 # ZubbleHome
 A social media app in JS/React
 
-
 ### Contributors
 Co-authored by Bitesizing and ZebSK
 
