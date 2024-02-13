@@ -1,4 +1,5 @@
-# Project Page
+# ZubbleHome
+A social media app in JS/React
 
 
 ### Contributors
