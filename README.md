@@ -1,5 +1,18 @@
 # ZubbleHome
-A social media app in JS/React
+A social media app in TypeScript/React
+
+### Installation and Usage
+To get started with this project, follow these steps:
+1. Clone the repository using https://github.com/ZebSK/ZubbleHome.git
+2. Install dependencies using npm
+```
+npm install
+```
+3. Start the development server
+```
+npm start
+```
+4. Open your browser and visit http://localhost:3000/ to view the app
 
 ### Contributors
 Co-authored by Bitesizing and ZebSK
