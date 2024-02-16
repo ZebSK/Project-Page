@@ -1,40 +1,42 @@
 import { useState, useRef, useEffect} from 'react';
 
-// Define synthesised messages with isYours property !!
-const [messageBlocks, setMessageBlocks] = useState([
-  {
-    isYours: true,
-    messageContents: ["Hello"],
-  },
-  {
-    isYours: false,
-    messageContents: ["How's it going?", "Bozo..."],
-  },
-  {
-    isYours: true,
-    messageContents: ["I hate you>:("],
-  },
-]);
-
-
 //  Main parent component
 function App() {
+  // Define synthesised messages with isYours property !!
+  const [messageBlocks, setMessageBlocks] = useState<MessageBlock[]>([
+    {
+      isYours: true,
+      messageContents: ["Hello"],
+    },
+    {
+      isYours: false,
+      messageContents: ["How's it going?", "Bozo..."],
+    },
+    {
+      isYours: true,
+      messageContents: ["I hate you>:("],
+    },
+  ]);
+
   return(
-    <div className='App'>
-    {MessageScreen()}
-    {InputBox()}
+  <div className='App'>
+    {MessageScreen({messageBlocks})}
   </div>
   );
 }
 export default App;
 
 // MessageScreen component holding all the messages
-function MessageScreen() {
+interface MessageBlock {
+  isYours: boolean;
+  messageContents: string[];
+}
+function MessageScreen({ messageBlocks }: { messageBlocks: MessageBlock[] }) {
   return(
     // Map function to create multiple MessageBlock components and assign messageContents to them
     <div className='messageScreen'>
-      {messageBlocks.map((messageBlock) => (
-        <MessageBlock isYours={messageBlock.isYours} messageContents={messageBlock.messageContents} />
+      {messageBlocks.map((messageBlock, index) => (
+        <MessageBlock key={index} isYours={messageBlock.isYours} messageContents={messageBlock.messageContents} />
       ))}
     </div>
   )
@@ -46,8 +48,8 @@ function MessageBlock({ isYours, messageContents }: { isYours: boolean; messageC
   return (
     // Second map function to map each message in the block
     <div className='messageBlock'>
-      {messageContents.map((message) => (
-        <Message isYours={isYours} messageContent={message} />
+      {messageContents.map((message, index) => (
+        <Message key={index} isYours={isYours} messageContent={message} />
       ))}
     </div>
   );
