@@ -2,7 +2,6 @@ import { useState, useRef, useEffect} from 'react';
 
 //  Main parent component
 function App() {
-  // Define synthesised messages with isYours property !!
   const [messageBlocks, setMessageBlocks] = useState<MessageBlock[]>([
     {
       isYours: true,
@@ -18,10 +17,39 @@ function App() {
     },
   ]);
 
-  return(
-  <div className='App'>
-    {MessageScreen({messageBlocks})}
-  </div>
+  function handleEnter(textValue: string) {
+    setMessageBlocks(prevBlocks => [
+      ...prevBlocks,
+      {
+        isYours: true,
+        messageContents: [textValue],
+      }
+    ]);
+    console.log('hello');
+  }
+
+  return (
+    <div className='App'>
+      <MessageScreen messageBlocks={messageBlocks} />
+      <InputBox handleEnter={handleEnter} />
+    </div>
+  );
+}
+
+function InputBox({ handleEnter }: { handleEnter: (textValue: string) => void }) {
+  return (
+    <div>
+      <input
+        type="text" 
+        className="inputBox"
+        placeholder="..."
+        onKeyDown={(event) => {
+          if (event.key === "Enter") {
+            handleEnter(event.currentTarget.value);
+          }
+        }}
+      />
+    </div>
   );
 }
 export default App;
@@ -61,34 +89,6 @@ function Message({ isYours, messageContent }: { isYours: boolean; messageContent
   return(
     <div className = {"message" + " " + isYoursIndicator}>
       {messageContent}
-    </div>
-  )
-}
-
-function handleEnter(textValue: string) {
-  setMessageBlocks(prevBlocks => [
-    ...prevBlocks,
-    {
-      isYours: true,
-      messageContents: [textValue],
-    }
-  ]);
-  console.log('hello')
-}
-
-function InputBox() {
-  return (
-    <div>
-      <input
-        type="text" 
-        className = "inputBox"
-        placeholder = "..."
-        onKeyDown ={(event) => {
-          if (event.key === "Enter") {
-            handleEnter(event.currentTarget.value);
-          }
-        }}
-      />
     </div>
   )
 }
