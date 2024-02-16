@@ -17,6 +17,8 @@ function App() {
     },
   ]);
 
+  const [inputValue, setInputValue] = useState("");
+
   function handleEnter(textValue: string) {
     setMessageBlocks(prevBlocks => [
       ...prevBlocks,
@@ -26,26 +28,33 @@ function App() {
       }
     ]);
     console.log('hello');
+    setInputValue("");
   }
 
   return (
     <div className='App'>
       <MessageScreen messageBlocks={messageBlocks} />
-      <InputBox handleEnter={handleEnter} />
+      <InputBox handleEnter={handleEnter} inputValue={inputValue} setInputValue={setInputValue}/>
     </div>
   );
 }
 
-function InputBox({ handleEnter }: { handleEnter: (textValue: string) => void }) {
+function InputBox({ handleEnter, inputValue, setInputValue }: {
+  handleEnter: (textValue: string) => void, inputValue: string, setInputValue: Function}) {
   return (
     <div>
       <input
         type="text" 
         className="inputBox"
         placeholder="..."
+        value={inputValue}
+
+        onChange={(event) => setInputValue(event.currentTarget.value)}
+
         onKeyDown={(event) => {
           if (event.key === "Enter") {
             handleEnter(event.currentTarget.value);
+            
           }
         }}
       />
