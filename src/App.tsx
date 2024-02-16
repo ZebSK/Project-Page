@@ -2,6 +2,21 @@ import { useState, useRef, useEffect} from 'react';
 
 //  Main parent component
 function App() {
+    return (
+    <div className='App'>
+      <MessageScreen/>
+    </div>
+  );
+}
+
+export default App;
+
+// MessageScreen component holding all the messages
+interface MessageBlock {
+  isYours: boolean;
+  messageContents: string[];
+}
+function MessageScreen() {
   const [messageBlocks, setMessageBlocks] = useState<MessageBlock[]>([
     {
       isYours: true,
@@ -31,12 +46,15 @@ function App() {
     setInputValue("");
   }
 
-  return (
-    <div className='App'>
-      <MessageScreen messageBlocks={messageBlocks} />
+  return(
+    // Map function to create multiple MessageBlock components and assign messageContents to them
+    <div className='messageScreen'>
+      {messageBlocks.map((messageBlock, index) => (
+        <MessageBlock key={index} isYours={messageBlock.isYours} messageContents={messageBlock.messageContents} />
+      ))}
       <InputBox handleEnter={handleEnter} inputValue={inputValue} setInputValue={setInputValue}/>
     </div>
-  );
+  )
 }
 
 function InputBox({ handleEnter, inputValue, setInputValue }: {
@@ -60,23 +78,6 @@ function InputBox({ handleEnter, inputValue, setInputValue }: {
       />
     </div>
   );
-}
-export default App;
-
-// MessageScreen component holding all the messages
-interface MessageBlock {
-  isYours: boolean;
-  messageContents: string[];
-}
-function MessageScreen({ messageBlocks }: { messageBlocks: MessageBlock[] }) {
-  return(
-    // Map function to create multiple MessageBlock components and assign messageContents to them
-    <div className='messageScreen'>
-      {messageBlocks.map((messageBlock, index) => (
-        <MessageBlock key={index} isYours={messageBlock.isYours} messageContents={messageBlock.messageContents} />
-      ))}
-    </div>
-  )
 }
 
 // MessageBlock component holding all messages in a block (same owner)
