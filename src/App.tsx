@@ -3,30 +3,35 @@ import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 
+// Define synthesised messages with isYours property !!
+const messages = [
+  { messageContent: "Hello", isYours: true },
+  { messageContent: "Hi there!", isYours: false },
+  { messageContent: "How are you?", isYours: true },
+];
+
+//  Main parent component
 function App() {
   return(
   <div className='App'>
-    Hello World
     {MessageScreen()}
   </div>
   );
 }
 export default App;
 
+// MessageScreen component holding all the messages
 function MessageScreen() {
   return(
-    <>
-      {MessageBlock(true)}
-      {MessageBlock(false)}
-    </>
+    <div className='messageScreen'>
+      {messages.map((message) => (
+        <Message isYours={message.isYours} messageContent={message.messageContent} />
+      ))}
+    </div>
   )
 }
 
-function MessageBlock(isYours: boolean) {
-  return Message(isYours, "hi")
-}
-
-function Message(isYours: boolean, messageContent: string) {
+function Message({ isYours, messageContent }: { isYours: boolean; messageContent: string }) {
   const isYoursIndicator: string = isYours? "right": "left"
 
   return(
@@ -34,6 +39,10 @@ function Message(isYours: boolean, messageContent: string) {
       {Bubble(messageContent)}
     </div>
   )
+}
+
+function MessageBlock(isYours: boolean, messageContents: string[]) {
+  return Message(isYours, "hi")
 }
 
 function Bubble(messageContent: string) {
