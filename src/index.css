@@ -77,6 +77,7 @@ button:focus-visible {
 
   max-width: 300px; /* Adjust as needed */
   /* min-width: 20px; */
+  word-wrap: break-word;
 
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   font-size: 20px;
@@ -97,6 +98,7 @@ button:focus-visible {
   width: 300px;
   padding: 10px;
   margin-bottom: 10px;
+  margin-top: 10px;
 
   font-size: 20px;
 
