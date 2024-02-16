@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect} from 'react';
 
 // Define synthesised messages with isYours property !!
-var messageBlocks = [
+const [messageBlocks, setMessageBlocks] = useState([
   {
     isYours: true,
     messageContents: ["Hello"],
@@ -14,13 +14,15 @@ var messageBlocks = [
     isYours: true,
     messageContents: ["I hate you>:("],
   },
-];
+]);
+
 
 //  Main parent component
 function App() {
   return(
-  <div className='App'>
+    <div className='App'>
     {MessageScreen()}
+    {InputBox()}
   </div>
   );
 }
@@ -57,6 +59,34 @@ function Message({ isYours, messageContent }: { isYours: boolean; messageContent
   return(
     <div className = {"message" + " " + isYoursIndicator}>
       {messageContent}
+    </div>
+  )
+}
+
+function handleEnter(textValue: string) {
+  setMessageBlocks(prevBlocks => [
+    ...prevBlocks,
+    {
+      isYours: true,
+      messageContents: [textValue],
+    }
+  ]);
+  console.log('hello')
+}
+
+function InputBox() {
+  return (
+    <div>
+      <input
+        type="text" 
+        className = "inputBox"
+        placeholder = "..."
+        onKeyDown ={(event) => {
+          if (event.key === "Enter") {
+            handleEnter(event.currentTarget.value);
+          }
+        }}
+      />
     </div>
   )
 }
