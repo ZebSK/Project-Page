@@ -1,5 +1,5 @@
 ---
-name: Bugfix
+name: Adjustment
 labels: adjustment
 about: Propose a minor change or adjustment.
 ---
