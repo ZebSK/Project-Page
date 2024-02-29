@@ -85,7 +85,7 @@ button:focus-visible {
 .message.right {
   background-color: #ff006f;
   color: #ffffff;
-  text-align: right;
+  text-align: left;
   align-self: flex-end; /* Added alignment property */
 }
 .message.left {
