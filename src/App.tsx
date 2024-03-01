@@ -33,7 +33,6 @@ function MessageScreen() {
   ]);
 
   const [inputValue, setInputValue] = useState("");
-
   const messageContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -127,7 +126,7 @@ function MessageBlock({ isYours, messageContents }: { isYours: boolean; messageC
 function Message({ isYours, messageContent }: { isYours: boolean; messageContent: string }) {
   const isYoursIndicator: string = isYours? "right": "left"  // convert isYours boolean to string
   return(
-    <div className = {"message" + " " + isYoursIndicator}>
+    <div className = {"messageBubble" + " " + isYoursIndicator}>
       {messageContent}
     </div>
   )
