@@ -56,6 +56,24 @@ button:focus-visible {
 }
 
 /* OUR OWN CODE */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #e1e1e1;
+  border-bottom-left-radius: 5px;
+  border-top-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+  border-top-right-radius: 5px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #d3d3d3;
+}
+
+
 .messageScreen {
   display: flex;
   flex-direction: column;
@@ -74,22 +92,6 @@ button:focus-visible {
 
   padding-right: 5px;
   width: 100%;
-}
-.messageContainer::-webkit-scrollbar {
-  width: 10px;
-}
-.messageContainer::-webkit-scrollbar-track {
-  background-color: transparent;
-}
-.messageContainer::-webkit-scrollbar-thumb {
-  background: #e1e1e1;
-  border-bottom-left-radius: 5px;
-  border-top-left-radius: 5px;
-  border-bottom-right-radius: 5px;
-  border-top-right-radius: 5px;
-}
-.messageContainer::-webkit-scrollbar-thumb:hover {
-  background: #d3d3d3;
 }
 
 .messageBlock {
@@ -125,7 +127,7 @@ button:focus-visible {
 .inputBox {
   min-height: 30px;
   max-height: 120px;
-  overflow-y: auto;
+  overflow-y: scroll;
   resize: none;
 
   width: 300px;
@@ -140,8 +142,13 @@ button:focus-visible {
   border-radius: 5px;
   outline: none;
 }
-
 .inputBox:focus {
   border-color: #213547; /* Changes border color on focus */
   box-shadow: 0 0 5px #213547; /* Adds a box shadow */
+}
+.inputBox::-webkit-scrollbar-thumb{
+  background: #d3d3d3;
+}
+.inputBox::-webkit-scrollbar-thumb:hover {
+  background: #c5c5c5;
 }
