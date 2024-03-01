@@ -96,9 +96,6 @@ button:focus-visible {
   display: flex;
   flex-direction: column;
   width: calc(50vw - 10px);
-
-  justify-content: center;
-  min-height: 55px;
 }
 
 .messageBubble {
