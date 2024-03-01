@@ -63,20 +63,22 @@ button:focus-visible {
   justify-content: flex-end;
   width: 500px;
   height: 99vh;
-  overflow-y: auto;
 }
 
 .messageContainer {
   bottom: 0;
   display: flex;
   flex-direction: column; 
-  overflow-y: auto;
+  overflow-y: overlay;
+
+  padding-right: 5px;
+  width: 100%;
 }
 
 .messageBlock {
   display: flex;
   flex-direction: column;
-  width: 500px;
+  width: calc(500px - 20px);
 }
 
 .message {
