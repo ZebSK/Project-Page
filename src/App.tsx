@@ -99,9 +99,10 @@ function InputBox({ handleEnter, inputValue, setInputValue }: {
         onChange={(event) => setInputValue(event.currentTarget.value)}
 
         onKeyDown={(event) => {
-          if (event.key === "Enter") {
+          if (event.key === "Enter" && event.shiftKey) { 
+            setInputValue(event.currentTarget.value + "\n");
+          } else if (event.key === "Enter" && !event.shiftKey) {
             handleEnter(event.currentTarget.value);
-            
           }
         }}
       />
