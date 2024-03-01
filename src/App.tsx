@@ -128,9 +128,7 @@ function InputBox({ handleEnter, inputValue, setInputValue }: {
         }}
 
         onKeyDown={(event) => {
-          if (event.key === "Enter" && event.shiftKey) { 
-            setInputValue(event.currentTarget.value + "\n");
-          } else if (event.key === "Enter" && !event.shiftKey) {
+          if (event.key === "Enter" && !event.shiftKey) {
             handleEnter(event.currentTarget.value);
             event.preventDefault();
             setHeight(minHeight)
