@@ -60,9 +60,9 @@ button:focus-visible {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: flex-end;
   width: 500px;
   height: 100vh;
-  align-items: flex-end;
   overflow-y: auto;
 }
 
