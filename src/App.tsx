@@ -34,6 +34,15 @@ function MessageScreen() {
 
   const [inputValue, setInputValue] = useState("");
 
+  const messageContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (messageContainerRef.current) {
+      messageContainerRef.current.scrollTop = messageContainerRef.current.scrollHeight;
+    }
+  }, [messageBlocks]);
+
+
   function handleEnter(textValue: string) {
     setMessageBlocks(prevBlocks => [
       ...prevBlocks,
@@ -49,9 +58,11 @@ function MessageScreen() {
   return(
     // Map function to create multiple MessageBlock components and assign messageContents to them
     <div className='messageScreen'>
-      {messageBlocks.map((messageBlock, index) => (
-        <MessageBlock key={index} isYours={messageBlock.isYours} messageContents={messageBlock.messageContents} />
-      ))}
+      <div className='messageContainer' ref={messageContainerRef}>
+        {messageBlocks.map((messageBlock, index) => (
+          <MessageBlock key={index} isYours={messageBlock.isYours} messageContents={messageBlock.messageContents} />
+        ))}
+      </div>
       <InputBox handleEnter={handleEnter} inputValue={inputValue} setInputValue={setInputValue}/>
     </div>
   )
