@@ -100,7 +100,6 @@ function InputBox({ handleEnter, inputValue, setInputValue }: {
         setPadding(padding);
 
         setHeight(styles.minHeight)
-        console.log(styles.minHeight)
       }
     }, []);
 
@@ -115,7 +114,15 @@ function InputBox({ handleEnter, inputValue, setInputValue }: {
         onChange={(event) => {
           setInputValue(event.currentTarget.value);
           const { scrollHeight } = event.currentTarget;
-          if (scrollHeight > parseInt(height) + padding) {setHeight(scrollHeight + 'px' )};
+          if (scrollHeight > parseInt(height) + padding) {
+            setHeight(scrollHeight - padding + 'px' )
+          } else {
+            setHeight("30px")
+            event.currentTarget.style.height = "30px";
+            const { scrollHeight } = event.currentTarget;
+            setHeight(scrollHeight - padding + 'px' )
+            event.currentTarget.style.height = scrollHeight - padding + 'px'
+          };
         }}
 
         onKeyDown={(event) => {
