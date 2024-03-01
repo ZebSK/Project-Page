@@ -86,22 +86,53 @@ function MessageScreen() {
   )
 }
 
+// Message component holding the input box
 function InputBox({ handleEnter, inputValue, setInputValue }: {
   handleEnter: (textValue: string) => void, inputValue: string, setInputValue: Function}) {
+    // Allows the height of the input box and the values for min height and padding size to be accessed in HTML
+    const [height, setHeight] = useState<string>("");
+    const [minHeight, setMinHeight] = useState<string>("");
+    const [padding, setPadding] = useState<number>(0);
+
+    // Takes the padding and min height values from the CSS file
+    useEffect(() => {
+      const elements = document.getElementsByClassName("inputBox");
+      if (elements.length > 0) {
+        const element = elements[0]; // takes the first inputBox as class not id
+        const styles = window.getComputedStyle(element); // gets all style info from CSS
+        const padding = parseInt(styles.paddingTop) + parseInt(styles.paddingBottom);
+
+        setPadding(padding);
+        setMinHeight(styles.minHeight)
+        setHeight(styles.minHeight)
+      }
+    }, []);
+
   return (
     <div>
-      <input
-        type="text" 
+      <textarea
         className="inputBox"
-        placeholder="..."
-        value={inputValue}
+        placeholder="..." // text shown in box when empty
+        value={ inputValue } 
+        style={{ height: height }} 
 
-        onChange={(event) => setInputValue(event.currentTarget.value)}
+        // Handles response to any typing in the box
+        onChange={(event) => {
+          setInputValue(event.currentTarget.value);
 
+          setHeight(minHeight); // sets height to minimum so if text has decreased textarea will not remain at previous size
+          event.currentTarget.style.height = minHeight; // forces recalculation of scroll height
+          const { scrollHeight } = event.currentTarget;
+          setHeight(scrollHeight - padding + 'px' ); // sets height to the size of the text
+          event.currentTarget.style.height = scrollHeight - padding + 'px';
+        }}
+
+        // Handles sending of messages if enter is pressed without shift being held down
         onKeyDown={(event) => {
-          if (event.key === "Enter") {
+          if (event.key === "Enter" && !event.shiftKey) {
             handleEnter(event.currentTarget.value);
-            
+            event.preventDefault(); // prevents addition of a new line to textarea when sending message
+            setHeight(minHeight);
           }
         }}
       />
