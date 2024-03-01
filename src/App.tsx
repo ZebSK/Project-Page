@@ -89,6 +89,7 @@ function MessageScreen() {
 function InputBox({ handleEnter, inputValue, setInputValue }: {
   handleEnter: (textValue: string) => void, inputValue: string, setInputValue: Function}) {
     const [height, setHeight] = useState<string>("");
+    const [minHeight, setMinHeight] = useState<string>("");
     const [padding, setPadding] = useState<number>(0);
 
     useEffect(() => {
@@ -99,6 +100,7 @@ function InputBox({ handleEnter, inputValue, setInputValue }: {
         const padding = parseInt(styles.paddingTop) + parseInt(styles.paddingBottom);
         setPadding(padding);
 
+        setMinHeight(styles.minHeight)
         setHeight(styles.minHeight)
       }
     }, []);
@@ -117,8 +119,8 @@ function InputBox({ handleEnter, inputValue, setInputValue }: {
           if (scrollHeight > parseInt(height) + padding) {
             setHeight(scrollHeight - padding + 'px' )
           } else {
-            setHeight("30px")
-            event.currentTarget.style.height = "30px";
+            setHeight(minHeight)
+            event.currentTarget.style.height = minHeight;
             const { scrollHeight } = event.currentTarget;
             setHeight(scrollHeight - padding + 'px' )
             event.currentTarget.style.height = scrollHeight - padding + 'px'
@@ -131,6 +133,7 @@ function InputBox({ handleEnter, inputValue, setInputValue }: {
           } else if (event.key === "Enter" && !event.shiftKey) {
             handleEnter(event.currentTarget.value);
             event.preventDefault();
+            setHeight(minHeight)
           }
         }}
       />
