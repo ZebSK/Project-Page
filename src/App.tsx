@@ -41,21 +41,35 @@ function MessageScreen() {
     }
   }, [messageBlocks]);
 
-
   /**
    * Function to send messages on enter press. 
-   * Why does it have to be inside MessageScreen?? 
    * @param {string} textValue - The text to add to message screen.
    */
   function handleEnter(textValue: string) {
-    setMessageBlocks(prevBlocks => [
-      ...prevBlocks,
+    const appendToRecentBlock = (messageBlocks: MessageBlock[], textValue: string) => {
+      let finalBlock: MessageBlock = { ...messageBlocks[messageBlocks.length - 1] }
+      finalBlock.messageContents = [...messageBlocks[messageBlocks.length - 1].messageContents, textValue]
+
+      return [
+        ...messageBlocks.slice(0, -1),  // Keep all items except last the same
+        finalBlock
+      ]
+    }
+    const appendNewBlock = (messageBlocks: MessageBlock[], textValue: string) => [
+      ...messageBlocks,
       {
         isYours: true,
         messageContents: [textValue],
-          }
-    ]);
-    console.log('hello');
+      }
+    ]
+    
+    setMessageBlocks(prevBlocks => {
+      if (prevBlocks.length > 0 && prevBlocks[prevBlocks.length - 1].isYours) {
+        return appendToRecentBlock(prevBlocks, textValue);
+      } else {
+        return appendNewBlock(prevBlocks, textValue);
+      }
+    });
     setInputValue("");
   }
 
