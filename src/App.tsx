@@ -33,7 +33,6 @@ function MessageScreen() {
   ]);
 
   const [inputValue, setInputValue] = useState("");
-
   const messageContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -43,13 +42,18 @@ function MessageScreen() {
   }, [messageBlocks]);
 
 
+  /**
+   * Function to send messages on enter press. 
+   * Why does it have to be inside MessageScreen?? 
+   * @param {string} textValue - The text to add to message screen.
+   */
   function handleEnter(textValue: string) {
     setMessageBlocks(prevBlocks => [
       ...prevBlocks,
       {
         isYours: true,
         messageContents: [textValue],
-      }
+          }
     ]);
     console.log('hello');
     setInputValue("");
@@ -108,7 +112,7 @@ function MessageBlock({ isYours, messageContents }: { isYours: boolean; messageC
 function Message({ isYours, messageContent }: { isYours: boolean; messageContent: string }) {
   const isYoursIndicator: string = isYours? "right": "left"  // convert isYours boolean to string
   return(
-    <div className = {"message" + " " + isYoursIndicator}>
+    <div className = {"messageBubble" + " " + isYoursIndicator}>
       {messageContent}
     </div>
   )
