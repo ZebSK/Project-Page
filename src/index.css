@@ -62,7 +62,14 @@ button:focus-visible {
   align-items: center;
   justify-content: flex-end;
   width: 500px;
-  height: 100vh;
+  height: 99vh;
+  overflow-y: auto;
+}
+
+.messageContainer {
+  bottom: 0;
+  display: flex;
+  flex-direction: column; 
   overflow-y: auto;
 }
 

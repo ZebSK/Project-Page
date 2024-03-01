@@ -57,10 +57,12 @@ function MessageScreen() {
 
   return(
     // Map function to create multiple MessageBlock components and assign messageContents to them
-    <div className='messageScreen' ref={messageContainerRef}>
-      {messageBlocks.map((messageBlock, index) => (
-        <MessageBlock key={index} isYours={messageBlock.isYours} messageContents={messageBlock.messageContents} />
-      ))}
+    <div className='messageScreen'>
+      <div className='messageContainer' ref={messageContainerRef}>
+        {messageBlocks.map((messageBlock, index) => (
+          <MessageBlock key={index} isYours={messageBlock.isYours} messageContents={messageBlock.messageContents} />
+        ))}
+      </div>
       <InputBox handleEnter={handleEnter} inputValue={inputValue} setInputValue={setInputValue}/>
     </div>
   )
