@@ -35,33 +35,48 @@ function MessageScreen() {
   const [inputValue, setInputValue] = useState("");
   const messageContainerRef = useRef<HTMLDivElement>(null);
 
-  // useEffect for determining whether to scroll when a new message is received
+  // Handling scrolling when new message is received
   useEffect(() => {
-    const { current } = messageContainerRef;
-    if (current) {
+    const { current: container } = messageContainerRef;
+    if (container) {
 
       // Finds the last message bubble if there is one
-      const lastMessageBlock = current.lastElementChild as HTMLElement;
+      const lastMessageBlock = container.lastElementChild as HTMLElement;
       if (lastMessageBlock) {
         const lastMessageBubble = lastMessageBlock.lastElementChild as HTMLElement;
         if (lastMessageBubble) {
 
           // If last message from user, scroll to bottom
           if (lastMessageBubble.className.split(" ")[1] === "right") {
-            current.scrollTop = current.scrollHeight;
+            container.scrollTop = container.scrollHeight;
           }
 
           // If the distance from the bottom is the height of the last message, scroll to bottom
           const lastMessageStyles = getComputedStyle(lastMessageBubble);
           const lastMessageHeight = lastMessageBubble.offsetHeight + parseInt(lastMessageStyles.marginBottom); 
-          if( current.scrollHeight - current.scrollTop - lastMessageHeight <= current.clientHeight) {
-            current.scrollTop = current.scrollHeight;
+          if( container.scrollHeight - container.scrollTop - lastMessageHeight <= container.clientHeight) {
+            container.scrollTop = container.scrollHeight;
           }
         }
       }
     }
   }, [messageBlocks]);
-  
+
+  // Handling scrolling when input box expands
+  useEffect(() => {
+    const inputBoxElements = document.getElementsByClassName("inputBox");
+    if (inputBoxElements.length > 0) {
+      const inputBoxElement = inputBoxElements[0];
+      const { current: container } = messageContainerRef;
+      // const styles = window.getComputedStyle(inputBoxElement);
+      
+      inputBoxElement.addEventListener('input', () => {
+        if (container) {
+          container.scrollTop = container.scrollHeight;
+        }
+      })
+    }
+  }, []);
 
   /**
    * Function to send messages on enter press. 
