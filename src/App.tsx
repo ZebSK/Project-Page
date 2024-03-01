@@ -88,15 +88,35 @@ function MessageScreen() {
 
 function InputBox({ handleEnter, inputValue, setInputValue }: {
   handleEnter: (textValue: string) => void, inputValue: string, setInputValue: Function}) {
+    const [height, setHeight] = useState<string>("");
+    const [padding, setPadding] = useState<number>(0);
+
+    useEffect(() => {
+      const elements = document.getElementsByClassName("inputBox");
+      if (elements.length > 0) {
+        const element = elements[0];
+        const styles = window.getComputedStyle(element);
+        const padding = parseInt(styles.paddingTop) + parseInt(styles.paddingBottom);
+        setPadding(padding);
+
+        setHeight(styles.minHeight)
+        console.log(styles.minHeight)
+      }
+    }, []);
+
   return (
     <div>
-      <input
-        type="text" 
+      <textarea
         className="inputBox"
         placeholder="..."
         value={inputValue}
+        style={{ height: height }} 
 
-        onChange={(event) => setInputValue(event.currentTarget.value)}
+        onChange={(event) => {
+          setInputValue(event.currentTarget.value);
+          const { scrollHeight } = event.currentTarget;
+          if (scrollHeight > parseInt(height) + padding) {setHeight(scrollHeight + 'px' )};
+        }}
 
         onKeyDown={(event) => {
           if (event.key === "Enter" && event.shiftKey) { 
