@@ -35,11 +35,28 @@ function MessageScreen() {
   const [inputValue, setInputValue] = useState("");
   const messageContainerRef = useRef<HTMLDivElement>(null);
 
+  // useEffect for determining whether to scroll if a new message is received
   useEffect(() => {
-    if (messageContainerRef.current) {
-      messageContainerRef.current.scrollTop = messageContainerRef.current.scrollHeight;
+    const { current } = messageContainerRef;
+    if (current) {
+
+      // Finds the last message bubble if there is one
+      const lastMessageBlock = current.lastElementChild as HTMLElement;
+      if (lastMessageBlock) {
+        const lastMessageBubble = lastMessageBlock.lastElementChild as HTMLElement;
+        if (lastMessageBubble) {
+
+          // Checks if the difference between the current scroll height and the bottom is the height of the last message
+          const lastMessageStyles = getComputedStyle(lastMessageBubble);
+          const lastMessageHeight = lastMessageBubble.offsetHeight + parseInt(lastMessageStyles.marginBottom); 
+          if( current.scrollHeight - current.scrollTop - lastMessageHeight <= current.clientHeight) {
+            current.scrollTop = current.scrollHeight; // scrolls to bottom
+          }
+        }
+      }
     }
   }, [messageBlocks]);
+  
 
   /**
    * Function to send messages on enter press. 
