@@ -1,7 +1,3 @@
----
-assignees: ZebSK, bitesizing
----
-
 ## Associated issues
 - Resolves 
 
