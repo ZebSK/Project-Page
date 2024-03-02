@@ -34,6 +34,34 @@ function MessageScreen() {
 
   const [inputValue, setInputValue] = useState("");
   const messageContainerRef = useRef<HTMLDivElement>(null);
+  const [showScrollButton, setShowScrollButton] = useState(false);
+
+  /**
+   * Function to scroll message container to bottom
+   */
+  function scrollToBottom() {
+    if (messageContainerRef.current) {
+      messageContainerRef.current.scrollTop = messageContainerRef.current.scrollHeight;
+    }
+  };
+
+  /**
+   * Function to handle scroll event
+   */
+  function handleScroll() {
+    const container = messageContainerRef.current
+    if (container) {
+      const isAtBottom = container.scrollHeight - container.scrollTop === container.clientHeight;
+      setShowScrollButton(!isAtBottom); // Show button if not at bottom
+    }
+  };
+
+  // Add scroll event listener when component mounts
+  useEffect(() => {
+    const container = messageContainerRef.current
+    if (container) { container.addEventListener('scroll', handleScroll); }
+  }, []);
+  
 
   // Handling scrolling when new message is received
   useEffect(() => {
@@ -48,14 +76,14 @@ function MessageScreen() {
 
           // If last message from user, scroll to bottom
           if (lastMessageBubble.className.split(" ")[1] === "right") {
-            container.scrollTop = container.scrollHeight;
+            scrollToBottom();
           }
 
           // If the distance from the bottom is the height of the last message, scroll to bottom
           const lastMessageStyles = getComputedStyle(lastMessageBubble);
           const lastMessageHeight = lastMessageBubble.offsetHeight + parseInt(lastMessageStyles.marginBottom); 
           if( container.scrollHeight - container.scrollTop - lastMessageHeight <= container.clientHeight) {
-            container.scrollTop = container.scrollHeight;
+            scrollToBottom();
           }
         }
       }
@@ -84,7 +112,7 @@ function MessageScreen() {
         setTimeout(() => {
           // If distance to bottom <= font size, scroll to bottom
           if (container && (container.scrollHeight - container.scrollTop - fontSize - marginHeight <= container.clientHeight)) {
-            container.scrollTop = container.scrollHeight;
+            scrollToBottom();
           }
         }, 10); // timeout of 10ms so event listener for input box to expand happens first
       })
@@ -131,6 +159,8 @@ function MessageScreen() {
           <MessageBlock key={index} isYours={messageBlock.isYours} messageContents={messageBlock.messageContents} />
         ))}
       </div>
+      {/* Scroll to bottom button */}
+      {showScrollButton && <button onClick={scrollToBottom}>Scroll to Bottom</button>}
       <InputBox handleEnter={handleEnter} inputValue={inputValue} setInputValue={setInputValue}/>
     </div>
   )
