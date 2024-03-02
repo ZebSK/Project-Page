@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect} from 'react';
+import { smoothstep } from './utils';
 
 //  Main parent component
 function App() {
@@ -52,7 +53,7 @@ function MessageScreen() {
       // Smooth scrolling
       const start = container.scrollTop;
       const end = container.scrollHeight;
-      const duration = 500; // ms
+      const duration = 5000; // ms
 
       let startTime: number | null = null;
 
@@ -62,10 +63,12 @@ function MessageScreen() {
       function smoothScrollAnimation(timestamp: number) {
         if (!container) return;
         if (!startTime) {startTime = timestamp;}
+
         const elapsed = timestamp - startTime;
         const progress = Math.min(elapsed/duration, 1)
         const scrollTop = start + (end - start) * progress;
-        container.scrollTop = scrollTop;
+        const smoothedScrollTop = scrollTop * smoothstep(start, end, scrollTop, 0.7);  // apply smoothstep function
+        container.scrollTop = smoothedScrollTop;
 
         // Calls the smoothScrollAnimation function repeatedly until scrolled to bottom
         if (progress < 1) {
