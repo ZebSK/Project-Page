@@ -181,7 +181,7 @@ function MessageScreen() {
         onClick={scrollToBottom}
         style = {{bottom: scrollButtonHeight}}
       >
-          Scroll to Bottom
+          ▼
       </button>}
       <InputBox handleEnter={handleEnter} inputValue={inputValue} setInputValue={setInputValue}/>
     </div>
