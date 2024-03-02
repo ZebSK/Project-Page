@@ -34,12 +34,136 @@ function MessageScreen() {
 
   const [inputValue, setInputValue] = useState("");
   const messageContainerRef = useRef<HTMLDivElement>(null);
+  const [showScrollButton, setShowScrollButton] = useState(false);
+  const [scrollButtonHeight, setScrollButtonHeight] = useState("80px");
 
+  /**
+   * Function to scroll message container to bottom
+   */
+  function scrollToBottom(smooth: boolean = false) {
+    const container = messageContainerRef.current 
+    if (!container) return;
+
+    // Instant scrolling
+    if (!smooth) {
+      container.scrollTop = container.scrollHeight;
+    } else {
+      
+      // Smooth scrolling
+      const start = container.scrollTop;
+      const end = container.scrollHeight;
+      const duration = 500; // ms
+
+      let startTime: number | null = null;
+
+      /**
+       * Function to handle each animation frame of slow scrolling
+       */
+      function smoothScrollAnimation(timestamp: number) {
+        if (!container) return;
+        if (!startTime) {startTime = timestamp;}
+        const elapsed = timestamp - startTime;
+        const progress = Math.min(elapsed/duration, 1)
+        const scrollTop = start + (end - start) * progress;
+        container.scrollTop = scrollTop;
+
+        // Calls the smoothScrollAnimation function repeatedly until scrolled to bottom
+        if (progress < 1) {
+          requestAnimationFrame(smoothScrollAnimation);
+        }
+      }
+      requestAnimationFrame(smoothScrollAnimation);
+    }
+  };
+
+  /**
+   * Function to handle scroll event
+   */
+  function handleScroll() {
+    const container = messageContainerRef.current
+    if (container) {
+      const isAtBottom = container.scrollHeight - container.scrollTop === container.clientHeight;
+      setShowScrollButton(!isAtBottom); // Show button if not at bottom
+    }
+  };
+
+  // Add scroll event listener
   useEffect(() => {
-    if (messageContainerRef.current) {
-      messageContainerRef.current.scrollTop = messageContainerRef.current.scrollHeight;
+    const container = messageContainerRef.current
+    if (container) { container.addEventListener('scroll', handleScroll); }
+  }, []);
+  
+
+  // Handling scrolling when new message is received
+  useEffect(() => {
+    const { current: container } = messageContainerRef;
+    if (container) {
+
+      // Finds the last message bubble if there is one
+      const lastMessageBlock = container.lastElementChild as HTMLElement;
+      if (lastMessageBlock) {
+        const lastMessageBubble = lastMessageBlock.lastElementChild as HTMLElement;
+        if (lastMessageBubble) {
+
+          // If last message from user, scroll to bottom
+          if (lastMessageBubble.className.split(" ")[1] === "right") {
+            scrollToBottom();
+          }
+
+          // If the distance from the bottom is the height of the last message, scroll to bottom
+          const lastMessageStyles = getComputedStyle(lastMessageBubble);
+          const lastMessageHeight = lastMessageBubble.offsetHeight + parseInt(lastMessageStyles.marginBottom); 
+          if( container.scrollHeight - container.scrollTop - lastMessageHeight <= container.clientHeight) {
+            scrollToBottom();
+          }
+        }
+      }
     }
   }, [messageBlocks]);
+
+  // Handling scrolling when input box expands
+  useEffect(() => {
+    const inputBoxElements = document.getElementsByClassName("inputBox");
+    if (inputBoxElements.length > 0) {
+      const inputBoxElement = inputBoxElements[0];
+      const { current: container } = messageContainerRef;
+
+      // Gets input box font size and bottom margin of message bubbles
+      const inputBoxStyles = window.getComputedStyle(inputBoxElement);
+      const fontSize = parseInt(inputBoxStyles.fontSize)
+      let marginHeight = 0
+      const bubbleElement = document.querySelector('.messageBubble');
+      if (bubbleElement) {
+        const bubbleStyles = window.getComputedStyle(bubbleElement);
+        marginHeight = parseInt(bubbleStyles.marginBottom)
+      }
+      
+      // Event listener for every time input box value changes
+      inputBoxElement.addEventListener('input', () => {
+        setTimeout(() => {
+          // If distance to bottom <= font size, scroll to bottom
+          if (container && (container.scrollHeight - container.scrollTop - fontSize - marginHeight <= container.clientHeight)) {
+            scrollToBottom();
+          }
+
+          // Determine height of scroll button from size of input box
+          const inputBoxElement = document.querySelector('.inputBox');
+          if (inputBoxElement) {
+            const inputBoxStyles = window.getComputedStyle(inputBoxElement);
+            const { height, marginTop, marginBottom, paddingTop, paddingBottom, borderWidth } = inputBoxStyles;
+            
+            const buttonHeight = (
+              parseInt(height) + // input box height
+              parseInt(marginTop) + parseInt(marginBottom) + // margins
+              parseInt(paddingTop) + parseInt(paddingBottom) + // padding
+              2 * parseInt(borderWidth)  // border and additional space
+            );
+            setScrollButtonHeight(buttonHeight + "px")
+          }
+        }, 10); // timeout of 10ms so event listener for input box to expand happens first
+      })
+    }
+  }, []);
 
   /**
    * Function to send messages on enter press. 
@@ -81,6 +205,14 @@ function MessageScreen() {
           <MessageBlock key={index} isYours={messageBlock.isYours} messageContents={messageBlock.messageContents} />
         ))}
       </div>
+      {showScrollButton && 
+      <button 
+        className = "scrollButton"
+        onClick={() => scrollToBottom(true)}
+        style = {{bottom: scrollButtonHeight}}
+      >
+          ▼
+      </button>}
       <InputBox handleEnter={handleEnter} inputValue={inputValue} setInputValue={setInputValue}/>
     </div>
   )
@@ -124,7 +256,7 @@ function InputBox({ handleEnter, inputValue, setInputValue }: {
           event.currentTarget.style.height = minHeight; // forces recalculation of scroll height
           const { scrollHeight } = event.currentTarget;
           setHeight(scrollHeight - padding + 'px' ); // sets height to the size of the text
-          event.currentTarget.style.height = scrollHeight - padding + 'px';
+          event.currentTarget.style.height = scrollHeight - padding + 'px';   
         }}
 
         // Handles sending of messages if enter is pressed without shift being held down
