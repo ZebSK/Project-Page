@@ -75,11 +75,14 @@ button:focus-visible {
 
 
 .messageScreen {
+  position: relative;
+
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-end;
 
+  min-width: 300px;
   width: 50vw;
   height: 99vh;
 }
@@ -98,6 +101,7 @@ button:focus-visible {
   display: flex;
   flex-direction: column;
   width: calc(50vw - 10px);
+  min-width: calc(300px - 10px);
 }
 
 .messageBubble {
@@ -151,4 +155,10 @@ button:focus-visible {
 }
 .inputBox::-webkit-scrollbar-thumb:hover {
   background: #c5c5c5;
+}
+
+.scrollButton {
+  position: absolute; 
+  background-color: #e1e1e180;
+  margin-bottom: 5px;
 }

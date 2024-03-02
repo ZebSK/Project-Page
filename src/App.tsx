@@ -35,6 +35,7 @@ function MessageScreen() {
   const [inputValue, setInputValue] = useState("");
   const messageContainerRef = useRef<HTMLDivElement>(null);
   const [showScrollButton, setShowScrollButton] = useState(false);
+  const [scrollButtonHeight, setScrollButtonHeight] = useState("80px");
 
   /**
    * Function to scroll message container to bottom
@@ -56,7 +57,7 @@ function MessageScreen() {
     }
   };
 
-  // Add scroll event listener when component mounts
+  // Add scroll event listener
   useEffect(() => {
     const container = messageContainerRef.current
     if (container) { container.addEventListener('scroll', handleScroll); }
@@ -114,6 +115,21 @@ function MessageScreen() {
           if (container && (container.scrollHeight - container.scrollTop - fontSize - marginHeight <= container.clientHeight)) {
             scrollToBottom();
           }
+
+          // Determine height of scroll button from size of input box
+          const inputBoxElement = document.querySelector('.inputBox');
+          if (inputBoxElement) {
+            const inputBoxStyles = window.getComputedStyle(inputBoxElement);
+            const { height, marginTop, marginBottom, paddingTop, paddingBottom, borderWidth } = inputBoxStyles;
+            
+            const buttonHeight = (
+              parseInt(height) + // input box height
+              parseInt(marginTop) + parseInt(marginBottom) + // margins
+              parseInt(paddingTop) + parseInt(paddingBottom) + // padding
+              2 * parseInt(borderWidth)  // border and additional space
+            );
+            setScrollButtonHeight(buttonHeight + "px")
+          }
         }, 10); // timeout of 10ms so event listener for input box to expand happens first
       })
     }
@@ -159,8 +175,14 @@ function MessageScreen() {
           <MessageBlock key={index} isYours={messageBlock.isYours} messageContents={messageBlock.messageContents} />
         ))}
       </div>
-      {/* Scroll to bottom button */}
-      {showScrollButton && <button onClick={scrollToBottom}>Scroll to Bottom</button>}
+      {showScrollButton && 
+      <button 
+        className = "scrollButton"
+        onClick={scrollToBottom}
+        style = {{bottom: scrollButtonHeight}}
+      >
+          Scroll to Bottom
+      </button>}
       <InputBox handleEnter={handleEnter} inputValue={inputValue} setInputValue={setInputValue}/>
     </div>
   )
@@ -204,7 +226,7 @@ function InputBox({ handleEnter, inputValue, setInputValue }: {
           event.currentTarget.style.height = minHeight; // forces recalculation of scroll height
           const { scrollHeight } = event.currentTarget;
           setHeight(scrollHeight - padding + 'px' ); // sets height to the size of the text
-          event.currentTarget.style.height = scrollHeight - padding + 'px';
+          event.currentTarget.style.height = scrollHeight - padding + 'px';   
         }}
 
         // Handles sending of messages if enter is pressed without shift being held down
