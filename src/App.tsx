@@ -68,12 +68,25 @@ function MessageScreen() {
     if (inputBoxElements.length > 0) {
       const inputBoxElement = inputBoxElements[0];
       const { current: container } = messageContainerRef;
-      // const styles = window.getComputedStyle(inputBoxElement);
+
+      // Gets input box font size and bottom margin of message bubbles
+      const inputBoxStyles = window.getComputedStyle(inputBoxElement);
+      const fontSize = parseInt(inputBoxStyles.fontSize)
+      let marginHeight = 0
+      const bubbleElement = document.querySelector('.messageBubble');
+      if (bubbleElement) {
+        const bubbleStyles = window.getComputedStyle(bubbleElement);
+        marginHeight = parseInt(bubbleStyles.marginBottom)
+      }
       
+      // Event listener for every time input box value changes
       inputBoxElement.addEventListener('input', () => {
-        if (container) {
-          container.scrollTop = container.scrollHeight;
-        }
+        setTimeout(() => {
+          // If distance to bottom <= font size, scroll to bottom
+          if (container && (container.scrollHeight - container.scrollTop - fontSize - marginHeight <= container.clientHeight)) {
+            container.scrollTop = container.scrollHeight;
+          }
+        }, 10); // timeout of 10ms so event listener for input box to expand happens first
       })
     }
   }, []);
