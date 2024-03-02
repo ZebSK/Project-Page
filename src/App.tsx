@@ -40,9 +40,39 @@ function MessageScreen() {
   /**
    * Function to scroll message container to bottom
    */
-  function scrollToBottom() {
-    if (messageContainerRef.current) {
-      messageContainerRef.current.scrollTop = messageContainerRef.current.scrollHeight;
+  function scrollToBottom(smooth: boolean = false) {
+    const container = messageContainerRef.current 
+    if (!container) return;
+
+    // Instant scrolling
+    if (!smooth) {
+      container.scrollTop = container.scrollHeight;
+    } else {
+      
+      // Smooth scrolling
+      const start = container.scrollTop;
+      const end = container.scrollHeight;
+      const duration = 500; // ms
+
+      let startTime: number | null = null;
+
+      /**
+       * Function to handle each animation frame of slow scrolling
+       */
+      function smoothScrollAnimation(timestamp: number) {
+        if (!container) return;
+        if (!startTime) {startTime = timestamp;}
+        const elapsed = timestamp - startTime;
+        const progress = Math.min(elapsed/duration, 1)
+        const scrollTop = start + (end - start) * progress;
+        container.scrollTop = scrollTop;
+
+        // Calls the smoothScrollAnimation function repeatedly until scrolled to bottom
+        if (progress < 1) {
+          requestAnimationFrame(smoothScrollAnimation);
+        }
+      }
+      requestAnimationFrame(smoothScrollAnimation);
     }
   };
 
@@ -178,7 +208,7 @@ function MessageScreen() {
       {showScrollButton && 
       <button 
         className = "scrollButton"
-        onClick={scrollToBottom}
+        onClick={() => scrollToBottom(true)}
         style = {{bottom: scrollButtonHeight}}
       >
           ▼
