@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect} from 'react';
 import { smoothstep } from './utils/smoothstep';
+// @ts-ignore
+import firebaseApp from './services/firebase';
 
 //  Main parent component
 function App() {
