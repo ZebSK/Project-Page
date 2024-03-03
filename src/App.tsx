@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect} from 'react';
-import { smoothstep } from './utils';
+import { smoothstep } from './utils/smoothstep';
 
 //  Main parent component
 function App() {
