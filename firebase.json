@@ -1,23 +1,12 @@
 {
-  "firestore": {
-    "rules": "config/firestore.rules",
-    "indexes": "config/firestore.indexes.json"
-  },
   "hosting": {
-    "public": "public",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ],
+    "public": "dist",
+    "ignore": [],
     "rewrites": [
       {
         "source": "**",
         "destination": "/index.html"
       }
     ]
-  },
-  "storage": {
-    "rules": "config/storage.rules"
   }
 }
