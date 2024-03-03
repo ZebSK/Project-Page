@@ -1,5 +1,7 @@
 // General file for utility functions... will probably expand out later
-export function smoothstep(minVal: number, maxVal: number, x: number, steepness: number = 0.5) {
+export function smoothstep({x, minVal = 0, maxVal = 1, steepness= 0.5}: {
+    x: number, minVal?: number, maxVal?: number, steepness?: number}) {
+        
     // Clamp x in 0-1 range by normalisation
     x = Math.max(0, Math.min((x - minVal) / (maxVal - minVal), 1));
 

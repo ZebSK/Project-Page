@@ -63,9 +63,8 @@ function MessageScreen() {
 
         const elapsed = timestamp - startTime;
         const progress = Math.min(elapsed/duration, 1)
-        const scrollTop = start + (end - start) * progress;
-        const smoothedScrollTop = scrollTop * smoothstep(start, end, scrollTop, steepness);  // apply smoothstep function
-        container.scrollTop = smoothedScrollTop;
+        const scrollTop = smoothstep({x: progress, steepness: steepness}) * (end - start) + start
+        container.scrollTop = scrollTop;
 
         // Calls the smoothScrollAnimation function repeatedly until scrolled to bottom
         if (progress < 1) { requestAnimationFrame(smoothScrollAnimation); }
