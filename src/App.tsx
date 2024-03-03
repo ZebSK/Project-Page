@@ -45,7 +45,7 @@ function MessageScreen() {
     const container = messageContainerRef.current 
     if (!container) { return; }
     const start = container.scrollTop;
-    const end = container.scrollHeight - container.clientHeight - 100;
+    const end = container.scrollHeight - container.clientHeight;
 
     // Instant scrolling
     if (!smooth) { container.scrollTop = end; }
