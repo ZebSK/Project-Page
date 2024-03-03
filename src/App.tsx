@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect} from 'react';
+import { smoothstep } from './utils/smoothstep';
 
 //  Main parent component
 function App() {
@@ -42,35 +43,31 @@ function MessageScreen() {
    */
   function scrollToBottom(smooth: boolean = false) {
     const container = messageContainerRef.current 
-    if (!container) return;
+    if (!container) { return; }
+    const start = container.scrollTop;
+    const end = container.scrollHeight - container.clientHeight - 100;
 
     // Instant scrolling
-    if (!smooth) {
-      container.scrollTop = container.scrollHeight;
-    } else {
-      
-      // Smooth scrolling
-      const start = container.scrollTop;
-      const end = container.scrollHeight;
-      const duration = 500; // ms
-
+    if (!smooth) { container.scrollTop = end; }
+    else {
+      const duration = 1000; // ms
+      const steepness = 0.6;  // 0-1, realistically should be between 0.5-0.7ish
       let startTime: number | null = null;
 
       /**
        * Function to handle each animation frame of slow scrolling
        */
       function smoothScrollAnimation(timestamp: number) {
-        if (!container) return;
+        if (!container) { return; }
         if (!startTime) {startTime = timestamp;}
+
         const elapsed = timestamp - startTime;
         const progress = Math.min(elapsed/duration, 1)
-        const scrollTop = start + (end - start) * progress;
+        const scrollTop = smoothstep({x: progress, steepness: steepness}) * (end - start) + start
         container.scrollTop = scrollTop;
 
         // Calls the smoothScrollAnimation function repeatedly until scrolled to bottom
-        if (progress < 1) {
-          requestAnimationFrame(smoothScrollAnimation);
-        }
+        if (progress < 1) { requestAnimationFrame(smoothScrollAnimation); }
       }
       requestAnimationFrame(smoothScrollAnimation);
     }
