@@ -4,6 +4,11 @@ import { } from "firebase/auth";
 import { } from 'firebase/firestore';
 import { } from 'firebase/storage';
 
+/** 
+ * @file This module contains everything required to initialise Firebase 
+ * @module Firebase
+ */ 
+
 // Set up web app's Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyA73g4kSDJF3KvH5tXNIOXHLeQOANzLph4",
