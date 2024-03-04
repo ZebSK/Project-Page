@@ -1,0 +1,105 @@
+/* 
+  Styles for the message screen
+  This component displays and permits sending of messages between users
+*/
+
+
+/* Styles for entire message screen component */
+.messageScreen {
+  /* Positioning and Layout */
+  position: relative; /* Other components' positions are measured relative to this */
+  display: flex; 
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+
+  /* Dimensions */
+  min-width: 300px;
+  width: 50vw; /* 50% of the viewport width */
+  height: 99vh; /* 99% of the viewport height */
+}
+  
+
+
+/* MESSAGES */
+
+/* Styles for section of screen with messages */
+.messageContainer {
+  /* Positioning and Layout */
+  bottom: 0; /* Position as low as possible within messageScreen (parent) */
+  display: flex;
+  flex-direction: column; 
+  overflow-y: overlay; /* Shows vertical scrollbar if overflows */
+  
+  /* Dimensions and Spacing */
+  padding-right: 5px; /* Allows for addition of scroll bar */
+  width: 100%; /* Takes full width of messageScreen */
+}
+  
+/* Styles for each set of messages */
+.messageBlock {
+  /* Layout and Dimensions */
+  display: flex;
+  flex-direction: column;
+  width: calc(50vw - 10px); /* TODO: Manually accounts for scrollbar, needs automating */
+  min-width: calc(300px - 10px);
+}
+  
+/* Styles for each individual message */
+.messageBubble {
+  /* Dimensions */
+  max-width: 70%;
+
+  /* Bubble Shape */
+  border-radius: 10px; /* Curved edges */
+  padding: 10px; /* Space inside bubble*/
+  margin-bottom: 5px; /* Space between bubbles */
+  
+  /* Text */
+  word-wrap: break-word; /* Wraps long words */
+  white-space: pre-wrap; /* Preserves line breaks and spaces */
+}
+.messageBubble.right { /* Messages sent by user */
+  /* Design */
+  background-color: #ff006f;
+  color: #ffffff; /* Text colour */
+
+  /* Layout */
+  align-self: flex-end; /* Aligns to right of messageScreen */
+}
+.messageBubble.left { /* Messages received by user */
+  /* Design */
+  background-color: var(--object-background-colour);
+  color: var(--primary-text-colour);
+
+  /* Layout */
+  align-self: flex-start; /* Aligns to left of messageScreen */
+}
+
+
+
+/* OTHER COMPONENTS */
+
+/* Styles for input box to enter messages */
+.inputBox {
+  /* Dimensions and positioning */
+  min-height: 30px;
+  max-height: 120px;
+  width: 300px;
+  padding: 10px;
+  margin-bottom: 10px;
+  margin-top: 10px;
+}
+
+/* Styles for button to scroll to bottom */
+.scrollButton {
+  /* Positioning */
+  position: absolute; /* Set position relative to message screen */
+  margin-bottom: 5px;
+
+  /* Design */
+  color: color-mix(in srgb, var(--primary-text-colour) 80%, transparent);
+  background-color: color-mix(in srgb, var(--object-background-colour) 80%, transparent);
+  font-size: 0.8em
+}
+  
