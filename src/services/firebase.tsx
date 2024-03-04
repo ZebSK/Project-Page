@@ -1,8 +1,8 @@
 import { initializeApp, FirebaseApp } from "firebase/app";
 // Add SDKs for Firebase products
-import { } from "firebase/auth";
-import { } from 'firebase/firestore';
-import { } from 'firebase/storage';
+import { getAuth, connectAuthEmulator } from "firebase/auth";
+import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
+import { getStorage, connectStorageEmulator } from 'firebase/storage';
 
 /** 
  * @file This module contains everything required to initialise Firebase 
@@ -21,6 +21,17 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const firebaseApp: FirebaseApp = initializeApp(firebaseConfig);
+const auth = getAuth();
+const db = getFirestore();
+const storage = getStorage();
+
+// Connect to emulators if in development mode
+if (process.env.NODE_ENV === 'development') {
+  console.log("DEVELOPMENT MODE");
+  connectAuthEmulator(auth, "http://127.0.0.1:9099");
+  connectFirestoreEmulator(db, '127.0.0.1', 8080);
+  connectStorageEmulator(storage, "127.0.0.1", 9199)
+}
 
 // Export the initialized Firebase app
-export default firebaseApp;
+export { firebaseApp, auth, db, storage }
