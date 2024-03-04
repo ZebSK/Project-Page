@@ -2,6 +2,7 @@ import { useState, useRef, useEffect} from 'react';
 import { smoothstep } from './utils/smoothstep';
 // @ts-ignore
 import firebaseApp from './services/firebase';
+import './styles/message-screen.css'
 
 //  Main parent component
 function App() {
@@ -155,7 +156,7 @@ function MessageScreen() {
               parseInt(height) + // input box height
               parseInt(marginTop) + parseInt(marginBottom) + // margins
               parseInt(paddingTop) + parseInt(paddingBottom) + // padding
-              2 * parseInt(borderWidth)  // border and additional space
+              2 * parseInt(borderWidth) + 5 // border and additional space
             );
             setScrollButtonHeight(buttonHeight + "px")
           }

@@ -1,0 +1,135 @@
+/* 
+   Global Styles across entire application
+   This file ensures global styles are imported and applied uniformly
+*/
+
+
+/* Default styles for all components */
+:root {
+  /* Text */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.5; /* Relative to font size */
+  font-weight: 400;
+  font-size: 20px;
+
+  /* Colour Variables */
+  --primary-text-colour: #383838;
+  --primary-background-colour: #ffffff;
+  --object-background-colour: #e1e1e1;
+  --object-lighter-highlight: #d3d3d3;
+  --object-darker-highlight: #c5c5c5; 
+
+  /* Design */
+  color: var(--primary-text-colour); /* Default text colour */
+  background-color: var(--primary-background-colour);
+
+  /* Font rendering */
+  font-synthesis: none; /* Doesn't synthesize bold or italics if not in font */
+  text-rendering: optimizeLegibility; /* Optimises text rendering for legibility over speed */
+  -webkit-font-smoothing: antialiased; /* Enables antialiasing on WebKit browsers */
+  -moz-osx-font-smoothing: grayscale; /* Enables grayscale antialiasing on macOS */
+}
+
+
+
+/* HTML ELEMENTS */
+
+/* Heading styles */
+h1 {
+  font-size: 3.2em; /* 3.2 times root (or parent) font size */
+  line-height: 1.1;
+}
+
+/* Body styles */
+body {
+  /* Positioning and Layout */
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+
+  /* Dimensions and Spacing */
+  margin: 0;
+  min-width: 320px; /* Insures readability on small screens */
+  min-height: 100vh;
+}
+
+/* Hyperlink styles */
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit; /* Inherit text decoration from parent eg. underlines */
+}
+a:hover { /* When hovering mouse over hyperlink */
+  color: #747bff;
+}
+
+/* Button styles */
+button {
+  /* Text */
+  font-size: 1em; /* Inherent font size from parent */
+  font-weight: 500;
+  font-family: inherit; /* Inherit font family from parent */
+
+  /* Design and Dimensions*/
+  padding: 0.6em 1.2em;
+  border: none;
+  border-radius: 20px; /* Rounded corners */
+  cursor: pointer;
+
+  background-color: var(--object-background-colour);
+  color: currentColor;
+}
+button:hover { /* Style when hovered over */
+  box-shadow: 0 0 5px var(--object-darker-highlight);
+}
+button:focus, button:focus-visible { /* Style when clicked or tabbed to */
+  box-shadow: 0 0 5px var(--primary-text-colour);
+}
+
+/* Text area styles */
+textarea {
+  /* Dimensions and spacing */
+  overflow-y: scroll;
+  resize: none; /* Not resizable by user */
+  padding: 0.5em;
+  min-height: 30px;
+  max-height: 30px;
+
+  /* Design */
+  color: currentColor;
+  background-color: var(--object-background-colour);
+  border: 5px solid var(--object-background-colour);
+  border-radius: 10px;
+  outline: none;
+
+  /* Text */
+  font-size: 1em;
+}
+textarea:focus { /* Style when selected or tabbed to */
+  box-shadow: 0 0 5px var(--object-darker-highlight);
+}
+textarea::-webkit-scrollbar-thumb{ /* Style of scroll bar thumb */
+  background: var(--object-lighter-highlight);
+}
+textarea::-webkit-scrollbar-thumb:hover { /* Style of scroll bar thumb when hovered over */
+  background: var(--object-darker-highlight);
+}
+  
+
+
+/* PSEUDO-ELEMENTS */
+
+/* Scrollbar styles */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track { /* Style of background of scrollbar */
+  background-color: transparent;
+}
+::-webkit-scrollbar-thumb { /* Style of thumb of scrollbar */
+  background: var(--object-background-colour);
+  border-radius: 5px;
+}
+::-webkit-scrollbar-thumb:hover { /* Style of scroll bar thumb when hovered over */
+  background: var(--object-lighter-highlight);
+}  
