@@ -1,4 +1,11 @@
+// External libraries
+import {useAuthState } from 'react-firebase-hooks/auth'
+
+// Internal modules
 import MessageScreen from './components/message-screen.tsx'
+import SignInScreen from './components/sign-in-screen.tsx';
+
+import { auth } from './services/firebase.tsx';
 
 
 /**
@@ -6,9 +13,17 @@ import MessageScreen from './components/message-screen.tsx'
  * @returns The App Component
  */
 function App(): JSX.Element {
-    return (
+  // Check if signed in
+  const [user] = useAuthState(auth);
+    
+  return (
     <div className='App'>
-      <MessageScreen/>
+      {
+        user ? 
+        <MessageScreen/> 
+        : 
+        <SignInScreen/>
+      }
     </div>
   );
 }

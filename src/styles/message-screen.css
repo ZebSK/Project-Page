@@ -103,3 +103,9 @@
   font-size: 0.8em
 }
   
+/* Styles for button to log out */
+/* Move to different location when set up  */
+.logOutButton {
+  /* Positioning */
+  margin-bottom: auto; /* Pushes to top */
+}

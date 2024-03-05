@@ -4,6 +4,7 @@ import { Dispatch, SetStateAction } from 'react';
 
 // Internal modules and styles
 import { scrollToBottom } from '../utils/scrolling';
+import { handleLogout } from '../services/auth';
 import '../styles/message-screen.css';
 
 /** 
@@ -66,6 +67,10 @@ function MessageScreen(): JSX.Element {
     return (
         // Map function to create multiple MessageBlock components and assign messageContents to them
         <div className='messageScreen'>
+            {/* Log out button - move to relevant location when created */}
+            <button className='logOutButton' onClick={handleLogout}> 
+                Log Out 
+            </button> 
             <div className='messageContainer' ref={messageContainerRef}>
                 {messageBlocks.map((messageBlock, index) => (
                     <MessageBlock key={index} isYours={messageBlock.isYours} messageContents={messageBlock.messageContents} />
