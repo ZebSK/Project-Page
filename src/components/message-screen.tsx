@@ -5,6 +5,7 @@ import { Dispatch, SetStateAction } from 'react';
 // Internal modules and styles
 import { scrollToBottom } from '../utils/scrolling';
 import { handleLogout } from '../services/auth';
+import { messagesRef, sendMessage, loadPastMessages } from '../services/db';
 import '../styles/message-screen.css';
 
 /** 
@@ -39,20 +40,7 @@ function MessageScreen(): JSX.Element {
     const inputBoxRef = useRef<HTMLTextAreaElement>(null);
 
     // useStates for determining state variables
-    const [messageBlocks, setMessageBlocks] = useState<MessageBlock[]>([
-        {
-          isYours: true,
-          messageContents: ["Hello"],
-        },
-        {
-          isYours: false,
-          messageContents: ["How's it going?", "Bozo..."],
-        },
-        {
-          isYours: true,
-          messageContents: ["I hate you>:("],
-        },
-      ]);
+    const [messageBlocks, setMessageBlocks] = useState<MessageBlock[]>([]);
     const [inputBoxValue, setInputBoxValue] = useState("");
     const [scrollButtonVisible, setScrollButtonVisible] = useState(false);
     const [scrollButtonHeight, setScrollButtonHeight] = useState("0px");
@@ -62,6 +50,7 @@ function MessageScreen(): JSX.Element {
     useEffect(() => { scrollOnNewMessage(messageContainerRef) }, [messageBlocks]);
     useEffect(() => { handleInputBoxExpand(messageContainerRef, inputBoxRef, setScrollButtonHeight) }, []);
     useEffect(() => { determineScrollButtonHeight(inputBoxRef, setScrollButtonHeight) }, []);
+    useEffect(() => { addPastMessages(messageBlocks, setMessageBlocks) }, [] )
 
     // The JSX Element
     return (
@@ -298,36 +287,49 @@ function determineScrollButtonHeight(inputBoxRef: React.RefObject<HTMLTextAreaEl
  * @param messageBlocks - The current messageBlocks
  * @param setMessageBlocks - The setter to update messageBlocks
  * @param textValue - The new message to be added
+ * @param setInputBoxValue - The setter to clear the input box
  */
 function handleEnter(messageBlocks: MessageBlock[], setMessageBlocks: Dispatch<SetStateAction<MessageBlock[]>>, textValue: string,
     setInputBoxValue: Dispatch<SetStateAction<string>>) {
-        if (messageBlocks) {}
-        const appendToRecentBlock = (messageBlocks: MessageBlock[], textValue: string) => {
-            let finalBlock: MessageBlock = { ...messageBlocks[messageBlocks.length - 1] }
-            finalBlock.messageContents = [...messageBlocks[messageBlocks.length - 1].messageContents, textValue]
-
-            return [
-                ...messageBlocks.slice(0, -1),  // Keep all items except last the same
-                finalBlock
-            ]
-        }
-        const appendNewBlock = (messageBlocks: MessageBlock[], textValue: string) => [
-            ...messageBlocks,
-            {
-                isYours: true,
-                messageContents: [textValue],
-            }
-        ]
-            
-        setMessageBlocks(prevBlocks => {
-            if (prevBlocks.length > 0 && prevBlocks[prevBlocks.length - 1].isYours) {
-                return appendToRecentBlock(prevBlocks, textValue);
-            } else {
-                return appendNewBlock(prevBlocks, textValue);
-            }
-        });
+        sendMessage(messagesRef, textValue)
+        addMessageToBlocks(messageBlocks, setMessageBlocks, textValue)
         setInputBoxValue("");
     }
+
+/**
+ * Function handling adding of messages to MessageBlocks
+ * @param messageBlocks - The current messageBlocks
+ * @param setMessageBlocks - The setter to update messageBlocks
+ * @param textValue - The new message to be added
+ */
+function addMessageToBlocks(messageBlocks: MessageBlock[], setMessageBlocks: Dispatch<SetStateAction<MessageBlock[]>>, textValue: string) {
+    if (!messageBlocks) { return; }
+    const appendToRecentBlock = (messageBlocks: MessageBlock[], textValue: string) => {
+        let finalBlock: MessageBlock = { ...messageBlocks[messageBlocks.length - 1] }
+        finalBlock.messageContents = [...messageBlocks[messageBlocks.length - 1].messageContents, textValue]
+
+        return [
+            ...messageBlocks.slice(0, -1),  // Keep all items except last the same
+            finalBlock
+        ]
+    }
+    const appendNewBlock = (messageBlocks: MessageBlock[], textValue: string) => [
+        ...messageBlocks,
+        {
+            displayName: "feef",
+            isYours: true,
+            messageContents: [textValue],
+        }
+    ]
+        
+    setMessageBlocks(prevBlocks => {
+        if (prevBlocks.length > 0 && prevBlocks[prevBlocks.length - 1].isYours) {
+            return appendToRecentBlock(prevBlocks, textValue);
+        } else {
+            return appendNewBlock(prevBlocks, textValue);
+        }
+    });
+}
 
 /**
  * Function determining the height of input box to fit around the text entered
@@ -345,4 +347,13 @@ function fitInputBoxToText(inputBoxRef: React.RefObject<HTMLTextAreaElement>, se
     setInputBoxHeight(minHeight); // sets height to minimum so if text has decreased textarea will not remain at previous size
     inputBoxElement.style.height = minHeight; // forces recalculation of scroll height
     setInputBoxHeight(inputBoxElement.scrollHeight - padding + 'px' ); // sets height to the size of the text
+}
+
+async function addPastMessages(messageBlocks: MessageBlock[], setMessageBlocks: Dispatch<SetStateAction<MessageBlock[]>>) {
+    if ( messageBlocks.length !== 0 ) { return; }
+    const pastMessages = await loadPastMessages( messagesRef )
+    for (let i = pastMessages.length - 1; i >= 0; i--) {
+        const textValue = pastMessages[i].data().text
+        addMessageToBlocks(messageBlocks, setMessageBlocks, textValue)
+    }
 }
