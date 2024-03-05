@@ -6,6 +6,7 @@ import { Dispatch, SetStateAction } from 'react';
 import { scrollToBottom } from '../utils/scrolling';
 import { handleLogout } from '../services/auth';
 import { messagesRef, sendMessage, loadPastMessages } from '../services/db';
+import { auth } from '../services/firebase';
 import '../styles/message-screen.css';
 
 /** 
@@ -21,7 +22,8 @@ import '../styles/message-screen.css';
  * MessageBlock interface describing the structure of a Message Block
  */
 interface MessageBlock {
-    isYours: boolean;
+    uid: string;
+    displayName: string;
     messageContents: string[]; // Contains a list of strings for each message
   }
   
@@ -62,7 +64,7 @@ function MessageScreen(): JSX.Element {
             </button> 
             <div className='messageContainer' ref={messageContainerRef}>
                 {messageBlocks.map((messageBlock, index) => (
-                    <MessageBlock key={index} isYours={messageBlock.isYours} messageContents={messageBlock.messageContents} />
+                    <MessageBlock key={index} messageContents={messageBlock.messageContents} uid = {messageBlock.uid} displayName = {messageBlock.displayName} />
                 ))}
             </div>
         {scrollButtonVisible && 
@@ -121,16 +123,19 @@ function InputBox({ inputBoxValue, setInputBoxValue, inputBoxRef, messageBlocks,
 
 /**
  * MessageBlock component holding all messages in a block (same owner)
- * @param isYours - Indicates whether the message block belongs to the current user
  * @param messageContents - An array containing the contents of the messages
+ * @param uid - The user id of the person who sent the message
+ * @param displayName - The display name of the person who sent the message
  * @returns The MessageBlock component
  */
-function MessageBlock({ isYours, messageContents }: { isYours: boolean; messageContents: string[] }): JSX.Element {
+function MessageBlock({ messageContents, uid, displayName }: { messageContents: string[]; uid: string; displayName: string }): JSX.Element {
+    const isYoursIndicator: string = uid === auth.currentUser?.uid? "right": "left"  // convert isYours boolean to string
     return (
         // Second map function to map each message in the block
         <div className='messageBlock'>
+            <text className={'messageDisplayName' + " " + isYoursIndicator}> {displayName} </text>
             {messageContents.map((message, index) => (
-            <Message key={index} isYours={isYours} messageContent={message} />
+            <Message key={index} isYoursIndicator={isYoursIndicator} messageContent={message} />
             ))}
         </div>
     );
@@ -142,8 +147,7 @@ function MessageBlock({ isYours, messageContents }: { isYours: boolean; messageC
  * @param messageContent - The content of the message
  * @returns The Message component
  */
-function Message({ isYours, messageContent }: { isYours: boolean; messageContent: string }): JSX.Element {
-    const isYoursIndicator: string = isYours? "right": "left"  // convert isYours boolean to string
+function Message({ isYoursIndicator, messageContent }: { isYoursIndicator: string; messageContent: string }): JSX.Element {
     return(
         <div className = {"messageBubble" + " " + isYoursIndicator}>
             {messageContent}
@@ -292,7 +296,12 @@ function determineScrollButtonHeight(inputBoxRef: React.RefObject<HTMLTextAreaEl
 function handleEnter(messageBlocks: MessageBlock[], setMessageBlocks: Dispatch<SetStateAction<MessageBlock[]>>, textValue: string,
     setInputBoxValue: Dispatch<SetStateAction<string>>) {
         sendMessage(messagesRef, textValue)
-        addMessageToBlocks(messageBlocks, setMessageBlocks, textValue)
+        if (!auth.currentUser) { return; }
+        const uid = auth.currentUser.uid
+        let displayName = auth.currentUser.displayName
+        if (!displayName) { displayName = "Anonymous" } 
+
+        addMessageToBlocks(messageBlocks, setMessageBlocks, textValue, uid, displayName)
         setInputBoxValue("");
     }
 
@@ -302,7 +311,7 @@ function handleEnter(messageBlocks: MessageBlock[], setMessageBlocks: Dispatch<S
  * @param setMessageBlocks - The setter to update messageBlocks
  * @param textValue - The new message to be added
  */
-function addMessageToBlocks(messageBlocks: MessageBlock[], setMessageBlocks: Dispatch<SetStateAction<MessageBlock[]>>, textValue: string) {
+function addMessageToBlocks(messageBlocks: MessageBlock[], setMessageBlocks: Dispatch<SetStateAction<MessageBlock[]>>, textValue: string, uid: string, displayName: string) {
     if (!messageBlocks) { return; }
     const appendToRecentBlock = (messageBlocks: MessageBlock[], textValue: string) => {
         let finalBlock: MessageBlock = { ...messageBlocks[messageBlocks.length - 1] }
@@ -313,20 +322,20 @@ function addMessageToBlocks(messageBlocks: MessageBlock[], setMessageBlocks: Dis
             finalBlock
         ]
     }
-    const appendNewBlock = (messageBlocks: MessageBlock[], textValue: string) => [
+    const appendNewBlock = (messageBlocks: MessageBlock[], textValue: string, uid: string, displayName: string) => [
         ...messageBlocks,
         {
-            displayName: "feef",
-            isYours: true,
+            uid: uid,
+            displayName: displayName,
             messageContents: [textValue],
         }
     ]
         
     setMessageBlocks(prevBlocks => {
-        if (prevBlocks.length > 0 && prevBlocks[prevBlocks.length - 1].isYours) {
+        if (prevBlocks.length > 0 && prevBlocks[prevBlocks.length - 1].uid === uid) {
             return appendToRecentBlock(prevBlocks, textValue);
         } else {
-            return appendNewBlock(prevBlocks, textValue);
+            return appendNewBlock(prevBlocks, textValue, uid, displayName);
         }
     });
 }
@@ -352,8 +361,12 @@ function fitInputBoxToText(inputBoxRef: React.RefObject<HTMLTextAreaElement>, se
 async function addPastMessages(messageBlocks: MessageBlock[], setMessageBlocks: Dispatch<SetStateAction<MessageBlock[]>>) {
     if ( messageBlocks.length !== 0 ) { return; }
     const pastMessages = await loadPastMessages( messagesRef )
-    for (let i = pastMessages.length - 1; i >= 0; i--) {
-        const textValue = pastMessages[i].data().text
-        addMessageToBlocks(messageBlocks, setMessageBlocks, textValue)
+    for (let i = 0; i <= pastMessages.length - 1; i++) {
+        const data = pastMessages[i].data();
+        const textValue = data.text;
+        const uid = data.uid;
+        const displayName = data.userDisplayName;
+
+        addMessageToBlocks(messageBlocks, setMessageBlocks, textValue, uid, displayName)
     }
 }
