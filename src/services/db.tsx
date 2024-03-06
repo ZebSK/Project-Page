@@ -2,10 +2,12 @@
 import { setDoc, addDoc, getDocs, QueryDocumentSnapshot } from "firebase/firestore"; 
 import { doc, collection, CollectionReference } from "firebase/firestore";
 import { serverTimestamp } from "firebase/firestore";
-import { query, orderBy, limit } from "firebase/firestore";
+import { query, orderBy, limit, onSnapshot, Unsubscribe, where, FieldValue } from "firebase/firestore";
+import { Dispatch, SetStateAction } from 'react';
 
 // Internal Modules
 import { db, auth } from '../services/firebase';
+import { MessageBlock } from "../components/message-screen";
 
 /** 
  * @file This module contains everything that requires accessing Firebase Firestore 
@@ -32,9 +34,24 @@ export function sendMessage(messagesRef: CollectionReference, messageContents: s
 }
 
 export async function loadPastMessages(messagesRef: CollectionReference): Promise<QueryDocumentSnapshot[]> {
-  console.log("double calling")
-  const q = query(messagesRef, orderBy("createdAt"), limit(25));
+  const q = query(messagesRef, orderBy("createdAt", "desc"), limit(25));
   const querysnapshot = await getDocs(q);
   const pastMessages = querysnapshot.docs;
   return ( pastMessages );
 }
+
+export function subscribeToMessages (messagesRef: CollectionReference, startTime: FieldValue, messageBlocks: MessageBlock[], setMessageBlocks: Dispatch<SetStateAction<MessageBlock[]>>,
+  addMessageToBlocks: (messageBlocks: MessageBlock[], setMessageBlocks: Dispatch<SetStateAction<MessageBlock[]>>, textValue: string, uid: string, displayName: string) => void) : Unsubscribe {
+    const q = query(messagesRef, where('createdAt', '>', startTime));
+    return (
+      onSnapshot(q, (snapshot) => {
+        snapshot.docChanges().forEach((change) => {
+          if (change.type === "added") {
+            const data = change.doc.data()
+            addMessageToBlocks(messageBlocks, setMessageBlocks, data.text, data.uid, data.userDisplayName)
+            console.log(data)
+          }
+        });
+      })
+    );
+  };

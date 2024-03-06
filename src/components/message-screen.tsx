@@ -5,7 +5,7 @@ import { Dispatch, SetStateAction } from 'react';
 // Internal modules and styles
 import { scrollToBottom } from '../utils/scrolling';
 import { handleLogout } from '../services/auth';
-import { messagesRef, sendMessage, loadPastMessages } from '../services/db';
+import { messagesRef, sendMessage, loadPastMessages, subscribeToMessages } from '../services/db';
 import { auth } from '../services/firebase';
 import '../styles/message-screen.css';
 
@@ -21,7 +21,7 @@ import '../styles/message-screen.css';
 /**
  * MessageBlock interface describing the structure of a Message Block
  */
-interface MessageBlock {
+export interface MessageBlock {
     uid: string;
     displayName: string;
     messageContents: string[]; // Contains a list of strings for each message
@@ -52,7 +52,7 @@ function MessageScreen(): JSX.Element {
     useEffect(() => { scrollOnNewMessage(messageContainerRef) }, [messageBlocks]);
     useEffect(() => { handleInputBoxExpand(messageContainerRef, inputBoxRef, setScrollButtonHeight) }, []);
     useEffect(() => { determineScrollButtonHeight(inputBoxRef, setScrollButtonHeight) }, []);
-    useEffect(() => { addPastMessages(messageBlocks, setMessageBlocks) }, [] )
+    useEffect(() => { listenToMessages(messageBlocks, setMessageBlocks) }, [] )
 
     // The JSX Element
     return (
@@ -133,7 +133,7 @@ function MessageBlock({ messageContents, uid, displayName }: { messageContents: 
     return (
         // Second map function to map each message in the block
         <div className='messageBlock'>
-            <text className={'messageDisplayName' + " " + isYoursIndicator}> {displayName} </text>
+            <div className={'messageDisplayName' + " " + isYoursIndicator}> {displayName} </div>
             {messageContents.map((message, index) => (
             <Message key={index} isYoursIndicator={isYoursIndicator} messageContent={message} />
             ))}
@@ -210,7 +210,7 @@ function scrollOnNewMessage (messageContainerRef: React.RefObject<HTMLDivElement
 
             // If the distance from the bottom is the height of the last message, scroll to bottom
             const lastMessageStyles = getComputedStyle(lastMessageBubble);
-            const lastMessageHeight = lastMessageBubble.offsetHeight + parseInt(lastMessageStyles.marginBottom); 
+            const lastMessageHeight = lastMessageBubble.offsetHeight + parseInt(lastMessageStyles.marginBottom) + 20; 
             if( container.scrollHeight - container.scrollTop - lastMessageHeight <= container.clientHeight) {
             scrollToBottom(messageContainerRef);
             }
@@ -301,7 +301,7 @@ function handleEnter(messageBlocks: MessageBlock[], setMessageBlocks: Dispatch<S
         let displayName = auth.currentUser.displayName
         if (!displayName) { displayName = "Anonymous" } 
 
-        addMessageToBlocks(messageBlocks, setMessageBlocks, textValue, uid, displayName)
+        // addMessageToBlocks(messageBlocks, setMessageBlocks, textValue, uid, displayName) //TODO: make sure not reading own db data
         setInputBoxValue("");
     }
 
@@ -311,7 +311,7 @@ function handleEnter(messageBlocks: MessageBlock[], setMessageBlocks: Dispatch<S
  * @param setMessageBlocks - The setter to update messageBlocks
  * @param textValue - The new message to be added
  */
-function addMessageToBlocks(messageBlocks: MessageBlock[], setMessageBlocks: Dispatch<SetStateAction<MessageBlock[]>>, textValue: string, uid: string, displayName: string) {
+export function addMessageToBlocks(messageBlocks: MessageBlock[], setMessageBlocks: Dispatch<SetStateAction<MessageBlock[]>>, textValue: string, uid: string, displayName: string) {
     if (!messageBlocks) { return; }
     const appendToRecentBlock = (messageBlocks: MessageBlock[], textValue: string) => {
         let finalBlock: MessageBlock = { ...messageBlocks[messageBlocks.length - 1] }
@@ -358,15 +358,20 @@ function fitInputBoxToText(inputBoxRef: React.RefObject<HTMLTextAreaElement>, se
     setInputBoxHeight(inputBoxElement.scrollHeight - padding + 'px' ); // sets height to the size of the text
 }
 
-async function addPastMessages(messageBlocks: MessageBlock[], setMessageBlocks: Dispatch<SetStateAction<MessageBlock[]>>) {
+async function listenToMessages(messageBlocks: MessageBlock[], setMessageBlocks: Dispatch<SetStateAction<MessageBlock[]>>) {
     if ( messageBlocks.length !== 0 ) { return; }
     const pastMessages = await loadPastMessages( messagesRef )
-    for (let i = 0; i <= pastMessages.length - 1; i++) {
+    for (let i = pastMessages.length - 1; i >= 0; i--) {
         const data = pastMessages[i].data();
         const textValue = data.text;
         const uid = data.uid;
         const displayName = data.userDisplayName;
 
         addMessageToBlocks(messageBlocks, setMessageBlocks, textValue, uid, displayName)
+
+        if ( i === 0 ) { 
+            const startListening = data.createdAt; 
+            const unsubscribe = subscribeToMessages(messagesRef, startListening, messageBlocks, setMessageBlocks, addMessageToBlocks)
+        }
     }
 }
