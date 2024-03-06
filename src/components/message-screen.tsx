@@ -53,7 +53,7 @@ function MessageScreen(): JSX.Element {
     useEffect(() => { scrollOnNewMessage(messageContainerRef) }, [messageBlocks]);
     useEffect(() => { handleInputBoxExpand(messageContainerRef, inputBoxRef, setScrollButtonHeight) }, []);
     useEffect(() => { determineScrollButtonHeight(inputBoxRef, setScrollButtonHeight) }, []);
-    useEffect(() => { listenToMessages(messageBlocks, setMessageBlocks) }, [] )
+    useEffect(() => { listenToMessages(messageBlocks, setMessageBlocks, messageContainerRef) }, [] )
 
     // The JSX Element
     return (
@@ -74,8 +74,7 @@ function MessageScreen(): JSX.Element {
             onClick={() => scrollToBottom(messageContainerRef, true)}
             style = {{bottom: scrollButtonHeight}} 
             > ▼ </button>}
-        <InputBox inputBoxValue={inputBoxValue} setInputBoxValue={setInputBoxValue} inputBoxRef={inputBoxRef}
-        messageBlocks={messageBlocks} setMessageBlocks={setMessageBlocks}/>
+        <InputBox inputBoxValue={inputBoxValue} setInputBoxValue={setInputBoxValue} inputBoxRef={inputBoxRef}/>
         </div>
     )
 }
@@ -84,14 +83,13 @@ export default MessageScreen
 
 /**
  * InputBox component to enter and send messages
- * @param handleEnter - A function determining what happens when you press enter
  * @param inputBoxValue - The value of the text currently inside the input box
- * @param setInputBoxValue - The setter for the input box value
+ * @param setInputBoxValue - The setter for the input box value#
+ * @param inputBoxRef - The reference for the input box
  * @returns The InputBox component
  */
-function InputBox({ inputBoxValue, setInputBoxValue, inputBoxRef, messageBlocks, setMessageBlocks } : {
-    inputBoxValue: string; setInputBoxValue: Dispatch<SetStateAction<string>>; inputBoxRef: React.RefObject<HTMLTextAreaElement>;
-    messageBlocks: MessageBlock[]; setMessageBlocks: Dispatch<SetStateAction<MessageBlock[]>> }): JSX.Element {
+function InputBox({ inputBoxValue, setInputBoxValue, inputBoxRef } : { inputBoxValue: string; 
+    setInputBoxValue: Dispatch<SetStateAction<string>>; inputBoxRef: React.RefObject<HTMLTextAreaElement>}): JSX.Element {
         // Allows adjustment of height to fit around the text entered
         const [inputBoxHeight, setInputBoxHeight] = useState<string> ("");
         useEffect(() => {
@@ -113,7 +111,7 @@ function InputBox({ inputBoxValue, setInputBoxValue, inputBoxRef, messageBlocks,
                 // Handles sending of messages if enter is pressed without shift being held down
                 onKeyDown={(event) => {
                     if (event.key === "Enter" && !event.shiftKey) {
-                    handleEnter(messageBlocks, setMessageBlocks, event.currentTarget.value, setInputBoxValue)
+                    handleEnter(event.currentTarget.value, setInputBoxValue)
                     event.preventDefault(); // prevents addition of a new line to textarea when sending message
                     }
                 }}
@@ -144,7 +142,7 @@ function MessageBlock({ messageContents, uid, displayName }: { messageContents: 
 
 /**
  * Message component holding each individual message
- * @param isYours - Indicates whether the message block belongs to the current user
+ * @param isYoursIndicator - Determines which side of the screen to display the message
  * @param messageContent - The content of the message
  * @returns The Message component
  */
@@ -289,28 +287,24 @@ function determineScrollButtonHeight(inputBoxRef: React.RefObject<HTMLTextAreaEl
 
 /**
  * Function handling result of pressing enter in input box
- * @param messageBlocks - The current messageBlocks
- * @param setMessageBlocks - The setter to update messageBlocks
  * @param textValue - The new message to be added
  * @param setInputBoxValue - The setter to clear the input box
  */
-function handleEnter(messageBlocks: MessageBlock[], setMessageBlocks: Dispatch<SetStateAction<MessageBlock[]>>, textValue: string,
-    setInputBoxValue: Dispatch<SetStateAction<string>>) {
-        sendMessage(messagesRef, textValue)
-        if (!auth.currentUser) { return; }
-        const uid = auth.currentUser.uid
-        let displayName = auth.currentUser.displayName
-        if (!displayName) { displayName = "Anonymous" } 
-
-        // addMessageToBlocks(messageBlocks, setMessageBlocks, textValue, uid, displayName) //TODO: make sure not reading own db data
-        setInputBoxValue("");
-    }
+function handleEnter(textValue: string, setInputBoxValue: Dispatch<SetStateAction<string>>) {
+    sendMessage(messagesRef, textValue)
+    if (!auth.currentUser) { return; }
+    let displayName = auth.currentUser.displayName
+    if (!displayName) { displayName = "Anonymous" } 
+    setInputBoxValue("");
+}
 
 /**
  * Function handling adding of messages to MessageBlocks
  * @param messageBlocks - The current messageBlocks
  * @param setMessageBlocks - The setter to update messageBlocks
  * @param textValue - The new message to be added
+ * @param uid - The user id who sent the message
+ * @param displayName - The display name of the user who sent the message
  */
 export function addMessageToBlocks(messageBlocks: MessageBlock[], setMessageBlocks: Dispatch<SetStateAction<MessageBlock[]>>, textValue: string, uid: string, displayName: string) {
     if (messageBlocks) { }
@@ -359,23 +353,43 @@ function fitInputBoxToText(inputBoxRef: React.RefObject<HTMLTextAreaElement>, se
     setInputBoxHeight(inputBoxElement.scrollHeight - padding + 'px' ); // sets height to the size of the text
 }
 
-async function listenToMessages(messageBlocks: MessageBlock[], setMessageBlocks: Dispatch<SetStateAction<MessageBlock[]>>) {
-    if ( messageBlocks.length !== 0 ) { return; }
-    const pastMessages = await loadPastMessages( messagesRef )
+/**
+ * Function which loads the last 25 messages sent and listens for any more sent
+ * @param messageBlocks - The messages currently on screen
+ * @param setMessageBlocks - The setter to set messageBlocks 
+ * @param messageContainerRef - The ref for the message container holding the messages
+ */
+async function listenToMessages(messageBlocks: MessageBlock[], setMessageBlocks: Dispatch<SetStateAction<MessageBlock[]>>, messageContainerRef: React.RefObject<HTMLDivElement>) {
     let startListening: FieldValue | null = null
-    for (let i = pastMessages.length - 1; i >= 0; i--) {
-        const data = pastMessages[i].data();
-        const textValue = data.text;
-        const uid = data.uid;
-        const displayName = data.userDisplayName;
+    if ( messageBlocks.length === 0 ) { // Checks if messages already loaded
+        // Load past 25 messages onto screen
+        const pastMessages = await loadPastMessages( messagesRef )
 
-        addMessageToBlocks(messageBlocks, setMessageBlocks, textValue, uid, displayName)
+        // Add messages in reverse order from least recent to most
+        for (let i = pastMessages.length - 1; i >= 0; i--) {
+            const data = pastMessages[i].data();
+            const textValue = data.text;
+            const uid = data.uid;
+            const displayName = data.userDisplayName;
 
-        if ( i === 0 ) { 
-            startListening = data.createdAt; 
+            addMessageToBlocks(messageBlocks, setMessageBlocks, textValue, uid, displayName)
+
+            if ( i === 0 ) { 
+                startListening = data.createdAt; // Start listening from time of last message sent
+            }
         }
     }
-
+    // Set listener which loads any new messages and adds them to messageBlocks
     const unsubscribe = subscribeToMessages(messagesRef, startListening, messageBlocks, setMessageBlocks, addMessageToBlocks)
+
+    // Wait for messages to load then scroll to the bottom
+    setTimeout(() => { 
+        scrollToBottom(messageContainerRef)
+    }, 10)
+
+    // Cleanup function to remove the event listener when the component unmounts
+    return () => {
+        unsubscribe()
+     }
 
 }
