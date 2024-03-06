@@ -76,6 +76,19 @@
   align-self: flex-start; /* Aligns to left of messageScreen */
 }
 
+/* Styles for display name above set of messages */
+.messageDisplayName {
+  /* Design */
+  font-size: 13px;
+  color: hsl(0, 0%, 55%);
+}
+.messageDisplayName.left { /* Messages received by user */
+  align-self: flex-start;
+}
+.messageDisplayName.right { /* Messages sent by user */
+  align-self: flex-end;
+}
+
 
 
 /* OTHER COMPONENTS */
