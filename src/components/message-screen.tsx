@@ -1,6 +1,7 @@
 // External libraries
 import { useState, useRef, useEffect } from 'react';
 import { Dispatch, SetStateAction } from 'react';
+import { FieldValue } from '@firebase/firestore';
 
 // Internal modules and styles
 import { scrollToBottom } from '../utils/scrolling';
@@ -312,7 +313,7 @@ function handleEnter(messageBlocks: MessageBlock[], setMessageBlocks: Dispatch<S
  * @param textValue - The new message to be added
  */
 export function addMessageToBlocks(messageBlocks: MessageBlock[], setMessageBlocks: Dispatch<SetStateAction<MessageBlock[]>>, textValue: string, uid: string, displayName: string) {
-    if (!messageBlocks) { return; }
+    if (messageBlocks) { }
     const appendToRecentBlock = (messageBlocks: MessageBlock[], textValue: string) => {
         let finalBlock: MessageBlock = { ...messageBlocks[messageBlocks.length - 1] }
         finalBlock.messageContents = [...messageBlocks[messageBlocks.length - 1].messageContents, textValue]
@@ -361,6 +362,7 @@ function fitInputBoxToText(inputBoxRef: React.RefObject<HTMLTextAreaElement>, se
 async function listenToMessages(messageBlocks: MessageBlock[], setMessageBlocks: Dispatch<SetStateAction<MessageBlock[]>>) {
     if ( messageBlocks.length !== 0 ) { return; }
     const pastMessages = await loadPastMessages( messagesRef )
+    let startListening: FieldValue | null = null
     for (let i = pastMessages.length - 1; i >= 0; i--) {
         const data = pastMessages[i].data();
         const textValue = data.text;
@@ -370,8 +372,10 @@ async function listenToMessages(messageBlocks: MessageBlock[], setMessageBlocks:
         addMessageToBlocks(messageBlocks, setMessageBlocks, textValue, uid, displayName)
 
         if ( i === 0 ) { 
-            const startListening = data.createdAt; 
-            const unsubscribe = subscribeToMessages(messagesRef, startListening, messageBlocks, setMessageBlocks, addMessageToBlocks)
+            startListening = data.createdAt; 
         }
     }
+
+    const unsubscribe = subscribeToMessages(messagesRef, startListening, messageBlocks, setMessageBlocks, addMessageToBlocks)
+
 }

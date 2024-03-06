@@ -40,9 +40,9 @@ export async function loadPastMessages(messagesRef: CollectionReference): Promis
   return ( pastMessages );
 }
 
-export function subscribeToMessages (messagesRef: CollectionReference, startTime: FieldValue, messageBlocks: MessageBlock[], setMessageBlocks: Dispatch<SetStateAction<MessageBlock[]>>,
+export function subscribeToMessages (messagesRef: CollectionReference, startTime: FieldValue | null, messageBlocks: MessageBlock[], setMessageBlocks: Dispatch<SetStateAction<MessageBlock[]>>,
   addMessageToBlocks: (messageBlocks: MessageBlock[], setMessageBlocks: Dispatch<SetStateAction<MessageBlock[]>>, textValue: string, uid: string, displayName: string) => void) : Unsubscribe {
-    const q = query(messagesRef, where('createdAt', '>', startTime));
+    const q = startTime? query(messagesRef, where('createdAt', '>', startTime)) : query(messagesRef); 
     return (
       onSnapshot(q, (snapshot) => {
         snapshot.docChanges().forEach((change) => {
