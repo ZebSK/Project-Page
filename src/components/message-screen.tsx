@@ -9,7 +9,7 @@ import { handleLogout } from '../services/auth';
 import { messagesRef, sendMessage, loadPastMessages, subscribeToMessages } from '../services/db';
 import { auth } from '../services/firebase';
 import '../styles/message-screen.css';
-import { markdownToHTML } from '../utils/markdown';
+import { markdownToHTML } from '../utils/text-formatting';
 
 /** 
  * @file This module contains everything located on the central message screen of the app
