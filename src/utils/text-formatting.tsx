@@ -12,16 +12,15 @@ import ReactMarkdown from 'react-markdown';
  * @returns The React component containing the markdown text
  */
 export function markdownToHTML(text: string): ReactElement<any, any> {
-    // Splits the string into lines
-    const lines = [text]
-    return (
-        <div>
-            {/* Maps each line to a new component - this allows the removal of huge spaces around markdown lines without
-                causing formatting issues with lists */}
-            {lines.map((line, index) => (
-                <ReactMarkdown className="reactMarkDown" key={index} children={line} />
-            ))}
+    // Allows keeping of whitespace
+    text = text.replace(/ /g, '&nbsp;'); // Replaces spaces with non breaking spaces
+    text = text.replace(/\n{2,}/g, match => { // Adds a non breaking space between new lines
+        return '&nbsp;\n'.repeat(match.length - 1) + '&nbsp;\n';
+      });      
+    if (text.endsWith('\n')) { text += '&nbsp;'; } // Adds a non breaking space if new line at end
+    if (text.startsWith('\n')) { text = '&nbsp;' + text; } // Adds a non breaking space if new line at start
 
-        </div>
+    return (
+        <ReactMarkdown className="reactMarkDown">{text}</ReactMarkdown>
     )
 }
