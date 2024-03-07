@@ -9,6 +9,7 @@ import { handleLogout } from '../services/auth';
 import { messagesRef, sendMessage, loadPastMessages, subscribeToMessages } from '../services/db';
 import { auth } from '../services/firebase';
 import '../styles/message-screen.css';
+import { markdownToHTML } from '../utils/markdown';
 
 /** 
  * @file This module contains everything located on the central message screen of the app
@@ -149,7 +150,7 @@ function MessageBlock({ messageContents, uid, displayName }: { messageContents: 
 function Message({ isYoursIndicator, messageContent }: { isYoursIndicator: string; messageContent: string }): JSX.Element {
     return(
         <div className = {"messageBubble" + " " + isYoursIndicator}>
-            {messageContent}
+            {markdownToHTML(messageContent)}
         </div>
     );
 }
