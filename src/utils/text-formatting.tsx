@@ -1,5 +1,8 @@
+// Import External Libraries
 import { ReactElement } from 'react';
 import ReactMarkdown from 'react-markdown';
+import 'katex/dist/katex.min.css';
+import Latex from 'react-latex-next';
 
 /** 
  * @file This module contains everything that to do with formatting text 
@@ -12,15 +15,25 @@ import ReactMarkdown from 'react-markdown';
  * @returns The React component containing the markdown text
  */
 export function markdownToHTML(text: string): ReactElement<any, any> {
-    // Allows keeping of whitespace
-    text = text.replace(/ /g, '&nbsp;'); // Replaces spaces with non breaking spaces
-    text = text.replace(/\n{2,}/g, match => { // Adds a non breaking space between new lines
-        return '&nbsp;\n'.repeat(match.length - 1) + '&nbsp;\n';
-      });      
-    if (text.endsWith('\n')) { text += '&nbsp;'; } // Adds a non breaking space if new line at end
-    if (text.startsWith('\n')) { text = '&nbsp;' + text; } // Adds a non breaking space if new line at start
+  // Prevents collapsing of whitespace
+  const lines = text.split("\n")
+  for (let i = 0; i < lines.length; i++) {
+    lines[i] = lines[i].replace(/^ /, '&nbsp;'); // Adds a non breaking space if line begins with a space
+    lines[i] = lines[i].replace(/ $/g, '&nbsp;'); // Adds a non breaking space if line ends with a space
+    if (lines[i] === "" && lines.length != 1) { lines[i] = "&nbsp;"} // Adds a non breaking space to every empty line (unless all text is empty)
+  }
+  const whitespacedText = lines.join("\n")
+  const sections = whitespacedText.split(/(\$+[^$]*\$+)/g);
 
-    return (
-        <ReactMarkdown className="reactMarkDown">{text}</ReactMarkdown>
-    )
+  return (
+    <>
+      {sections.map((str, index) => {
+        if (str.startsWith("$")) {
+          return <Latex key={index}>{str}</Latex>
+        } else {
+          return <ReactMarkdown key={index}>{str}</ReactMarkdown>;
+        }
+      })}
+    </>
+  );
 }
