@@ -47,8 +47,9 @@
   
 /* Styles for each individual message */
 .messageBubble {
-  /* Dimensions */
+  /* Dimensions and layout */
   max-width: 70%;
+  position: relative; /* Sets message contents relative to bubble */
 
   /* Bubble Shape */
   border-radius: 10px; /* Curved edges */
