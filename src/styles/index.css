@@ -121,6 +121,11 @@ p, ul, ol { /* Remove additional spacing around paragraphs and lists*/
   margin-block-end: 0px;
 }
 
+/* Override LaTeX formatting */
+.katex .katex-mathml {
+  position: unset; /* Absolute positioning messes with other absolute positioning */
+}
+
 
 
 /* PSEUDO-ELEMENTS */
