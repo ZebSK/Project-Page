@@ -24,10 +24,10 @@ import { markdownToHTML } from '../utils/text-formatting';
  * MessageBlock interface describing the structure of a Message Block
  */
 export interface MessageBlock {
-    uid: string;
-    displayName: string;
-    messageContents: string[]; // Contains a list of strings for each message
-  }
+  uid: string;
+  displayName: string;
+  messageContents: string[]; // Contains a list of strings for each message
+}
   
 
 
@@ -39,45 +39,45 @@ export interface MessageBlock {
  * @returns The MessageScreen component
  */
 function MessageScreen(): JSX.Element {
-    // useRefs for reference objects that persist across re-renders
-    const messageContainerRef = useRef<HTMLDivElement>(null);
-    const inputBoxRef = useRef<HTMLTextAreaElement>(null);
+  // useRefs for reference objects that persist across re-renders
+  const messageContainerRef = useRef<HTMLDivElement>(null);
+  const inputBoxRef = useRef<HTMLTextAreaElement>(null);
 
-    // useStates for determining state variables
-    const [messageBlocks, setMessageBlocks] = useState<MessageBlock[]>([]);
-    const [inputBoxValue, setInputBoxValue] = useState("");
-    const [scrollButtonVisible, setScrollButtonVisible] = useState(false);
-    const [scrollButtonHeight, setScrollButtonHeight] = useState("0px");
+  // useStates for determining state variables
+  const [messageBlocks, setMessageBlocks] = useState<MessageBlock[]>([]);
+  const [inputBoxValue, setInputBoxValue] = useState("");
+  const [scrollButtonVisible, setScrollButtonVisible] = useState(false);
+  const [scrollButtonHeight, setScrollButtonHeight] = useState("0px");
 
-    // useEffects that run every time the dependencies change
-    useEffect(() => { showScrollButton(messageContainerRef, setScrollButtonVisible) }, []);
-    useEffect(() => { scrollOnNewMessage(messageContainerRef) }, [messageBlocks]);
-    useEffect(() => { handleInputBoxExpand(messageContainerRef, inputBoxRef, setScrollButtonHeight) }, []);
-    useEffect(() => { determineScrollButtonHeight(inputBoxRef, setScrollButtonHeight) }, []);
-    useEffect(() => { listenToMessages(messageBlocks, setMessageBlocks, messageContainerRef) }, [] )
+  // useEffects that run every time the dependencies change
+  useEffect(() => { showScrollButton(messageContainerRef, setScrollButtonVisible) }, []);
+  useEffect(() => { scrollOnNewMessage(messageContainerRef) }, [messageBlocks]);
+  useEffect(() => { handleInputBoxExpand(messageContainerRef, inputBoxRef, setScrollButtonHeight) }, []);
+  useEffect(() => { determineScrollButtonHeight(inputBoxRef, setScrollButtonHeight) }, []);
+  useEffect(() => { listenToMessages(messageBlocks, setMessageBlocks, messageContainerRef) }, [] )
 
-    // The JSX Element
-    return (
-        // Map function to create multiple MessageBlock components and assign messageContents to them
-        <div className='messageScreen'>
-            {/* Log out button - move to relevant location when created */}
-            <button className='logOutButton' onClick={handleLogout}> 
-                Log Out 
-            </button> 
-            <div className='messageContainer' ref={messageContainerRef}>
-                {messageBlocks.map((messageBlock, index) => (
-                    <MessageBlock key={index} messageContents={messageBlock.messageContents} uid = {messageBlock.uid} displayName = {messageBlock.displayName} />
-                ))}
-            </div>
-        {scrollButtonVisible && 
-        <button 
-            className = "scrollButton"
-            onClick={() => scrollToBottom(messageContainerRef, true)}
-            style = {{bottom: scrollButtonHeight}} 
-            > ▼ </button>}
-        <InputBox inputBoxValue={inputBoxValue} setInputBoxValue={setInputBoxValue} inputBoxRef={inputBoxRef}/>
-        </div>
-    )
+  // The JSX Element
+  return (
+    // Map function to create multiple MessageBlock components and assign messageContents to them
+    <div className='messageScreen'>
+      {/* Log out button - move to relevant location when created */}
+      <button className='logOutButton' onClick={handleLogout}> 
+        Log Out 
+      </button> 
+      <div className='messageContainer' ref={messageContainerRef}>
+        {messageBlocks.map((messageBlock, index) => (
+          <MessageBlock key={index} messageContents={messageBlock.messageContents} uid = {messageBlock.uid} displayName = {messageBlock.displayName} />
+        ))}
+      </div>
+      {scrollButtonVisible && 
+      <button 
+        className = "scrollButton"
+        onClick={() => scrollToBottom(messageContainerRef, true)}
+        style = {{bottom: scrollButtonHeight}} 
+        > ▼ </button>}
+      <InputBox inputBoxValue={inputBoxValue} setInputBoxValue={setInputBoxValue} inputBoxRef={inputBoxRef}/>
+    </div>
+  )
 }
 
 export default MessageScreen
@@ -90,36 +90,36 @@ export default MessageScreen
  * @returns The InputBox component
  */
 function InputBox({ inputBoxValue, setInputBoxValue, inputBoxRef } : { inputBoxValue: string; 
-    setInputBoxValue: Dispatch<SetStateAction<string>>; inputBoxRef: React.RefObject<HTMLTextAreaElement>}): JSX.Element {
-        // Allows adjustment of height to fit around the text entered
-        const [inputBoxHeight, setInputBoxHeight] = useState<string> ("");
-        useEffect(() => {
-            fitInputBoxToText(inputBoxRef, setInputBoxHeight);
-          }, [inputBoxValue]);
-        
-        return (
-            <div>
-            <textarea
-                className="inputBox"
-                placeholder="..." // text shown in box when empty
-                value={ inputBoxValue }
-                style={{ height: inputBoxHeight }}
-                ref = {inputBoxRef}
+  setInputBoxValue: Dispatch<SetStateAction<string>>; inputBoxRef: React.RefObject<HTMLTextAreaElement>}): JSX.Element {
+    // Allows adjustment of height to fit around the text entered
+    const [inputBoxHeight, setInputBoxHeight] = useState<string> ("");
+    useEffect(() => {
+      fitInputBoxToText(inputBoxRef, setInputBoxHeight);
+    }, [inputBoxValue]);
+       
+    return (
+      <div>
+        <textarea
+          className="inputBox"
+          placeholder="..." // text shown in box when empty
+          value={ inputBoxValue }
+          style={{ height: inputBoxHeight }}
+          ref = {inputBoxRef}
 
-                // Handles response to any typing in the box
-                onChange={(event) => { setInputBoxValue(event.currentTarget.value); }}
+          // Handles response to any typing in the box
+          onChange={(event) => { setInputBoxValue(event.currentTarget.value); }}
 
-                // Handles sending of messages if enter is pressed without shift being held down
-                onKeyDown={(event) => {
-                    if (event.key === "Enter" && !event.shiftKey) {
-                    handleEnter(event.currentTarget.value, setInputBoxValue)
-                    event.preventDefault(); // prevents addition of a new line to textarea when sending message
-                    }
-                }}
-                ></textarea>
-            </div>
-        );
-    }
+          // Handles sending of messages if enter is pressed without shift being held down
+          onKeyDown={(event) => {
+            if (event.key === "Enter" && !event.shiftKey) {
+              handleEnter(event.currentTarget.value, setInputBoxValue)
+              event.preventDefault(); // prevents addition of a new line to textarea when sending message
+            }
+          }}
+        ></textarea>
+      </div>
+    );
+  }
 
 /**
  * MessageBlock component holding all messages in a block (same owner)
@@ -129,16 +129,16 @@ function InputBox({ inputBoxValue, setInputBoxValue, inputBoxRef } : { inputBoxV
  * @returns The MessageBlock component
  */
 function MessageBlock({ messageContents, uid, displayName }: { messageContents: string[]; uid: string; displayName: string }): JSX.Element {
-    const isYoursIndicator: string = uid === auth.currentUser?.uid? "right": "left"  // convert isYours boolean to string
-    return (
-        // Second map function to map each message in the block
-        <div className='messageBlock'>
-            <div className={'messageDisplayName' + " " + isYoursIndicator}> {displayName} </div>
-            {messageContents.map((message, index) => (
-            <Message key={index} isYoursIndicator={isYoursIndicator} messageContent={message} />
-            ))}
-        </div>
-    );
+  const isYoursIndicator: string = uid === auth.currentUser?.uid? "right": "left"  // convert isYours boolean to string
+  return (
+    // Second map function to map each message in the block
+    <div className='messageBlock'>
+      <div className={'messageDisplayName' + " " + isYoursIndicator}> {displayName} </div>
+      {messageContents.map((message, index) => (
+        <Message key={index} isYoursIndicator={isYoursIndicator} messageContent={message} />
+      ))}
+    </div>
+  );
 }
 
 /**
@@ -148,11 +148,11 @@ function MessageBlock({ messageContents, uid, displayName }: { messageContents: 
  * @returns The Message component
  */
 function Message({ isYoursIndicator, messageContent }: { isYoursIndicator: string; messageContent: string }): JSX.Element {
-    return(
-        <div className = {"messageBubble" + " " + isYoursIndicator}>
-            {markdownToHTML(messageContent)}
-        </div>
-    );
+  return(
+    <div className = {"messageBubble" + " " + isYoursIndicator}>
+      {markdownToHTML(messageContent)}
+    </div>
+  );
 }
 
 
@@ -165,28 +165,28 @@ function Message({ isYoursIndicator, messageContent }: { isYoursIndicator: strin
  * @param setScrollButtonVisible The setter for the scroll button visibility
  */
 function showScrollButton (messageContainerRef: React.RefObject<HTMLDivElement>, setScrollButtonVisible: Dispatch<SetStateAction<boolean>>) {
+  const container = messageContainerRef.current;
+  if (!container) { return; }
+
+  /**
+   * Determines whether the scroll button is visible every time the user scrolls 
+   */
+  function handleScrollEvent () {
     const container = messageContainerRef.current;
     if (!container) { return; }
-
-    /**
-     * Determines whether the scroll button is visible every time the user scrolls 
-     */
-    function handleScrollEvent () {
-        const container = messageContainerRef.current;
-        if (!container) { return; }
-        const isAtBottom = container.scrollHeight - container.scrollTop === container.clientHeight;
-        setScrollButtonVisible(!isAtBottom); // Show button if not at bottom
-    }   
+      const isAtBottom = container.scrollHeight - container.scrollTop === container.clientHeight;
+      setScrollButtonVisible(!isAtBottom); // Show button if not at bottom
+  }   
     
-    // Adds an event listener to call handleScrollEvent every time the user scrolls
-    container.addEventListener('scroll', handleScrollEvent);
+  // Adds an event listener to call handleScrollEvent every time the user scrolls
+  container.addEventListener('scroll', handleScrollEvent);
 
-    // Cleanup function to remove the event listener when the component unmounts
-    return () => {
-        if (container) {
-          container.removeEventListener('scroll', handleScrollEvent);
-        }
-      };
+  // Cleanup function to remove the event listener when the component unmounts
+  return () => {
+    if (container) {
+      container.removeEventListener('scroll', handleScrollEvent);
+    }
+  };
 }
 
 /**
@@ -194,28 +194,28 @@ function showScrollButton (messageContainerRef: React.RefObject<HTMLDivElement>,
  * @param messageContainerRef The messageContainer component
  */
 function scrollOnNewMessage (messageContainerRef: React.RefObject<HTMLDivElement>) {
-    const container = messageContainerRef.current;
-    if (!container) { return; }
+  const container = messageContainerRef.current;
+  if (!container) { return; }
 
-    // Finds the last message bubble if there is one
-    const lastMessageBlock = container.lastElementChild as HTMLElement;
-    if (lastMessageBlock) {
+  // Finds the last message bubble if there is one
+  const lastMessageBlock = container.lastElementChild as HTMLElement;
+  if (lastMessageBlock) {
     const lastMessageBubble = lastMessageBlock.lastElementChild as HTMLElement;
-        if (lastMessageBubble) {
+    if (lastMessageBubble) {
 
-            // If last message from user, scroll to bottom
-            if (lastMessageBubble.className.split(" ")[1] === "right") {
-            scrollToBottom(messageContainerRef);
-            }
+      // If last message from user, scroll to bottom
+      if (lastMessageBubble.className.split(" ")[1] === "right") {
+        scrollToBottom(messageContainerRef);
+      }
 
-            // If the distance from the bottom is the height of the last message, scroll to bottom
-            const lastMessageStyles = getComputedStyle(lastMessageBubble);
-            const lastMessageHeight = lastMessageBubble.offsetHeight + parseInt(lastMessageStyles.marginBottom) + 20; 
-            if( container.scrollHeight - container.scrollTop - lastMessageHeight <= container.clientHeight) {
-            scrollToBottom(messageContainerRef);
-            }
-        }
+      // If the distance from the bottom is the height of the last message, scroll to bottom
+      const lastMessageStyles = getComputedStyle(lastMessageBubble);
+      const lastMessageHeight = lastMessageBubble.offsetHeight + parseInt(lastMessageStyles.marginBottom) + 20; 
+      if( container.scrollHeight - container.scrollTop - lastMessageHeight <= container.clientHeight) {
+        scrollToBottom(messageContainerRef);
+      }
     }
+  }
 }
 
 /**
@@ -226,46 +226,46 @@ function scrollOnNewMessage (messageContainerRef: React.RefObject<HTMLDivElement
  * @returns 
  */
 function handleInputBoxExpand (messageContainerRef: React.RefObject<HTMLDivElement>, inputBoxRef: React.RefObject<HTMLTextAreaElement>,
-    setScrollButtonHeight: Dispatch<SetStateAction<string>>) {
-        const container = messageContainerRef.current;
-        const inputBoxElement = inputBoxRef.current;
-        if (!container || !inputBoxElement) { return; }
+  setScrollButtonHeight: Dispatch<SetStateAction<string>>) {
+    const container = messageContainerRef.current;
+    const inputBoxElement = inputBoxRef.current;
+    if (!container || !inputBoxElement) { return; }
 
-        // Gets input box font size and bottom margin of message bubbles
-        const inputBoxStyles = getComputedStyle(inputBoxElement);
-        const fontSize = parseInt(inputBoxStyles.fontSize);
-        let marginHeight = 0;
-        const bubbleElement = document.querySelector('.messageBubble');
-        if (bubbleElement) {
-          const bubbleStyles = getComputedStyle(bubbleElement);
-          marginHeight = parseInt(bubbleStyles.marginBottom);
-        }
-
-        /**
-         * Determines whether the messages scroll or scroll button moves when text is entered into the input box
-         */
-        function inputBoxExpand () {
-            setTimeout(() => { // timeout of 10ms so event listener for input box to expand happens first
-                // If distance to bottom <= font size, scroll to bottom
-                if (container && (container.scrollHeight - container.scrollTop - fontSize - marginHeight <= container.clientHeight)) {
-                    scrollToBottom(messageContainerRef);
-                }
-
-                // Sets the scroll button height depending on size of input box
-                determineScrollButtonHeight(inputBoxRef, setScrollButtonHeight)    
-            }, 10);
-        }
-
-        // Event listener for every time input box value changes
-        inputBoxElement.addEventListener('input', inputBoxExpand)
-        
-        // Cleanup function to remove the event listener when the component unmounts
-        return () => {
-            if (container) {
-            inputBoxElement.removeEventListener('input', inputBoxExpand);
-            }
-        };
+    // Gets input box font size and bottom margin of message bubbles
+    const inputBoxStyles = getComputedStyle(inputBoxElement);
+    const fontSize = parseInt(inputBoxStyles.fontSize);
+    let marginHeight = 0;
+    const bubbleElement = document.querySelector('.messageBubble');
+    if (bubbleElement) {
+      const bubbleStyles = getComputedStyle(bubbleElement);
+      marginHeight = parseInt(bubbleStyles.marginBottom);
     }
+
+    /**
+     * Determines whether the messages scroll or scroll button moves when text is entered into the input box
+     */
+    function inputBoxExpand () {
+      setTimeout(() => { // timeout of 10ms so event listener for input box to expand happens first
+        // If distance to bottom <= font size, scroll to bottom
+        if (container && (container.scrollHeight - container.scrollTop - fontSize - marginHeight <= container.clientHeight)) {
+          scrollToBottom(messageContainerRef);
+        }
+
+        // Sets the scroll button height depending on size of input box
+        determineScrollButtonHeight(inputBoxRef, setScrollButtonHeight)    
+      }, 10);
+    }
+
+    // Event listener for every time input box value changes
+    inputBoxElement.addEventListener('input', inputBoxExpand)
+       
+    // Cleanup function to remove the event listener when the component unmounts
+    return () => {
+      if (container) {
+        inputBoxElement.removeEventListener('input', inputBoxExpand);
+      }
+    };
+  }
 
 /**
  * Function determining height of scroll button from size of input box
@@ -273,17 +273,17 @@ function handleInputBoxExpand (messageContainerRef: React.RefObject<HTMLDivEleme
  * @param setScrollButtonHeight - The setter to determine the height of the scroll button
  */
 function determineScrollButtonHeight(inputBoxRef: React.RefObject<HTMLTextAreaElement>, setScrollButtonHeight: Dispatch<SetStateAction<string>>) {
-    const inputBoxElement = inputBoxRef.current;
-    if (!inputBoxElement) { return "0px"; } 
-    const inputBoxStyles = getComputedStyle(inputBoxElement);
-    const { height, marginTop, marginBottom, paddingTop, paddingBottom, borderWidth } = inputBoxStyles;
-    const buttonHeight = (
-        parseInt(height) + // input box height
-        parseInt(marginTop) + parseInt(marginBottom) + // margins
-        parseInt(paddingTop) + parseInt(paddingBottom) + // padding
-        2 * parseInt(borderWidth) + 5 // border and additional space
-    );
-    setScrollButtonHeight(buttonHeight + "px");
+  const inputBoxElement = inputBoxRef.current;
+  if (!inputBoxElement) { return "0px"; } 
+  const inputBoxStyles = getComputedStyle(inputBoxElement);
+  const { height, marginTop, marginBottom, paddingTop, paddingBottom, borderWidth } = inputBoxStyles;
+  const buttonHeight = (
+    parseInt(height) + // input box height
+    parseInt(marginTop) + parseInt(marginBottom) + // margins
+    parseInt(paddingTop) + parseInt(paddingBottom) + // padding
+    2 * parseInt(borderWidth) + 5 // border and additional space
+  );
+  setScrollButtonHeight(buttonHeight + "px");
 }
 
 /**
@@ -292,11 +292,11 @@ function determineScrollButtonHeight(inputBoxRef: React.RefObject<HTMLTextAreaEl
  * @param setInputBoxValue - The setter to clear the input box
  */
 function handleEnter(textValue: string, setInputBoxValue: Dispatch<SetStateAction<string>>) {
-    sendMessage(messagesRef, textValue)
-    if (!auth.currentUser) { return; }
-    let displayName = auth.currentUser.displayName
-    if (!displayName) { displayName = "Anonymous" } 
-    setInputBoxValue("");
+  sendMessage(messagesRef, textValue)
+  if (!auth.currentUser) { return; }
+  let displayName = auth.currentUser.displayName
+  if (!displayName) { displayName = "Anonymous" } 
+  setInputBoxValue("");
 }
 
 /**
@@ -308,32 +308,32 @@ function handleEnter(textValue: string, setInputBoxValue: Dispatch<SetStateActio
  * @param displayName - The display name of the user who sent the message
  */
 export function addMessageToBlocks(messageBlocks: MessageBlock[], setMessageBlocks: Dispatch<SetStateAction<MessageBlock[]>>, textValue: string, uid: string, displayName: string) {
-    if (messageBlocks) { }
-    const appendToRecentBlock = (messageBlocks: MessageBlock[], textValue: string) => {
-        let finalBlock: MessageBlock = { ...messageBlocks[messageBlocks.length - 1] }
-        finalBlock.messageContents = [...messageBlocks[messageBlocks.length - 1].messageContents, textValue]
+  if (messageBlocks) { }
+  const appendToRecentBlock = (messageBlocks: MessageBlock[], textValue: string) => {
+    let finalBlock: MessageBlock = { ...messageBlocks[messageBlocks.length - 1] }
+    finalBlock.messageContents = [...messageBlocks[messageBlocks.length - 1].messageContents, textValue]
 
-        return [
-            ...messageBlocks.slice(0, -1),  // Keep all items except last the same
-            finalBlock
-        ]
-    }
-    const appendNewBlock = (messageBlocks: MessageBlock[], textValue: string, uid: string, displayName: string) => [
-        ...messageBlocks,
-        {
-            uid: uid,
-            displayName: displayName,
-            messageContents: [textValue],
-        }
+    return [
+      ...messageBlocks.slice(0, -1),  // Keep all items except last the same
+      finalBlock
     ]
+  }
+  const appendNewBlock = (messageBlocks: MessageBlock[], textValue: string, uid: string, displayName: string) => [
+    ...messageBlocks,
+    {
+      uid: uid,
+      displayName: displayName,
+      messageContents: [textValue],
+    }
+  ]
         
-    setMessageBlocks(prevBlocks => {
-        if (prevBlocks.length > 0 && prevBlocks[prevBlocks.length - 1].uid === uid) {
-            return appendToRecentBlock(prevBlocks, textValue);
-        } else {
-            return appendNewBlock(prevBlocks, textValue, uid, displayName);
-        }
-    });
+  setMessageBlocks(prevBlocks => {
+    if (prevBlocks.length > 0 && prevBlocks[prevBlocks.length - 1].uid === uid) {
+      return appendToRecentBlock(prevBlocks, textValue);
+    } else {
+      return appendNewBlock(prevBlocks, textValue, uid, displayName);
+    }
+  });
 }
 
 /**
@@ -342,16 +342,16 @@ export function addMessageToBlocks(messageBlocks: MessageBlock[], setMessageBloc
  * @param setInputBoxHeight - The setter to determine the height of the input box
  */
 function fitInputBoxToText(inputBoxRef: React.RefObject<HTMLTextAreaElement>, setInputBoxHeight: Dispatch<SetStateAction<string>>) {
-    const inputBoxElement = inputBoxRef.current
-    if (!inputBoxElement) { return; }
+  const inputBoxElement = inputBoxRef.current
+  if (!inputBoxElement) { return; }
 
-    const inputBoxStyles = getComputedStyle(inputBoxElement)
-    const padding = parseInt(inputBoxStyles.paddingTop) + parseInt(inputBoxStyles.paddingBottom);
-    const minHeight = inputBoxStyles.minHeight
+  const inputBoxStyles = getComputedStyle(inputBoxElement)
+  const padding = parseInt(inputBoxStyles.paddingTop) + parseInt(inputBoxStyles.paddingBottom);
+  const minHeight = inputBoxStyles.minHeight
 
-    setInputBoxHeight(minHeight); // sets height to minimum so if text has decreased textarea will not remain at previous size
-    inputBoxElement.style.height = minHeight; // forces recalculation of scroll height
-    setInputBoxHeight(inputBoxElement.scrollHeight - padding + 'px' ); // sets height to the size of the text
+  setInputBoxHeight(minHeight); // sets height to minimum so if text has decreased textarea will not remain at previous size
+  inputBoxElement.style.height = minHeight; // forces recalculation of scroll height
+  setInputBoxHeight(inputBoxElement.scrollHeight - padding + 'px' ); // sets height to the size of the text
 }
 
 /**
@@ -361,36 +361,36 @@ function fitInputBoxToText(inputBoxRef: React.RefObject<HTMLTextAreaElement>, se
  * @param messageContainerRef - The ref for the message container holding the messages
  */
 async function listenToMessages(messageBlocks: MessageBlock[], setMessageBlocks: Dispatch<SetStateAction<MessageBlock[]>>, messageContainerRef: React.RefObject<HTMLDivElement>) {
-    let startListening: FieldValue | null = null
-    if ( messageBlocks.length === 0 ) { // Checks if messages already loaded
-        // Load past 25 messages onto screen
-        const pastMessages = await loadPastMessages( messagesRef )
+  let startListening: FieldValue | null = null
+  if ( messageBlocks.length === 0 ) { // Checks if messages already loaded
+    // Load past 25 messages onto screen
+    const pastMessages = await loadPastMessages( messagesRef )
 
-        // Add messages in reverse order from least recent to most
-        for (let i = pastMessages.length - 1; i >= 0; i--) {
-            const data = pastMessages[i].data();
-            const textValue = data.text;
-            const uid = data.uid;
-            const displayName = data.userDisplayName;
+    // Add messages in reverse order from least recent to most
+    for (let i = pastMessages.length - 1; i >= 0; i--) {
+      const data = pastMessages[i].data();
+      const textValue = data.text;
+      const uid = data.uid;
+      const displayName = data.userDisplayName;
 
-            addMessageToBlocks(messageBlocks, setMessageBlocks, textValue, uid, displayName)
+      addMessageToBlocks(messageBlocks, setMessageBlocks, textValue, uid, displayName)
 
-            if ( i === 0 ) { 
-                startListening = data.createdAt; // Start listening from time of last message sent
-            }
-        }
+      if ( i === 0 ) { 
+        startListening = data.createdAt; // Start listening from time of last message sent
+      }
     }
-    // Set listener which loads any new messages and adds them to messageBlocks
-    const unsubscribe = subscribeToMessages(messagesRef, startListening, messageBlocks, setMessageBlocks, addMessageToBlocks)
+  }
+  // Set listener which loads any new messages and adds them to messageBlocks
+  const unsubscribe = subscribeToMessages(messagesRef, startListening, messageBlocks, setMessageBlocks, addMessageToBlocks)
 
-    // Wait for messages to load then scroll to the bottom
-    setTimeout(() => { 
-        scrollToBottom(messageContainerRef)
-    }, 10)
+  // Wait for messages to load then scroll to the bottom
+  setTimeout(() => { 
+    scrollToBottom(messageContainerRef)
+  }, 10)
 
-    // Cleanup function to remove the event listener when the component unmounts
-    return () => {
-        unsubscribe()
-     }
+  // Cleanup function to remove the event listener when the component unmounts
+  return () => {
+    unsubscribe()
+  }
 
 }
