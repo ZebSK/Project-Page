@@ -1,11 +1,11 @@
 // External Libraries
 import { 
   setDoc, addDoc, // Database write operations
-  getDocs, serverTimestamp, // Database read operations
+  getDoc, getDocs, serverTimestamp, // Database read operations
   doc, collection, // Document and collection references
   query, orderBy, limit, where, // Query operations
   onSnapshot, Unsubscribe, // Real-time listeners
-  QueryDocumentSnapshot, FieldValue, CollectionReference, // Firestore types
+  QueryDocumentSnapshot, FieldValue, CollectionReference, DocumentData, // Firestore types
 } from "firebase/firestore"; 
 
 import { Dispatch, SetStateAction } from 'react';
@@ -13,6 +13,8 @@ import { Dispatch, SetStateAction } from 'react';
 // Internal Modules
 import { db, auth } from '../services/firebase';
 import { MessageBlock } from "../components/message-screen";
+import { createDefaultProfilePic } from "../utils/user-profiles";
+import { saveProfilePic } from "./storage";
 
 /** 
  * @file This module contains everything that requires accessing Firebase Firestore 
@@ -24,6 +26,10 @@ export const roomRef = doc(db, 'rooms', 'main');
 setDoc(roomRef, { name: "main" }, { merge: true });
 export const messagesRef = collection(db, "rooms", "main", "messages")
 export const usersRef = collection(db, "rooms", "main", "users")
+
+
+
+// MESSAGES
 
 /**
  * Adds a message to the database
@@ -85,3 +91,32 @@ export function subscribeToMessages (messagesRef: CollectionReference, startTime
       })
     );
   };
+
+
+
+
+// USERS
+
+/**
+ * Add user to database if new, or retrieve current info about user if not
+ * @param setUserInfo - The setter for info about the user
+ */
+export async function handleSignIn (setUserInfo: Dispatch<SetStateAction<DocumentData>>) {
+  if (!auth.currentUser) { return; }
+  const uid = auth.currentUser.uid;
+
+  const userRef = doc(db, "users", uid);
+  const userSnap = await getDoc(userRef);
+  if (userSnap.exists()) {
+    setUserInfo(userSnap);
+  } else {
+    const displayName = auth.currentUser.displayName
+    setDoc(doc(db, "users", uid), {
+      displayName: displayName
+    });
+    const userSnap = await getDoc(userRef);
+    setUserInfo(userSnap);
+    const defaultProfilePic = createDefaultProfilePic(displayName)
+    saveProfilePic(auth.currentUser.uid, defaultProfilePic)
+  }
+}

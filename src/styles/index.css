@@ -30,6 +30,14 @@
   -moz-osx-font-smoothing: grayscale; /* Enables grayscale antialiasing on macOS */
 }
 
+/* The component holding all other components */
+.appScreen {
+  /* Dimensions and Positioning */
+  height: 100%;
+  width: 100%;
+  position: relative;
+}
+
 
 
 /* HTML ELEMENTS */
