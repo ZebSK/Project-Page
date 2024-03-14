@@ -5,7 +5,7 @@ import {
   doc, collection, // Document and collection references
   query, orderBy, limit, where, // Query operations
   onSnapshot, Unsubscribe, // Real-time listeners
-  QueryDocumentSnapshot, FieldValue, CollectionReference, DocumentData, // Firestore types
+  QueryDocumentSnapshot, FieldValue, CollectionReference // Firestore types
 } from "firebase/firestore"; 
 
 import { Dispatch, SetStateAction } from 'react';
@@ -14,7 +14,8 @@ import { Dispatch, SetStateAction } from 'react';
 import { db, auth } from '../services/firebase';
 import { MessageBlock } from "../components/message-screen";
 import { createDefaultProfilePic } from "../utils/user-profiles";
-import { saveProfilePic } from "./storage";
+import { saveProfilePic, getProfilePic } from "./storage";
+import { UserInfo } from "../App";
 
 /** 
  * @file This module contains everything that requires accessing Firebase Firestore 
@@ -101,22 +102,38 @@ export function subscribeToMessages (messagesRef: CollectionReference, startTime
  * Add user to database if new, or retrieve current info about user if not
  * @param setUserInfo - The setter for info about the user
  */
-export async function handleSignIn (setUserInfo: Dispatch<SetStateAction<DocumentData>>) {
+export async function handleSignIn (setUserInfo: Dispatch<SetStateAction<UserInfo | null>>) {
   if (!auth.currentUser) { return; }
   const uid = auth.currentUser.uid;
 
   const userRef = doc(db, "users", uid);
   const userSnap = await getDoc(userRef);
+  
+  // If user already in database, retrieve user data
   if (userSnap.exists()) {
-    setUserInfo(userSnap);
+    const userData = userSnap.data() as UserInfo;
+    const profilePicURL = await getProfilePic(userData.profilePic)
+    const updatedUserData = {...userData, profilePic: profilePicURL}
+    setUserInfo(updatedUserData)
   } else {
-    const displayName = auth.currentUser.displayName
-    setDoc(doc(db, "users", uid), {
-      displayName: displayName
-    });
-    const userSnap = await getDoc(userRef);
-    setUserInfo(userSnap);
+    // If user not in database, add to database with default settings
+    let displayName = auth.currentUser.displayName
     const defaultProfilePic = createDefaultProfilePic(displayName)
+
+    setDoc(doc(db, "users", uid), {
+      uid: auth.currentUser.uid,
+      displayName: displayName,
+      profilePic: "profilePictures/" + uid + ".png"
+    });
+
+    // Set user info to defaults
+    if (!displayName) {displayName = "Anonymous"}
+    const userInfo: UserInfo = {
+      uid: uid,
+      displayName: displayName,
+      profilePic: defaultProfilePic
+    };
+    setUserInfo(userInfo);
     saveProfilePic(auth.currentUser.uid, defaultProfilePic)
   }
 }

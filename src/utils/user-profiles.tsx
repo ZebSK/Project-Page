@@ -46,7 +46,7 @@ export function createDefaultProfilePic(displayName: string | null): string {
   ctx.fillStyle = backgroundColour;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  ctx.font = "60px Arial";
+  ctx.font = "80px Arial";
   ctx.fillStyle = textColour;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
