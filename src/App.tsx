@@ -7,7 +7,7 @@ import MessageScreen from './components/message-screen.tsx'
 import SignInScreen from './components/sign-in-screen.tsx';
 
 import { auth } from './services/firebase.tsx';
-
+import { handleLogout } from './services/auth.tsx';
 import { handleSignIn } from './services/db.tsx';
 
 
@@ -58,8 +58,8 @@ function App(): JSX.Element {
           </button>
           {userMenuOpen && (
             <div className = "userMenu" ref={userMenuRef}>
-              <button>Profile</button>
-              <button>Log Out</button>
+              <button onClick={()=> {setUserMenuOpen(false)}}>Edit Profile</button>
+              <button onClick={()=> {handleLogout() ;setUserMenuOpen(false)}}>Log Out</button>
             </div>
           )}
         </div>

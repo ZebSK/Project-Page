@@ -5,7 +5,6 @@ import { FieldValue } from '@firebase/firestore';
 
 // Internal modules and styles
 import { scrollToBottom } from '../utils/scrolling';
-import { handleLogout } from '../services/auth';
 import { messagesRef, sendMessage, loadPastMessages, subscribeToMessages } from '../services/db';
 import { auth } from '../services/firebase';
 import '../styles/message-screen.css';
@@ -60,10 +59,6 @@ function MessageScreen(): JSX.Element {
   return (
     // Map function to create multiple MessageBlock components and assign messageContents to them
     <div className='messageScreen'>
-      {/* Log out button - move to relevant location when created */}
-      <button className='logOutButton' onClick={handleLogout}> 
-        Log Out 
-      </button> 
       <div className='messageContainer' ref={messageContainerRef}>
         {messageBlocks.map((messageBlock, index) => (
           <MessageBlock key={index} messageContents={messageBlock.messageContents} uid = {messageBlock.uid} displayName = {messageBlock.displayName} />
