@@ -14,7 +14,7 @@ import { Dispatch, SetStateAction } from 'react';
 import { db, auth } from '../services/firebase';
 import { MessageBlock } from "../components/message-screen";
 import { createDefaultProfilePic } from "../utils/user-profiles";
-import { saveProfilePic, getProfilePic } from "./storage";
+import { getProfilePic } from "./storage";
 import { UserInfo } from "../App";
 
 /** 
@@ -111,19 +111,32 @@ export async function handleSignIn (setUserInfo: Dispatch<SetStateAction<UserInf
   
   // If user already in database, retrieve user data
   if (userSnap.exists()) {
-    const userData = userSnap.data() as UserInfo;
-    const profilePicURL = await getProfilePic(userData.profilePic)
-    const updatedUserData = {...userData, profilePic: profilePicURL}
-    setUserInfo(updatedUserData)
+    let userData = userSnap.data() as UserInfo;
+
+    // Get profile pic
+    if (userData.profilePic === "default") {
+      const defaultProfilePic = createDefaultProfilePic(userData.displayName, userData.colour)
+      userData = {...userData, profilePic: defaultProfilePic}
+    } else {
+      const profilePicURL = await getProfilePic(userData.profilePic)
+      userData = {...userData, profilePic: profilePicURL}
+    }
+    setUserInfo(userData)
   } else {
     // If user not in database, add to database with default settings
     let displayName = auth.currentUser.displayName
-    const defaultProfilePic = createDefaultProfilePic(displayName)
+
+    // Determine user colour
+    const letters = "0123456789ABCDEF";
+    var colour = "#";
+    for (let i = 0; i < 6; i++) { colour += letters[Math.floor(Math.random() * 16)]; }
+    const defaultProfilePic = createDefaultProfilePic(displayName, colour)
 
     setDoc(doc(db, "users", uid), {
       uid: auth.currentUser.uid,
       displayName: displayName,
-      profilePic: "profilePictures/" + uid + ".png"
+      profilePic: "default",
+      colour: colour
     });
 
     // Set user info to defaults
@@ -131,9 +144,11 @@ export async function handleSignIn (setUserInfo: Dispatch<SetStateAction<UserInf
     const userInfo: UserInfo = {
       uid: uid,
       displayName: displayName,
-      profilePic: defaultProfilePic
+      profilePic: defaultProfilePic,
+      colour: colour,
+      pronouns: null,
+      bio: null
     };
     setUserInfo(userInfo);
-    saveProfilePic(auth.currentUser.uid, defaultProfilePic)
   }
 }

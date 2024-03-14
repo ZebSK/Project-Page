@@ -20,7 +20,12 @@ import { handleSignIn } from './services/db.tsx';
 export interface UserInfo {
   uid: string;
   displayName: string;
-  profilePic: string
+
+  profilePic: string;
+  colour: string;
+
+  pronouns: string | null;
+  bio: string | null;
 }
 
 
@@ -51,13 +56,25 @@ function App(): JSX.Element {
         <SignInScreen/> 
         : 
         <div className='appScreen'>
+          {/* Main ,essage screen */}
           <MessageScreen/>
 
+          {/* Account button */}
           <button className = "accountButton" onClick={(event) => handleProfileButtonClick(event, setUserMenuOpen, userMenuOpen)}>
             <img className = "profilePicture" src = {userInfo?.profilePic} alt = "Profile" />
           </button>
+
+          {/* Dropdown menu */}
           {userMenuOpen && (
             <div className = "userMenu" ref={userMenuRef}>
+              <div className= "menuBar" style={{background: "linear-gradient(to bottom, " + userInfo?.colour + " 50%, transparent 50%)"}}>
+                <img className="profilePicture" src={userInfo?.profilePic} alt="Profile" style={{width:"80px", border:"5px solid #FFF"}}/>
+              </div>
+              <div className = "profileInfo">
+                <h2>{userInfo?.displayName}</h2>
+                <div style={{fontStyle:"italic"}}>{userInfo?.pronouns}</div>
+                <div>{userInfo?.bio}</div>
+              </div>
               <button onClick={()=> {setUserMenuOpen(false)}}>Edit Profile</button>
               <button onClick={()=> {handleLogout() ;setUserMenuOpen(false)}}>Log Out</button>
             </div>

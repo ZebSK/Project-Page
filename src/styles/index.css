@@ -173,6 +173,7 @@ p, ul, ol { /* Remove additional spacing around paragraphs and lists*/
   /* Dimensions */
   width: 100%;
   height: 100%;
+  border-radius: 50%;
 }
 
 /* The dropdown menu the appears when clicking the profile picture */
@@ -183,9 +184,9 @@ p, ul, ol { /* Remove additional spacing around paragraphs and lists*/
   left: 10px;
 
   /* Dimensions and Layout */
-  width: 150px;
+  width: 300px;
   border-radius: 20px;
-  padding: 5px;
+  padding: 10px;
 
   /* Design */
   background-color: white;
@@ -199,8 +200,28 @@ p, ul, ol { /* Remove additional spacing around paragraphs and lists*/
 
   /* Design */
   background-color: transparent;
+  text-align: left;
 }
 .userMenu button:hover {
   /* Design */
   background-color: var(--object-background-colour);
+}
+.menuBar { /* Bar across top of menu */
+  /* Positioning and layout */
+  position: relative;
+  height: 80px;
+  border-radius: 20px;
+  padding:10px;
+}
+.profileInfo { /* Info about user in dropdown menu */
+  /* Design and Spacing */
+  word-wrap: break-word;
+  padding-bottom: 20px;
+  font-size: 15px;
+}
+.profileInfo h2 { /* Display name in dropdown menu*/
+  /* Design and Spacing */
+  font-size: 30px;
+  margin-block-start: 0px;
+  margin-block-end: 0px;
 }

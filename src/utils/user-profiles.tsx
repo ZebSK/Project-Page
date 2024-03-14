@@ -8,14 +8,10 @@
 /**
  * Creates a default profile picture containing the letters of the user's display name on a random colour background
  * @param displayName - The user's display name
+ * @param backgroundColour - The user's colour to use as a background colour
  * @returns A png image of the profile pic
  */
-export function createDefaultProfilePic(displayName: string | null): string {
-  // Determine background colour
-  const letters = "0123456789ABCDEF";
-  var backgroundColour = "#";
-  for (let i = 0; i < 6; i++) { backgroundColour += letters[Math.floor(Math.random() * 16)]; }
-
+export function createDefaultProfilePic(displayName: string | null, backgroundColour: string): string {
   // Determine font colour
   const r = parseInt(backgroundColour.substring(1, 3), 16);
   const g = parseInt(backgroundColour.substring(3, 5), 16);
