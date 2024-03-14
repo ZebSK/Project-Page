@@ -114,7 +114,7 @@ export async function handleSignIn (setUserInfo: Dispatch<SetStateAction<UserInf
     let userData = userSnap.data() as UserInfo;
 
     // Get profile pic
-    if (userData.profilePic === "default") {
+    if (!userData.profilePic) {
       const defaultProfilePic = createDefaultProfilePic(userData.displayName, userData.colour)
       userData = {...userData, profilePic: defaultProfilePic}
     } else {
@@ -135,8 +135,11 @@ export async function handleSignIn (setUserInfo: Dispatch<SetStateAction<UserInf
     setDoc(doc(db, "users", uid), {
       uid: auth.currentUser.uid,
       displayName: displayName,
-      profilePic: "default",
-      colour: colour
+      defaultProfilePic: true,
+      profilePic: null,
+      colour: colour,
+      pronouns: null,
+      bio: null
     });
 
     // Set user info to defaults
@@ -144,10 +147,12 @@ export async function handleSignIn (setUserInfo: Dispatch<SetStateAction<UserInf
     const userInfo: UserInfo = {
       uid: uid,
       displayName: displayName,
+      defaultProfilePic: true,
       profilePic: defaultProfilePic,
       colour: colour,
       pronouns: null,
       bio: null
+      
     };
     setUserInfo(userInfo);
   }

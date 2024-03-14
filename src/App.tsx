@@ -1,10 +1,11 @@
 // External libraries
-import {useAuthState } from 'react-firebase-hooks/auth'
+import {useAuthState } from 'react-firebase-hooks/auth';
 import { useEffect, useState, useRef, Dispatch, SetStateAction } from 'react';
 
 // Internal modules
-import MessageScreen from './components/message-screen.tsx'
+import MessageScreen from './components/message-screen.tsx';
 import SignInScreen from './components/sign-in-screen.tsx';
+import EditProfileScreen from './components/edit-profile-screen.tsx';
 
 import { auth } from './services/firebase.tsx';
 import { handleLogout } from './services/auth.tsx';
@@ -21,6 +22,7 @@ export interface UserInfo {
   uid: string;
   displayName: string;
 
+  defaultProfilePic: boolean;
   profilePic: string;
   colour: string;
 
@@ -44,6 +46,7 @@ function App(): JSX.Element {
   const [userAuth] = useAuthState(auth); // Check if signed in
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
+  const [editProfileOpen, setEditProfileOpen] = useState(false)
 
   // useEffects that run every time the dependencies change
   useEffect(() => { handleSignIn(setUserInfo) }, [userAuth])
@@ -56,8 +59,8 @@ function App(): JSX.Element {
         <SignInScreen/> 
         : 
         <div className='appScreen'>
-          {/* Main ,essage screen */}
-          <MessageScreen/>
+          {/* Main section of screen */}
+          {editProfileOpen? <EditProfileScreen userInfo = {userInfo} setUserInfo = {setUserInfo} setEditProfileOpen = {setEditProfileOpen}/> :<MessageScreen/>}
 
           {/* Account button */}
           <button className = "accountButton" onClick={(event) => handleProfileButtonClick(event, setUserMenuOpen, userMenuOpen)}>
@@ -75,7 +78,7 @@ function App(): JSX.Element {
                 <div style={{fontStyle:"italic"}}>{userInfo?.pronouns}</div>
                 <div>{userInfo?.bio}</div>
               </div>
-              <button onClick={()=> {setUserMenuOpen(false)}}>Edit Profile</button>
+              <button onClick={()=> {setUserMenuOpen(false), setEditProfileOpen(true)}}>Edit Profile</button>
               <button onClick={()=> {handleLogout() ;setUserMenuOpen(false)}}>Log Out</button>
             </div>
           )}

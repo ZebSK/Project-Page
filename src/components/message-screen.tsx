@@ -347,6 +347,7 @@ function fitInputBoxToText(inputBoxRef: React.RefObject<HTMLTextAreaElement>, se
   setInputBoxHeight(minHeight); // sets height to minimum so if text has decreased textarea will not remain at previous size
   inputBoxElement.style.height = minHeight; // forces recalculation of scroll height
   setInputBoxHeight(inputBoxElement.scrollHeight - padding + 'px' ); // sets height to the size of the text
+  inputBoxElement.style.height = inputBoxElement.scrollHeight - padding + 'px'
 }
 
 /**

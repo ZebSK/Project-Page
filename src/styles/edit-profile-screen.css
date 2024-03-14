@@ -1,0 +1,74 @@
+/* 
+  Styles for the edit profile screen
+  This component displays and permits editing of the user's profile
+*/
+
+
+/* Styles for entire edit profile screen component */
+.editProfileScreen {
+  /* Positioning */
+  position: relative; /* Other components' positions are measured relative to this */
+  top: 50%; /* Move 50% from the top */
+  left: 50%; /* Move 50% from the left */
+  transform: translate(-50%, -50%); /* Adjust position to center */
+
+  display: flex; 
+  flex-direction: column;
+  justify-content: flex-start;
+  overflow-y: scroll; 
+
+  /* Dimensions */
+  min-width: 300px;
+  width: 50vw; /* 50% of the viewport width */
+  height: 99vh; /* 99% of the viewport height */
+  overflow-x: hidden;
+}
+
+
+/* DESIGNS */
+
+/* Bar across top of screen */
+.topBar {
+  /* Positioning and layout */
+  position: relative;
+  height: 120px;
+  border-radius: 20px;
+  padding:10px;
+  padding-bottom: 40px;
+}
+
+.editProfileScreen textarea {
+  display:block;
+  min-height: 25px;
+  max-height:25px;
+  width: 300px;
+  padding: 10px;
+  margin-bottom: 10px;
+  margin-top: 10px;
+}
+.editProfileScreen textarea:focus {
+  box-shadow: none;
+}
+.editProfileScreen .bio {
+  min-height: 100px;
+  height:100px;
+  width: 80%;
+}
+
+.colourPicker {
+  display: block;
+  height: 50px;
+  width: 100px;
+  overflow: hidden;
+  border: none;
+}
+
+.exitButtons {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+.exitButtons .saveButton {
+  background-color:  #00ff22;
+  margin-right: 10px;
+}
