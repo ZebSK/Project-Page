@@ -76,7 +76,7 @@ function App(): JSX.Element {
               <div className = "profileInfo">
                 <h2>{userInfo?.displayName}</h2>
                 <div style={{fontStyle:"italic"}}>{userInfo?.pronouns}</div>
-                <div>{userInfo?.bio}</div>
+                <div style={{whiteSpace:"pre-line"}}>{userInfo?.bio}</div>
               </div>
               <button onClick={()=> {setUserMenuOpen(false), setEditProfileOpen(true)}}>Edit Profile</button>
               <button onClick={()=> {handleLogout() ;setUserMenuOpen(false)}}>Log Out</button>
