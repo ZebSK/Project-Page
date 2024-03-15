@@ -71,8 +71,8 @@ function ExitButtons({newUserInfo, userInfo, setUserInfo, setEditProfileOpen} : 
       newUserInfo.colour === userInfo.colour &&
       newUserInfo.pronouns === userInfo.pronouns &&
       newUserInfo.bio === userInfo.bio &&
-      newUserInfo.defaultProfilePic == newUserInfo.defaultProfilePic &&
-      (userInfo.defaultProfilePic == false || newUserInfo.profilePic == userInfo.profilePic)
+      newUserInfo.defaultProfilePic == userInfo.defaultProfilePic &&
+      (userInfo.defaultProfilePic == true || newUserInfo.profilePic == userInfo.profilePic)
     ) {
       setShowSaveButton(false)
     } else {
