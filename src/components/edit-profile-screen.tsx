@@ -7,6 +7,7 @@ import { ChangeEvent } from 'react';
 import '../styles/edit-profile-screen.css';
 import { UserInfo } from '../App';
 import { createDefaultProfilePic } from '../utils/user-profiles';
+import { updateUserInfo } from '../services/db';
 
 /** 
  * @file This module contains everything located on the edit profile screen of the app
@@ -78,11 +79,11 @@ function ExitButtons({newUserInfo, userInfo, setUserInfo, setEditProfileOpen} : 
     } else {
       setShowSaveButton(true)
     }
-    console.log(newUserInfo.pronouns, userInfo?.pronouns)
   }, [newUserInfo])
 
   function onSaveButtonClick() {
-    setUserInfo( newUserInfo )
+    setUserInfo(newUserInfo)
+    updateUserInfo(newUserInfo)
     setShowSaveButton( false )
   }
 

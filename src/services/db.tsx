@@ -1,7 +1,7 @@
 // External Libraries
 import { 
   setDoc, addDoc, // Database write operations
-  getDoc, getDocs, serverTimestamp, // Database read operations
+  getDoc, getDocs, updateDoc, serverTimestamp, // Database read operations
   doc, collection, // Document and collection references
   query, orderBy, limit, where, // Query operations
   onSnapshot, Unsubscribe, // Real-time listeners
@@ -156,4 +156,20 @@ export async function handleSignIn (setUserInfo: Dispatch<SetStateAction<UserInf
     };
     setUserInfo(userInfo);
   }
+}
+
+export function updateUserInfo(newUserInfo: UserInfo) {
+  let profilePic: string | null = newUserInfo.profilePic
+  if (newUserInfo.defaultProfilePic) { 
+    profilePic = null
+  }
+
+  updateDoc(doc(db, "users", newUserInfo.uid), {
+    displayName: newUserInfo.displayName,
+    defaultProfilePic: newUserInfo.defaultProfilePic,
+    profilePic: profilePic,
+    colour: newUserInfo.colour,
+    pronouns: newUserInfo.pronouns,
+    bio: newUserInfo.bio
+  })
 }
