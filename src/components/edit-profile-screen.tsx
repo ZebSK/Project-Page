@@ -20,6 +20,9 @@ import { updateUserInfo } from '../services/db';
 /**
  * The parent component holding the entire message screen
  * @component
+ * @param userInfo - The global information stored about the user
+ * @param setUserInfo - The setter for updating the global information about the user
+ * @param setEditProfileOpen - The setter for determining whether this component is visible
  * @returns The MessageScreen component
  */
 function EditProfileScreen({userInfo, setUserInfo, setEditProfileOpen}:{
@@ -60,13 +63,21 @@ export default EditProfileScreen
 
 // COMPONENTS
 
+/**
+ * The buttons at the top of the screen allowing user to save changes and exit screen
+ * @param newUserInfo - The updated user info
+ * @param userInfo - The old user info
+ * @param setUserInfo - The setter for updating the global user info
+ * @param setEditProfileOpen - The setter for the useState determining if this whole screen is open
+ * @returns The ExitButtons component
+ */
 function ExitButtons({newUserInfo, userInfo, setUserInfo, setEditProfileOpen} : { newUserInfo: UserInfo, userInfo: UserInfo | null,
   setUserInfo: Dispatch<SetStateAction<UserInfo | null>>, setEditProfileOpen: Dispatch<SetStateAction<boolean>>}) : JSX.Element {
 
   // Determine whether to show the save changes button
   const [showSaveButton, setShowSaveButton] = useState(true)
   useEffect(() => {
-    if (
+    if ( // Compares newUserInfo to old userInfo
       newUserInfo.displayName === userInfo?.displayName &&
       newUserInfo.colour === userInfo.colour &&
       newUserInfo.pronouns === userInfo.pronouns &&
@@ -76,27 +87,45 @@ function ExitButtons({newUserInfo, userInfo, setUserInfo, setEditProfileOpen} : 
     ) {
       setShowSaveButton(false)
     } else {
+      // Shows save button if userInfo has changed
       setShowSaveButton(true)
     }
-  }, [newUserInfo])
+  }, [newUserInfo]) // Checks every time newUserInfo is updated
 
+  /**
+   * Determines what happens when the save button is clicked
+   */
   function onSaveButtonClick() {
+    // Update locally stored user info
     setUserInfo(newUserInfo)
+
+    // Updates Firebase user info
     updateUserInfo(newUserInfo, userInfo)
+
+    // Hides save button
     setShowSaveButton( false )
   }
 
+  // The JSX Element
   return (
     <div className='exitButtons'> 
+      {/* Button to save changes in User Data */}
       {showSaveButton?
       <button className='saveButton' onClick={() => onSaveButtonClick()}>
         Save Changes
       </button> : <div/> } 
+      {/* Button to exit the Edit Profile Screen */}
       <button onClick={() => {setEditProfileOpen(false)}}>Exit</button>
     </div>
   )
 }
 
+/**
+ * The bar across the top of the screen in the user's colour containing their profile pic
+ * @param newUserInfo - The updated user info
+ * @param setNewUserInfo - The setter for the updated user info
+ * @returns The Top Bar component
+ */
 function TopBar({newUserInfo, setNewUserInfo}: {newUserInfo: UserInfo, setNewUserInfo: Dispatch<SetStateAction<UserInfo>>}): JSX.Element {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -104,7 +133,11 @@ function TopBar({newUserInfo, setNewUserInfo}: {newUserInfo: UserInfo, setNewUse
     <div className= "topBar" style={{background: "linear-gradient(to bottom, " + newUserInfo?.colour + " 50%, transparent 50%)"}}>
       <div className="profileImage">
         <img className="profilePicture" src={newUserInfo?.profilePic} alt="Profile"/>
+
+        {/* The visuals for button which allows updating profile image - clicking automatically clicks the hidden input element */}
         <div className="profilePictureOverlay" onClick={() => {fileInputRef.current?.click()}}>+</div>
+
+        {/* The invisible input element that allows user to add a new profile pic*/}
         <input
           type = "file"
           accept = "image/*"
@@ -120,6 +153,7 @@ function TopBar({newUserInfo, setNewUserInfo}: {newUserInfo: UserInfo, setNewUse
             }
           }}
         />
+        {/* Button that appears with overlay to reset profile picture to default */}
         {!newUserInfo.defaultProfilePic &&
           <button className='removeProfilePicButton' onClick={()=>{
             setNewUserInfo({...newUserInfo, profilePic: createDefaultProfilePic(newUserInfo.displayName, newUserInfo.colour), defaultProfilePic: true})
@@ -130,52 +164,73 @@ function TopBar({newUserInfo, setNewUserInfo}: {newUserInfo: UserInfo, setNewUse
   )
 }
 
+/**
+ * The input box for changing the user's display name
+ * @param newUserInfo - The updated user info
+ * @param setNewUserInfo - The setter for the updated user info
+ * @returns The Display Name Box component
+ */
 function DisplayNameBox({newUserInfo, setNewUserInfo}: {newUserInfo: UserInfo, setNewUserInfo: Dispatch<SetStateAction<UserInfo>>}): JSX.Element {
   return (
     <textarea 
       placeholder='...'
-      maxLength={25}
+      maxLength={25} // Limits character length to 25
       value={ newUserInfo.displayName }
 
       // Handles response to typing in the box
       onChange={(event) => { setNewUserInfo({...newUserInfo, displayName: event.currentTarget.value}); }}
-      onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); }}}
+      onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); }}} // Prevents new lines
 
     ></textarea>
   )
 }
 
+/**
+ * The input box for changing the user's pronouns
+ * @param newUserInfo - The updated user info
+ * @param setNewUserInfo - The setter for the updated user info
+ * @returns The Pronouns Box component
+ */
 function PronounsBox({newUserInfo, setNewUserInfo}: {newUserInfo: UserInfo, setNewUserInfo: Dispatch<SetStateAction<UserInfo>>}): JSX.Element {
   return (
     <textarea 
       placeholder='...'
-      maxLength={25}
+      maxLength={25} // Limits character length to 25
       value={ newUserInfo.pronouns? newUserInfo.pronouns: "" }
 
       // Handles response to typing in the box
       onChange={(event) => { 
-        if (event.currentTarget.value === "") { setNewUserInfo({...newUserInfo, pronouns: null}); }
+        if (event.currentTarget.value === "") { setNewUserInfo({...newUserInfo, pronouns: null}); } // Removes pronouns if box empty
         else { setNewUserInfo({...newUserInfo, pronouns: event.currentTarget.value}); }
       }}
-      onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); }}}
+      onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); }}} // Prevents new lines
       
     ></textarea>
   )
 }
 
+/**
+ * The input box for changing the user's bio
+ * @param newUserInfo - The updated user info
+ * @param setNewUserInfo - The setter for the updated user info
+ * @returns The Bio Box component
+ */
 function BioBox({newUserInfo, setNewUserInfo}: {newUserInfo: UserInfo, setNewUserInfo: Dispatch<SetStateAction<UserInfo>>}): JSX.Element {
   return (
     <textarea 
       className='bio'
       placeholder='...'
-      maxLength={128}
+      maxLength={128} // Limits character length to 128
       value={ newUserInfo.bio? newUserInfo.bio : "" }
 
       // Handles response to typing in the box
-      onChange={(event) => { setNewUserInfo({...newUserInfo, bio: event.currentTarget.value}); }}
+      onChange={(event) => { 
+        if (event.currentTarget.value === "") { setNewUserInfo({...newUserInfo, bio: null}); } // Removes bio if box empty
+        else { setNewUserInfo({...newUserInfo, bio: event.currentTarget.value}); }
+      }}
       onKeyDown={(event) => { if (event.key === "Enter") { 
         const lines = event.currentTarget.value.split('\n');
-          if (lines.length >= 7) {
+          if (lines.length >= 7) { // Limits new lines to 7
             event.preventDefault(); 
           }
       }}}
@@ -184,6 +239,12 @@ function BioBox({newUserInfo, setNewUserInfo}: {newUserInfo: UserInfo, setNewUse
   )
 }
 
+/**
+ * The input component for changing the user's colour
+ * @param newUserInfo - The updated user info
+ * @param setNewUserInfo - The setter for the updated user info
+ * @returns The Colour Picker component
+ */
 function ColourPicker({newUserInfo, setNewUserInfo}: {newUserInfo: UserInfo, setNewUserInfo: Dispatch<SetStateAction<UserInfo>>}): JSX.Element {
   return (
     <input

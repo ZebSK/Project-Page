@@ -132,6 +132,7 @@ export async function handleSignIn (setUserInfo: Dispatch<SetStateAction<UserInf
     for (let i = 0; i < 6; i++) { colour += letters[Math.floor(Math.random() * 16)]; }
     const defaultProfilePic = createDefaultProfilePic(displayName, colour)
 
+    // Save user to database
     setDoc(doc(db, "users", uid), {
       uid: auth.currentUser.uid,
       displayName: displayName,
@@ -158,14 +159,23 @@ export async function handleSignIn (setUserInfo: Dispatch<SetStateAction<UserInf
   }
 }
 
+/**
+ * Updates user info in database 
+ * @param newUserInfo - The new information to store in the database
+ * @param userInfo - The previous user information
+ */
 export function updateUserInfo(newUserInfo: UserInfo, userInfo: UserInfo | null) {
+  // Sets path to profile pic in storage
   let profilePic: string | null = "profilePictures/" + newUserInfo.uid + ".png"
   if (newUserInfo.defaultProfilePic) { 
+    // If no uploaded profile pic, stores null
     profilePic = null
   } else if (newUserInfo.profilePic != userInfo?.profilePic) {
+    // Updates/adds profile pic to storage
     saveProfilePic(newUserInfo.uid, newUserInfo.profilePic)
   }
 
+  // Updates user info in db
   updateDoc(doc(db, "users", newUserInfo.uid), {
     displayName: newUserInfo.displayName,
     defaultProfilePic: newUserInfo.defaultProfilePic,
