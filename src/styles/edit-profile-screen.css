@@ -37,6 +37,52 @@
   padding-bottom: 40px;
 }
 
+.profileImage {
+  width: 120px;
+  height: 120px;
+  border: 5px solid #FFF;
+  background-color: #FFF;
+  border-radius: 60px;
+  position: relative;
+}
+
+.profilePictureOverlay {
+  position:absolute;
+  width: 100%;
+  height: 100%;
+  top: 0px;
+  left: 0px;
+  font-size: 40px;
+  color: #fff;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.2);
+  display: none; /* Initially hidden */
+  align-items: center;
+  justify-content: center;
+}
+
+.removeProfilePicButton {
+  position:absolute;
+  width: 25px;
+  height: 25px;
+  top: 5px;
+  right: 5px;
+  background-color: var(--primary-text-colour);
+  color: var(--primary-background-colour);
+  padding: 0px 0px 5px 0px;
+  line-height: 5px;
+  display: none;
+}
+
+.profileImage:hover .profilePictureOverlay {
+  display: flex;
+  cursor: pointer;
+}
+.profileImage:hover .removeProfilePicButton {
+  display: block;
+}
+
+
 .editProfileScreen textarea {
   display:block;
   min-height: 25px;

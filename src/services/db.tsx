@@ -14,7 +14,7 @@ import { Dispatch, SetStateAction } from 'react';
 import { db, auth } from '../services/firebase';
 import { MessageBlock } from "../components/message-screen";
 import { createDefaultProfilePic } from "../utils/user-profiles";
-import { getProfilePic } from "./storage";
+import { getProfilePic, saveProfilePic } from "./storage";
 import { UserInfo } from "../App";
 
 /** 
@@ -158,10 +158,12 @@ export async function handleSignIn (setUserInfo: Dispatch<SetStateAction<UserInf
   }
 }
 
-export function updateUserInfo(newUserInfo: UserInfo) {
-  let profilePic: string | null = newUserInfo.profilePic
+export function updateUserInfo(newUserInfo: UserInfo, userInfo: UserInfo | null) {
+  let profilePic: string | null = "profilePictures/" + newUserInfo.uid + ".png"
   if (newUserInfo.defaultProfilePic) { 
     profilePic = null
+  } else if (newUserInfo.profilePic != userInfo?.profilePic) {
+    saveProfilePic(newUserInfo.uid, newUserInfo.profilePic)
   }
 
   updateDoc(doc(db, "users", newUserInfo.uid), {

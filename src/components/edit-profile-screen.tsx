@@ -1,12 +1,12 @@
 // External libraries
 import { Dispatch, SetStateAction, useEffect } from 'react';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { ChangeEvent } from 'react';
 
 // Internal modules and styles
 import '../styles/edit-profile-screen.css';
 import { UserInfo } from '../App';
-import { createDefaultProfilePic } from '../utils/user-profiles';
+import { compressAndCropProfilePicture, createDefaultProfilePic } from '../utils/user-profiles';
 import { updateUserInfo } from '../services/db';
 
 /** 
@@ -40,10 +40,7 @@ function EditProfileScreen({userInfo, setUserInfo, setEditProfileOpen}:{
     <div className='editProfileScreen'>
       <h2> My Profile </h2>
       <ExitButtons newUserInfo={newUserInfo} userInfo={userInfo} setUserInfo={setUserInfo} setEditProfileOpen={setEditProfileOpen}/>
-      <div className= "topBar" style={{background: "linear-gradient(to bottom, " + newUserInfo?.colour + " 50%, transparent 50%)"}}>
-        <img className="profilePicture" src={newUserInfo?.profilePic} alt="Profile" style={{width:"120px", border:"5px solid #FFF"}}/>
-      </div>
-
+      <TopBar newUserInfo={newUserInfo} setNewUserInfo={setNewUserInfo}/>
       Display Name
       <DisplayNameBox newUserInfo={newUserInfo} setNewUserInfo={setNewUserInfo}/>
       Pronouns
@@ -73,7 +70,9 @@ function ExitButtons({newUserInfo, userInfo, setUserInfo, setEditProfileOpen} : 
       newUserInfo.displayName === userInfo?.displayName &&
       newUserInfo.colour === userInfo.colour &&
       newUserInfo.pronouns === userInfo.pronouns &&
-      newUserInfo.bio === userInfo.bio
+      newUserInfo.bio === userInfo.bio &&
+      newUserInfo.defaultProfilePic == newUserInfo.defaultProfilePic &&
+      (userInfo.defaultProfilePic == false || newUserInfo.profilePic == userInfo.profilePic)
     ) {
       setShowSaveButton(false)
     } else {
@@ -83,7 +82,7 @@ function ExitButtons({newUserInfo, userInfo, setUserInfo, setEditProfileOpen} : 
 
   function onSaveButtonClick() {
     setUserInfo(newUserInfo)
-    updateUserInfo(newUserInfo)
+    updateUserInfo(newUserInfo, userInfo)
     setShowSaveButton( false )
   }
 
@@ -94,6 +93,39 @@ function ExitButtons({newUserInfo, userInfo, setUserInfo, setEditProfileOpen} : 
         Save Changes
       </button> : <div/> } 
       <button onClick={() => {setEditProfileOpen(false)}}>Exit</button>
+    </div>
+  )
+}
+
+function TopBar({newUserInfo, setNewUserInfo}: {newUserInfo: UserInfo, setNewUserInfo: Dispatch<SetStateAction<UserInfo>>}): JSX.Element {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  return(
+    <div className= "topBar" style={{background: "linear-gradient(to bottom, " + newUserInfo?.colour + " 50%, transparent 50%)"}}>
+      <div className="profileImage">
+        <img className="profilePicture" src={newUserInfo?.profilePic} alt="Profile"/>
+        <div className="profilePictureOverlay" onClick={() => {fileInputRef.current?.click()}}>+</div>
+        <input
+          type = "file"
+          accept = "image/*"
+          ref = {fileInputRef}
+          style = {{ display: "none" }}
+          onChange={ async (event: React.ChangeEvent<HTMLInputElement>) => {
+            if (event.target.files) {
+              const file = event.target.files?.[0];
+              if (file) {
+                const profilePic = await compressAndCropProfilePicture(file)
+                setNewUserInfo({...newUserInfo, profilePic: profilePic, defaultProfilePic: false});
+              }
+            }
+          }}
+        />
+        {!newUserInfo.defaultProfilePic &&
+          <button className='removeProfilePicButton' onClick={()=>{
+            setNewUserInfo({...newUserInfo, profilePic: createDefaultProfilePic(newUserInfo.displayName, newUserInfo.colour), defaultProfilePic: true})
+          }}>×</button>
+        }
+      </div>
     </div>
   )
 }
