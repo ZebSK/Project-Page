@@ -9,26 +9,42 @@ import EditProfileScreen from './components/edit-profile-screen.tsx';
 
 import { auth } from './services/firebase.tsx';
 import { handleLogout } from './services/auth.tsx';
-import { handleSignIn } from './services/db.tsx';
+import { handleSignIn, subscribeToUserInfo } from './services/db.tsx';
 
 
 
 // INTERFACE DEFINITIONS
 
 /**
- * UserInfo interface describing the structure of the user info
+ * UserInfo interface representing the structure of information about the user
  */
 export interface UserInfo {
-  uid: string;
-  displayName: string;
+  uid: string; // Unique identifier
+  displayName: string; 
 
-  defaultProfilePic: boolean;
-  profilePic: string;
-  colour: string;
+  defaultProfilePic: boolean; // Indicates whether user is using the default profile picture
+  profilePic: string; // The URL for the user's profile picture
+  colour: string; // The colour to be used for design elements for that user
 
   pronouns: string | null;
   bio: string | null;
 }
+
+/**
+ * UserDictionary interface containing a dictionary of user's unique identifiers and their corresponding information
+ */
+export interface UserDictionary {
+  [uid: string]: UserInfo;
+}
+
+/**
+ * MessageBlock interface describing the structure of information stored about a message
+ */
+export interface MessageBlock {
+  uid: string;
+  messageContents: string[]; // Contains a list of strings for each message
+}
+
 
 
 
@@ -45,12 +61,17 @@ function App(): JSX.Element {
   // useStates for determining state variables
   const [userAuth] = useAuthState(auth); // Check if signed in
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null)
+  const [otherUserInfo, setOtherUserInfo] = useState<UserDictionary>({})
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const [editProfileOpen, setEditProfileOpen] = useState(false)
 
   // useEffects that run every time the dependencies change
   useEffect(() => { handleSignIn(setUserInfo) }, [userAuth])
   useEffect(() => { outsideUserMenuClick(userMenuRef, setUserMenuOpen) }, [])
+  useEffect(() => { if (userAuth) {
+    const unsubscribe = subscribeToUserInfo(userAuth.uid, setOtherUserInfo)
+    return () => { unsubscribe() }
+  } }, [userAuth])
 
   return (
     <div className='App'>
@@ -60,7 +81,9 @@ function App(): JSX.Element {
         : 
         <div className='appScreen'>
           {/* Main section of screen */}
-          {editProfileOpen? <EditProfileScreen userInfo = {userInfo} setUserInfo = {setUserInfo} setEditProfileOpen = {setEditProfileOpen}/> :<MessageScreen/>}
+          {editProfileOpen? 
+            <EditProfileScreen userInfo = {userInfo} setUserInfo = {setUserInfo} setEditProfileOpen = {setEditProfileOpen}/> :  
+            <MessageScreen userInfo = {userInfo} otherUserInfo = {otherUserInfo}/>}
 
           {/* Account button */}
           <button className = "accountButton" onClick={(event) => handleProfileButtonClick(event, setUserMenuOpen, userMenuOpen)}>

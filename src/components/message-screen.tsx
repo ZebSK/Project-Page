@@ -9,6 +9,7 @@ import { messagesRef, sendMessage, loadPastMessages, subscribeToMessages } from 
 import { auth } from '../services/firebase';
 import '../styles/message-screen.css';
 import { markdownToHTML } from '../utils/text-formatting';
+import { MessageBlock, UserDictionary, UserInfo } from '../App';
 
 /** 
  * @file This module contains everything located on the central message screen of the app
@@ -16,28 +17,16 @@ import { markdownToHTML } from '../utils/text-formatting';
  */ 
 
 
-
-// INTERFACE DEFINITIONS
-
-/**
- * MessageBlock interface describing the structure of a Message Block
- */
-export interface MessageBlock {
-  uid: string;
-  displayName: string;
-  messageContents: string[]; // Contains a list of strings for each message
-}
-  
-
-
 // REACT COMPONENTS
 
 /**
  * The parent component holding the entire message screen
  * @component
+ * @param userInfo - The info for the current user
+ * @param otherUserInfo - The info for all other users
  * @returns The MessageScreen component
  */
-function MessageScreen(): JSX.Element {
+function MessageScreen({userInfo, otherUserInfo}: {userInfo: UserInfo | null, otherUserInfo: UserDictionary}): JSX.Element {
   // useRefs for reference objects that persist across re-renders
   const messageContainerRef = useRef<HTMLDivElement>(null);
   const inputBoxRef = useRef<HTMLTextAreaElement>(null);
@@ -61,7 +50,7 @@ function MessageScreen(): JSX.Element {
     <div className='messageScreen'>
       <div className='messageContainer' ref={messageContainerRef}>
         {messageBlocks.map((messageBlock, index) => (
-          <MessageBlock key={index} messageContents={messageBlock.messageContents} uid = {messageBlock.uid} displayName = {messageBlock.displayName} />
+          <MessageBlock key={index} messageContents={messageBlock.messageContents} uid={messageBlock.uid} userInfo={userInfo} otherUserInfo={otherUserInfo}/>
         ))}
       </div>
       {scrollButtonVisible && 
@@ -120,11 +109,13 @@ function InputBox({ inputBoxValue, setInputBoxValue, inputBoxRef } : { inputBoxV
  * MessageBlock component holding all messages in a block (same owner)
  * @param messageContents - An array containing the contents of the messages
  * @param uid - The user id of the person who sent the message
- * @param displayName - The display name of the person who sent the message
+ * @param userInfo - The user info of the current user
+ * @param otherUserInfo - The user info for all other users
  * @returns The MessageBlock component
  */
-function MessageBlock({ messageContents, uid, displayName }: { messageContents: string[]; uid: string; displayName: string }): JSX.Element {
+function MessageBlock({ messageContents, uid, userInfo, otherUserInfo }: { messageContents: string[]; uid: string, userInfo: UserInfo | null, otherUserInfo: UserDictionary }): JSX.Element {
   const isYoursIndicator: string = uid === auth.currentUser?.uid? "right": "left"  // convert isYours boolean to string
+  const displayName: string = uid === userInfo?.uid? userInfo.displayName : otherUserInfo[uid].displayName
   return (
     // Second map function to map each message in the block
     <div className='messageBlock'>
@@ -300,9 +291,8 @@ function handleEnter(textValue: string, setInputBoxValue: Dispatch<SetStateActio
  * @param setMessageBlocks - The setter to update messageBlocks
  * @param textValue - The new message to be added
  * @param uid - The user id who sent the message
- * @param displayName - The display name of the user who sent the message
  */
-export function addMessageToBlocks(messageBlocks: MessageBlock[], setMessageBlocks: Dispatch<SetStateAction<MessageBlock[]>>, textValue: string, uid: string, displayName: string) {
+export function addMessageToBlocks(messageBlocks: MessageBlock[], setMessageBlocks: Dispatch<SetStateAction<MessageBlock[]>>, textValue: string, uid: string) {
   if (messageBlocks) { }
   const appendToRecentBlock = (messageBlocks: MessageBlock[], textValue: string) => {
     let finalBlock: MessageBlock = { ...messageBlocks[messageBlocks.length - 1] }
@@ -313,11 +303,10 @@ export function addMessageToBlocks(messageBlocks: MessageBlock[], setMessageBloc
       finalBlock
     ]
   }
-  const appendNewBlock = (messageBlocks: MessageBlock[], textValue: string, uid: string, displayName: string) => [
+  const appendNewBlock = (messageBlocks: MessageBlock[], textValue: string, uid: string) => [
     ...messageBlocks,
     {
       uid: uid,
-      displayName: displayName,
       messageContents: [textValue],
     }
   ]
@@ -326,7 +315,7 @@ export function addMessageToBlocks(messageBlocks: MessageBlock[], setMessageBloc
     if (prevBlocks.length > 0 && prevBlocks[prevBlocks.length - 1].uid === uid) {
       return appendToRecentBlock(prevBlocks, textValue);
     } else {
-      return appendNewBlock(prevBlocks, textValue, uid, displayName);
+      return appendNewBlock(prevBlocks, textValue, uid);
     }
   });
 }
@@ -367,9 +356,8 @@ async function listenToMessages(messageBlocks: MessageBlock[], setMessageBlocks:
       const data = pastMessages[i].data();
       const textValue = data.text;
       const uid = data.uid;
-      const displayName = data.userDisplayName;
 
-      addMessageToBlocks(messageBlocks, setMessageBlocks, textValue, uid, displayName)
+      addMessageToBlocks(messageBlocks, setMessageBlocks, textValue, uid)
 
       if ( i === 0 ) { 
         startListening = data.createdAt; // Start listening from time of last message sent
