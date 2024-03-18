@@ -1,8 +1,8 @@
 // Internal Modules
-import { signInWithGoogle } from "../services/auth"
+import { signInWithGoogle } from "../../services/auth"
 
-import '../styles/sign-in-screen.css';
-import googleLogo from '../assets/google-logo.jpg';
+import './sign-in-screen.css';
+import googleLogo from '../../assets/google-logo.jpg';
 
 /** 
  * @file This module contains the sign-in screen that appears if not logged in

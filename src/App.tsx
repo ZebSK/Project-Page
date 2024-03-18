@@ -3,9 +3,9 @@ import {useAuthState } from 'react-firebase-hooks/auth';
 import { useEffect, useState, useRef, Dispatch, SetStateAction } from 'react';
 
 // Internal modules
-import MessageScreen from './components/message-screen.tsx';
-import SignInScreen from './components/sign-in-screen.tsx';
-import EditProfileScreen from './components/edit-profile-screen.tsx';
+import MessageScreen from './components/MessageScreen/MessageScreen.tsx';
+import SignInScreen from './components/SignInScreen/SignInScreen.tsx';
+import EditProfileScreen from './components/EditProfileScreen/EditProfileScreen.tsx';
 
 import { auth } from './services/firebase.tsx';
 import { handleLogout } from './services/auth.tsx';

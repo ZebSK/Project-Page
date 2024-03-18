@@ -4,12 +4,12 @@ import { Dispatch, SetStateAction } from 'react';
 import { FieldValue } from '@firebase/firestore';
 
 // Internal modules and styles
-import { scrollToBottom } from '../utils/scrolling';
-import { messagesRef, sendMessage, loadPastMessages, subscribeToMessages } from '../services/db';
-import { auth } from '../services/firebase';
-import '../styles/message-screen.css';
-import { markdownToHTML } from '../utils/text-formatting';
-import { MessageBlock, UserDictionary, UserInfo } from '../App';
+import { scrollToBottom } from '../../utils/scrolling';
+import { messagesRef, sendMessage, loadPastMessages, subscribeToMessages } from '../../services/db';
+import { auth } from '../../services/firebase';
+import './message-screen.css';
+import { markdownToHTML } from '../../utils/text-formatting';
+import { MessageBlock, UserDictionary, UserInfo } from '../../App';
 
 /** 
  * @file This module contains everything located on the central message screen of the app

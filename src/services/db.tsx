@@ -11,7 +11,7 @@ import {
 import { Dispatch, SetStateAction } from 'react';
 
 // Internal Modules
-import { db, auth } from '../services/firebase';
+import { db, auth } from './firebase';
 import { MessageBlock, UserDictionary } from "../App";
 import { createDefaultProfilePic } from "../utils/user-profiles";
 import { getProfilePic, saveProfilePic } from "./storage";

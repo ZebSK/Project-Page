@@ -4,10 +4,10 @@ import { useState, useRef } from 'react';
 import { ChangeEvent } from 'react';
 
 // Internal modules and styles
-import '../styles/edit-profile-screen.css';
-import { UserInfo } from '../App';
-import { compressAndCropProfilePicture, createDefaultProfilePic } from '../utils/user-profiles';
-import { updateUserInfo } from '../services/db';
+import './edit-profile-screen.css';
+import { UserInfo } from '../../App';
+import { compressAndCropProfilePicture, createDefaultProfilePic } from '../../utils/user-profiles';
+import { updateUserInfo } from '../../services/db';
 
 /** 
  * @file This module contains everything located on the edit profile screen of the app
