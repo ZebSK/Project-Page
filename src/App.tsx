@@ -3,47 +3,16 @@ import {useAuthState } from 'react-firebase-hooks/auth';
 import { useEffect, useState, useRef, Dispatch, SetStateAction } from 'react';
 
 // Internal modules
-import MessageScreen from './components/MessageScreen/MessageScreen.tsx';
-import SignInScreen from './components/SignInScreen/SignInScreen.tsx';
-import EditProfileScreen from './components/EditProfileScreen/EditProfileScreen.tsx';
+import MessageScreen from './components/MessageScreen/MessageScreen';
+import SignInScreen from './components/SignInScreen/SignInScreen';
+import EditProfileScreen from './components/EditProfileScreen/EditProfileScreen';
 
-import { auth } from './services/firebase.tsx';
-import { handleLogout } from './services/auth.tsx';
-import { handleSignIn, subscribeToUserInfo } from './services/db.tsx';
+import './styles/app.css';
 
-
-
-// INTERFACE DEFINITIONS
-
-/**
- * UserInfo interface representing the structure of information about the user
- */
-export interface UserInfo {
-  uid: string; // Unique identifier
-  displayName: string; 
-
-  defaultProfilePic: boolean; // Indicates whether user is using the default profile picture
-  profilePic: string; // The URL for the user's profile picture
-  colour: string; // The colour to be used for design elements for that user
-
-  pronouns: string | null;
-  bio: string | null;
-}
-
-/**
- * UserDictionary interface containing a dictionary of user's unique identifiers and their corresponding information
- */
-export interface UserDictionary {
-  [uid: string]: UserInfo;
-}
-
-/**
- * MessageBlock interface describing the structure of information stored about a message
- */
-export interface MessageBlock {
-  uid: string;
-  messageContents: string[]; // Contains a list of strings for each message
-}
+import { UserInfo, UserDictionary } from './types/interfaces';
+import { auth } from './services/firebase';
+import { handleLogout } from './services/auth';
+import { handleSignIn, subscribeToUserInfo } from './services/db';
 
 
 

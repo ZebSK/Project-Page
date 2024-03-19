@@ -5,7 +5,7 @@ import { ChangeEvent } from 'react';
 
 // Internal modules and styles
 import './edit-profile-screen.css';
-import { UserInfo } from '../../App';
+import { UserInfo } from '../../types/interfaces';
 import { compressAndCropProfilePicture, createDefaultProfilePic } from '../../utils/user-profiles';
 import { updateUserInfo } from '../../services/db';
 

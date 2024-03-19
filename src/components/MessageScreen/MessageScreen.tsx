@@ -9,7 +9,7 @@ import { messagesRef, sendMessage, loadPastMessages, subscribeToMessages } from 
 import { auth } from '../../services/firebase';
 import './message-screen.css';
 import { markdownToHTML } from '../../utils/text-formatting';
-import { MessageBlock, UserDictionary, UserInfo } from '../../App';
+import { MessageBlock, UserDictionary, UserInfo } from "../../types/interfaces";;
 
 /** 
  * @file This module contains everything located on the central message screen of the app

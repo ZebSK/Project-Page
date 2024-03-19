@@ -12,10 +12,10 @@ import { Dispatch, SetStateAction } from 'react';
 
 // Internal Modules
 import { db, auth } from './firebase';
-import { MessageBlock, UserDictionary } from "../App";
+import { MessageBlock, UserInfo, UserDictionary } from "../types/interfaces";
 import { createDefaultProfilePic } from "../utils/user-profiles";
 import { getProfilePic, saveProfilePic } from "./storage";
-import { UserInfo } from "../App";
+
 
 /** 
  * @file This module contains everything that requires accessing Firebase Firestore 
