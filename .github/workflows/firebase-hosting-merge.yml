@@ -15,6 +15,13 @@ jobs:
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
-          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_ZUBBLEHOME }}'
+          # firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_ZUBBLEHOME }}'
           channelId: live
           projectId: zubblehome
+
+          VITE_API_KEY: '${{ secrets.API_KEY }}'
+          VITE_AUTH_DOMAIN: '${{ secrets.AUTH_DOMAIN }}'
+          VITE_PROJECT_ID: '${{ secrets.PROJECT_ID }}'
+          VITE_STORAGE_BUCKET: '${{ secrets.STORAGE_BUCKET }}'
+          VITE_MESSAGING_SENDER_ID: '${{ secrets.MESSAGING_SENDER_ID }}'
+          VITE_APP_ID: '${{ secrets.APP_ID }}'

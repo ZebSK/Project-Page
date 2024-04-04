@@ -28,11 +28,12 @@ To get started with this project, follow these steps:
 ```
 git clone https://github.com/ZebSK/ZubbleHome.git
 ```
-3. Install project dependencies using npm
+2. Install project dependencies using npm
 ```
 cd ZubbleHome
 npm install
 ```
+3. Rename '.env.example' to '.env'
 
 ### Running the Application using Emulators
 This runs the project locally on your machine in development mode 
@@ -52,7 +53,6 @@ If you would like to deploy your own Firebase web app using this project, follow
     - In "Authentication" enable and configure Google Sign-In
     - Set-up "Firestore Database" and "Storage" and configure the rules to those found in "config\firestore.rules" and "config\storage.rules" respectively
 2. Configure the App with your environment variables
-    - Rename '.env.example' to '.env'
     - In the Firebase console, navigate to "Project Settings" > "General" and scroll down to find the Firebase configuration values
     - Use these to populate the '.env' file
     - Update 'firebase.json' and '.firebaserc' to reflect project settings
