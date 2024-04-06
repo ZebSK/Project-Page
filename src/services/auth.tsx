@@ -5,13 +5,12 @@ import { signInWithPopup, GoogleAuthProvider, signOut } from "firebase/auth";
 import { auth } from "./firebase"
 
 /** 
- * @file This module contains everything that requires accessing Firebase Authentication 
- * @module Auth
+ * This file contains everything that requires accessing Firebase Authentication 
  */ 
+
 
 // Sets up google provider
 const provider = new GoogleAuthProvider();
-
 
 /**
  * Function opening a popup allowing the user to sign in with Google

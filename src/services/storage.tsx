@@ -6,8 +6,7 @@ import { storage } from "./firebase";
 
 
 /** 
- * @file This module contains everything that requires accessing Firebase Storage 
- * @module Storage
+ * This module contains everything that requires accessing Firebase Storage
  */ 
 
 

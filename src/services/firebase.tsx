@@ -5,8 +5,7 @@ import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
 import { getStorage, connectStorageEmulator } from 'firebase/storage';
 
 /** 
- * @file This module contains everything required to initialise Firebase 
- * @module Firebase
+ * This module contains everything required to initialise Firebase
  */ 
 
 // Set up web app's Firebase configuration
