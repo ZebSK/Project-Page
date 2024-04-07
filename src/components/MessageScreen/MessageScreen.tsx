@@ -1,6 +1,5 @@
 // External libraries
 import { useState, useRef, useEffect } from 'react';
-import { Dispatch, SetStateAction } from 'react';
 import { FieldValue } from '@firebase/firestore';
 
 // Internal modules and styles
@@ -11,6 +10,7 @@ import './message-screen.css';
 import { markdownToHTML } from '../../utils/text-formatting';
 import { MessageBlock } from "../../types/interfaces";;
 import { useUsers } from '../../contexts/users-context';
+import { DivRefObject, SetStateBoolean, SetStateMsgBlockList, SetStateString, TextAreaRefObject } from '../../types/aliases';
 
 /** 
  * @file This module contains everything located on the central message screen of the app
@@ -73,7 +73,7 @@ export default MessageScreen
  * @returns The InputBox component
  */
 function InputBox({ inputBoxValue, setInputBoxValue, inputBoxRef } : { inputBoxValue: string; 
-  setInputBoxValue: Dispatch<SetStateAction<string>>; inputBoxRef: React.RefObject<HTMLTextAreaElement>}): JSX.Element {
+  setInputBoxValue: SetStateString; inputBoxRef: TextAreaRefObject}): JSX.Element {
     // Allows adjustment of height to fit around the text entered
     const [inputBoxHeight, setInputBoxHeight] = useState<string> ("");
     useEffect(() => {
@@ -113,7 +113,7 @@ function InputBox({ inputBoxValue, setInputBoxValue, inputBoxRef } : { inputBoxV
 function MessageBlock({ messageContents, uid }: { messageContents: string[]; uid: string }): JSX.Element {
   const { currUserInfo, otherUserInfo } = useUsers();
   const isYoursIndicator: string = uid === auth.currentUser?.uid? "right": "left"  // convert isYours boolean to string
-  const displayName: string = uid === currUserInfo?.uid? currUserInfo.displayName : otherUserInfo[uid].displayName
+  const displayName: string = uid === currUserInfo?.uid? currUserInfo.displayName : otherUserInfo[uid]?.displayName
   return (
     // Second map function to map each message in the block
     <div className='messageBlock'>
@@ -148,7 +148,7 @@ function Message({ isYoursIndicator, messageContent }: { isYoursIndicator: strin
  * @param messageContainerRef The messageContainer component
  * @param setScrollButtonVisible The setter for the scroll button visibility
  */
-function showScrollButton (messageContainerRef: React.RefObject<HTMLDivElement>, setScrollButtonVisible: Dispatch<SetStateAction<boolean>>) {
+function showScrollButton (messageContainerRef: DivRefObject, setScrollButtonVisible: SetStateBoolean) {
   const container = messageContainerRef.current;
   if (!container) { return; }
 
@@ -177,7 +177,7 @@ function showScrollButton (messageContainerRef: React.RefObject<HTMLDivElement>,
  * Function for the useEffect determining whether to scroll down on receiving a new message
  * @param messageContainerRef The messageContainer component
  */
-function scrollOnNewMessage (messageContainerRef: React.RefObject<HTMLDivElement>) {
+function scrollOnNewMessage (messageContainerRef: DivRefObject) {
   const container = messageContainerRef.current;
   if (!container) { return; }
 
@@ -209,8 +209,7 @@ function scrollOnNewMessage (messageContainerRef: React.RefObject<HTMLDivElement
  * @param setScrollButtonHeight - The setter to determine the height of the scroll button
  * @returns 
  */
-function handleInputBoxExpand (messageContainerRef: React.RefObject<HTMLDivElement>, inputBoxRef: React.RefObject<HTMLTextAreaElement>,
-  setScrollButtonHeight: Dispatch<SetStateAction<string>>) {
+function handleInputBoxExpand (messageContainerRef: DivRefObject, inputBoxRef: TextAreaRefObject, setScrollButtonHeight: SetStateString) {
     const container = messageContainerRef.current;
     const inputBoxElement = inputBoxRef.current;
     if (!container || !inputBoxElement) { return; }
@@ -256,7 +255,7 @@ function handleInputBoxExpand (messageContainerRef: React.RefObject<HTMLDivEleme
  * @param inputBoxRef - The inputBox component
  * @param setScrollButtonHeight - The setter to determine the height of the scroll button
  */
-function determineScrollButtonHeight(inputBoxRef: React.RefObject<HTMLTextAreaElement>, setScrollButtonHeight: Dispatch<SetStateAction<string>>) {
+function determineScrollButtonHeight(inputBoxRef: TextAreaRefObject, setScrollButtonHeight: SetStateString) {
   const inputBoxElement = inputBoxRef.current;
   if (!inputBoxElement) { return "0px"; } 
   const inputBoxStyles = getComputedStyle(inputBoxElement);
@@ -275,7 +274,7 @@ function determineScrollButtonHeight(inputBoxRef: React.RefObject<HTMLTextAreaEl
  * @param textValue - The new message to be added
  * @param setInputBoxValue - The setter to clear the input box
  */
-function handleEnter(textValue: string, setInputBoxValue: Dispatch<SetStateAction<string>>) {
+function handleEnter(textValue: string, setInputBoxValue: SetStateString) {
   sendMessage(messagesRef, textValue)
   if (!auth.currentUser) { return; }
   let displayName = auth.currentUser.displayName
@@ -290,7 +289,7 @@ function handleEnter(textValue: string, setInputBoxValue: Dispatch<SetStateActio
  * @param textValue - The new message to be added
  * @param uid - The user id who sent the message
  */
-export function addMessageToBlocks(messageBlocks: MessageBlock[], setMessageBlocks: Dispatch<SetStateAction<MessageBlock[]>>, textValue: string, uid: string) {
+export function addMessageToBlocks(messageBlocks: MessageBlock[], setMessageBlocks: SetStateMsgBlockList, textValue: string, uid: string) {
   if (messageBlocks) { }
   const appendToRecentBlock = (messageBlocks: MessageBlock[], textValue: string) => {
     let finalBlock: MessageBlock = { ...messageBlocks[messageBlocks.length - 1] }
@@ -323,7 +322,7 @@ export function addMessageToBlocks(messageBlocks: MessageBlock[], setMessageBloc
  * @param inputBoxRef - The inputBox component
  * @param setInputBoxHeight - The setter to determine the height of the input box
  */
-function fitInputBoxToText(inputBoxRef: React.RefObject<HTMLTextAreaElement>, setInputBoxHeight: Dispatch<SetStateAction<string>>) {
+function fitInputBoxToText(inputBoxRef: TextAreaRefObject, setInputBoxHeight: SetStateString) {
   const inputBoxElement = inputBoxRef.current
   if (!inputBoxElement) { return; }
 
@@ -343,7 +342,7 @@ function fitInputBoxToText(inputBoxRef: React.RefObject<HTMLTextAreaElement>, se
  * @param setMessageBlocks - The setter to set messageBlocks 
  * @param messageContainerRef - The ref for the message container holding the messages
  */
-async function listenToMessages(messageBlocks: MessageBlock[], setMessageBlocks: Dispatch<SetStateAction<MessageBlock[]>>, messageContainerRef: React.RefObject<HTMLDivElement>) {
+async function listenToMessages(messageBlocks: MessageBlock[], setMessageBlocks: SetStateMsgBlockList, messageContainerRef: DivRefObject) {
   let startListening: FieldValue | null = null
   if ( messageBlocks.length === 0 ) { // Checks if messages already loaded
     // Load past 25 messages onto screen

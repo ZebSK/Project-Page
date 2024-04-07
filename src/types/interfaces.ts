@@ -13,7 +13,7 @@
 
 // Internal Modules
 import { User } from "firebase/auth";
-import { SetStateUserData, SetStateUserDict } from "./aliases";
+import { SetStateUserDataNull, SetStateUserDict } from "./aliases";
 
 
 
@@ -26,7 +26,7 @@ export interface UsersContext {
   userAuth: User | null | undefined;
 
   currUserInfo: UserData | null;
-  setCurrUserInfo: SetStateUserData;
+  setCurrUserInfo: SetStateUserDataNull;
 
   otherUserInfo: UserDictionary;
   setOtherUserInfo: SetStateUserDict;

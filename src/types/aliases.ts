@@ -19,17 +19,21 @@ import { MessageBlock } from "./interfaces"
 
 // useState Setters
 export type SetStateBoolean = Dispatch<SetStateAction<boolean>>
+export type SetStateString = Dispatch<SetStateAction<string>>
 
-export type SetStateUserData = Dispatch<SetStateAction<UserData | null>>
+export type SetStateUserData = Dispatch<SetStateAction<UserData>>
+export type SetStateUserDataNull = Dispatch<SetStateAction<UserData | null>>
 export type SetStateUserDict = Dispatch<SetStateAction<UserDictionary>>
 
 export type SetStateMsgBlockList = Dispatch<SetStateAction<MessageBlock[]>>
 
 // useRef Objects
 export type DivRefObject = React.RefObject<HTMLDivElement>
+export type TextAreaRefObject = React.RefObject<HTMLTextAreaElement>
 
 // Firebase Types
 export type DocsSnapshot = Promise<QueryDocumentSnapshot[]>
 
 // React Events
 export type ReactButtonClick = React.MouseEvent<HTMLButtonElement>
+export type ReactInputChange = React.ChangeEvent<HTMLInputElement>

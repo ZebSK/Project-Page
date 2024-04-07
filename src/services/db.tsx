@@ -14,7 +14,7 @@ import { createDefaultProfilePic } from "../utils/user-profiles";
 import { getProfilePic, saveProfilePic } from "./storage";
 
 import { MessageBlock, UserData } from "../types/interfaces";
-import { DocsSnapshot, SetStateMsgBlockList, SetStateUserDict, SetStateUserData } from "../types/aliases";
+import { DocsSnapshot, SetStateMsgBlockList, SetStateUserDict, SetStateUserDataNull } from "../types/aliases";
 
 
 /** 
@@ -101,7 +101,7 @@ export function subscribeToMessages (messagesRef: CollectionReference, startTime
  * Add user to database if new, or retrieve current info about user if not
  * @param setUserInfo - The setter for info about the user
  */
-export async function handleSignIn (setUserInfo: SetStateUserData) {
+export async function handleSignIn (setUserInfo: SetStateUserDataNull) {
   if (!auth.currentUser) { return; }
   const uid = auth.currentUser.uid;
 

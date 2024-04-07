@@ -1,14 +1,12 @@
 // External libraries
-import { Dispatch, SetStateAction, useEffect } from 'react';
-import { useState, useRef } from 'react';
-import { ChangeEvent } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 // Internal modules and styles
 import './edit-profile-screen.css';
 import { UserData } from '../../types/interfaces';
 import { compressAndCropProfilePicture, createDefaultProfilePic } from '../../utils/user-profiles';
 import { updateUserInfo } from '../../services/db';
-import { SetStateBoolean } from '../../types/aliases';
+import { ReactInputChange, SetStateBoolean, SetStateUserData } from '../../types/aliases';
 import { useUsers } from '../../contexts/users-context';
 
 /** 
@@ -123,7 +121,7 @@ function ExitButtons({newUserInfo, setEditProfileOpen} : { newUserInfo: UserData
  * @param setNewUserInfo - The setter for the updated user info
  * @returns The Top Bar component
  */
-function TopBar({newUserInfo, setNewUserInfo}: {newUserInfo: UserData, setNewUserInfo: Dispatch<SetStateAction<UserData>>}): JSX.Element {
+function TopBar({newUserInfo, setNewUserInfo}: {newUserInfo: UserData, setNewUserInfo: SetStateUserData}): JSX.Element {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   return(
@@ -140,7 +138,7 @@ function TopBar({newUserInfo, setNewUserInfo}: {newUserInfo: UserData, setNewUse
           accept = "image/*"
           ref = {fileInputRef}
           style = {{ display: "none" }}
-          onChange={ async (event: React.ChangeEvent<HTMLInputElement>) => {
+          onChange={ async (event: ReactInputChange) => {
             if (event.target.files) {
               const file = event.target.files?.[0];
               if (file) {
@@ -168,7 +166,7 @@ function TopBar({newUserInfo, setNewUserInfo}: {newUserInfo: UserData, setNewUse
  * @param setNewUserInfo - The setter for the updated user info
  * @returns The Display Name Box component
  */
-function DisplayNameBox({newUserInfo, setNewUserInfo}: {newUserInfo: UserData, setNewUserInfo: Dispatch<SetStateAction<UserData>>}): JSX.Element {
+function DisplayNameBox({newUserInfo, setNewUserInfo}: {newUserInfo: UserData, setNewUserInfo: SetStateUserData}): JSX.Element {
   return (
     <textarea 
       placeholder='...'
@@ -190,7 +188,7 @@ function DisplayNameBox({newUserInfo, setNewUserInfo}: {newUserInfo: UserData, s
  * @param setNewUserInfo - The setter for the updated user info
  * @returns The Pronouns Box component
  */
-function PronounsBox({newUserInfo, setNewUserInfo}: {newUserInfo: UserData, setNewUserInfo: Dispatch<SetStateAction<UserData>>}): JSX.Element {
+function PronounsBox({newUserInfo, setNewUserInfo}: {newUserInfo: UserData, setNewUserInfo: SetStateUserData}): JSX.Element {
   return (
     <textarea 
       placeholder='...'
@@ -215,7 +213,7 @@ function PronounsBox({newUserInfo, setNewUserInfo}: {newUserInfo: UserData, setN
  * @param setNewUserInfo - The setter for the updated user info
  * @returns The Bio Box component
  */
-function BioBox({newUserInfo, setNewUserInfo}: {newUserInfo: UserData, setNewUserInfo: Dispatch<SetStateAction<UserData>>}): JSX.Element {
+function BioBox({newUserInfo, setNewUserInfo}: {newUserInfo: UserData, setNewUserInfo: SetStateUserData}): JSX.Element {
   return (
     <textarea 
       className='bio'
@@ -246,13 +244,13 @@ function BioBox({newUserInfo, setNewUserInfo}: {newUserInfo: UserData, setNewUse
  * @param setNewUserInfo - The setter for the updated user info
  * @returns The Colour Picker component
  */
-function ColourPicker({newUserInfo, setNewUserInfo}: {newUserInfo: UserData, setNewUserInfo: Dispatch<SetStateAction<UserData>>}): JSX.Element {
+function ColourPicker({newUserInfo, setNewUserInfo}: {newUserInfo: UserData, setNewUserInfo: SetStateUserData}): JSX.Element {
   return (
     <input
         className= "colourPicker"
         type="color"
         value={newUserInfo?.colour}
-        onChange={(event: ChangeEvent<HTMLInputElement>) => {
+        onChange={(event: ReactInputChange) => {
             const updatedInfo = {...newUserInfo, colour: event.target.value}
             setNewUserInfo(updatedInfo);
           }}
