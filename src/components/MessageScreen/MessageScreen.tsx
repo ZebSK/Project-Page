@@ -9,7 +9,8 @@ import { messagesRef, sendMessage, loadPastMessages, subscribeToMessages } from 
 import { auth } from '../../services/firebase';
 import './message-screen.css';
 import { markdownToHTML } from '../../utils/text-formatting';
-import { MessageBlock, UserDictionary, UserInfo } from "../../types/interfaces";;
+import { MessageBlock } from "../../types/interfaces";;
+import { useUsers } from '../../contexts/users-context';
 
 /** 
  * @file This module contains everything located on the central message screen of the app
@@ -22,11 +23,9 @@ import { MessageBlock, UserDictionary, UserInfo } from "../../types/interfaces";
 /**
  * The parent component holding the entire message screen
  * @component
- * @param userInfo - The info for the current user
- * @param otherUserInfo - The info for all other users
  * @returns The MessageScreen component
  */
-function MessageScreen({userInfo, otherUserInfo}: {userInfo: UserInfo | null, otherUserInfo: UserDictionary}): JSX.Element {
+function MessageScreen(): JSX.Element {
   // useRefs for reference objects that persist across re-renders
   const messageContainerRef = useRef<HTMLDivElement>(null);
   const inputBoxRef = useRef<HTMLTextAreaElement>(null);
@@ -50,7 +49,7 @@ function MessageScreen({userInfo, otherUserInfo}: {userInfo: UserInfo | null, ot
     <div className='messageScreen'>
       <div className='messageContainer' ref={messageContainerRef}>
         {messageBlocks.map((messageBlock, index) => (
-          <MessageBlock key={index} messageContents={messageBlock.messageContents} uid={messageBlock.uid} userInfo={userInfo} otherUserInfo={otherUserInfo}/>
+          <MessageBlock key={index} messageContents={messageBlock.messageContents} uid={messageBlock.uid}/>
         ))}
       </div>
       {scrollButtonVisible && 
@@ -109,13 +108,12 @@ function InputBox({ inputBoxValue, setInputBoxValue, inputBoxRef } : { inputBoxV
  * MessageBlock component holding all messages in a block (same owner)
  * @param messageContents - An array containing the contents of the messages
  * @param uid - The user id of the person who sent the message
- * @param userInfo - The user info of the current user
- * @param otherUserInfo - The user info for all other users
  * @returns The MessageBlock component
  */
-function MessageBlock({ messageContents, uid, userInfo, otherUserInfo }: { messageContents: string[]; uid: string, userInfo: UserInfo | null, otherUserInfo: UserDictionary }): JSX.Element {
+function MessageBlock({ messageContents, uid }: { messageContents: string[]; uid: string }): JSX.Element {
+  const { currUserInfo, otherUserInfo } = useUsers();
   const isYoursIndicator: string = uid === auth.currentUser?.uid? "right": "left"  // convert isYours boolean to string
-  const displayName: string = uid === userInfo?.uid? userInfo.displayName : otherUserInfo[uid].displayName
+  const displayName: string = uid === currUserInfo?.uid? currUserInfo.displayName : otherUserInfo[uid].displayName
   return (
     // Second map function to map each message in the block
     <div className='messageBlock'>

@@ -5,11 +5,32 @@
  * These interfaces define the structure of data within the application
  * 
  * Interfaces:
+ * - UsersContext:    Represents the structure of the useContext for user information
  * - UserInfo:        Represents the structure of information about the user
  * - UserDictionary:  Represents a dictionary of user's unique identifiers and their corresponding information
  * - MessageBlock:    Represents the structure of information stored about a message
- * 
  */
+
+// Internal Modules
+import { User } from "firebase/auth";
+import { SetStateUserData, SetStateUserDict } from "./aliases";
+
+
+
+// CONTEXTS
+
+/**
+ * Interface representing the structure of the useContext for user information
+ */
+export interface UsersContext {
+  userAuth: User | null | undefined;
+
+  currUserInfo: UserData | null;
+  setCurrUserInfo: SetStateUserData;
+
+  otherUserInfo: UserDictionary;
+  setOtherUserInfo: SetStateUserDict;
+}
 
 
 
@@ -18,7 +39,7 @@
 /**
  * Interface representing the structure of information about the user
  */
-export interface UserInfo {
+export interface UserData {
   uid: string; // Unique identifier
   displayName: string; 
 
@@ -34,7 +55,7 @@ export interface UserInfo {
  * Interface representing a dictionary of user's unique identifiers and their corresponding information
  */
 export interface UserDictionary {
-  [uid: string]: UserInfo;
+  [uid: string]: UserData;
 }
 
 

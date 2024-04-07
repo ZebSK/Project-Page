@@ -1,22 +1,31 @@
-// External libraries
-import { useAuthState } from 'react-firebase-hooks/auth';
-import { useEffect, useState, useRef } from 'react';
-import { User } from 'firebase/auth';
+/**
+ * App.tsx
+ * 
+ * The main parent component for the entire app
+ * This contains the logic and code for which components to display
+ * 
+ * Exports:
+ * - App: The React component for the app 
+ */
 
-// Internal modules
+// External Libraries
+import { useEffect, useState, useRef } from 'react';
+
+// Components
 import MessageScreen from './components/MessageScreen/MessageScreen';
 import SignInScreen from './components/SignInScreen/SignInScreen';
 import EditProfileScreen from './components/EditProfileScreen/EditProfileScreen';
 
+// Styles
 import './styles/app.css';
 
-import { UserInfo, UserDictionary } from './types/interfaces';
-import { SetStateBoolean, SetStateUserDict, DivRefObject, ReactButtonClick } from './types/aliases';
+// Types
+import { UserData } from './types/interfaces';
+import { SetStateBoolean, DivRefObject, ReactButtonClick } from './types/aliases';
 
-import { auth } from './services/firebase';
+// Services
 import { handleLogout } from './services/auth';
-import { handleSignIn, subscribeToUserInfo } from './services/db';
-
+import { useUsers } from './contexts/users-context';
 
 
 
@@ -24,6 +33,7 @@ import { handleSignIn, subscribeToUserInfo } from './services/db';
 
 /**
  * Main parent component for the app
+ * @component
  * @returns The App Component
  */
 function App(): JSX.Element {
@@ -31,9 +41,7 @@ function App(): JSX.Element {
   const userMenuRef = useRef<HTMLDivElement>(null);
 
   // User information state variables
-  const [userAuth] = useAuthState(auth); // Check if signed in
-  const [userInfo, setUserInfo] = useState<UserInfo | null>(null)
-  const [otherUserInfo, setOtherUserInfo] = useState<UserDictionary>({})
+  const { userAuth, currUserInfo } = useUsers()
 
   // Visible components state variables
   const [userMenuOpen, setUserMenuOpen] = useState(false)
@@ -41,10 +49,6 @@ function App(): JSX.Element {
 
   // useEffects that run on app starting
   useEffect(() => { outsideUserMenuClick(userMenuRef, setUserMenuOpen) }, [])
-
-  // useEffects that run on login/logout
-  useEffect(() => { handleSignIn(setUserInfo) }, [userAuth])
-  useEffect(() => { listenToUserInfo(userAuth, setOtherUserInfo) }, [userAuth])
 
   // The JSX element for the app
   return (
@@ -56,16 +60,9 @@ function App(): JSX.Element {
         <div className='appScreen'>
           {/* Main section of screen */}
           { editProfileOpen? (
-            <EditProfileScreen 
-              userInfo={userInfo}
-              setUserInfo={setUserInfo}
-              setEditProfileOpen={setEditProfileOpen}
-            />
+            <EditProfileScreen setEditProfileOpen={setEditProfileOpen}/>
           ) : (
-            <MessageScreen 
-              userInfo={userInfo}
-              otherUserInfo={otherUserInfo}
-            />
+            <MessageScreen/>
           )}
 
           {/* Account button */}
@@ -73,14 +70,14 @@ function App(): JSX.Element {
             className="accountButton"
             onClick={(event) => handleProfileButtonClick(event, setUserMenuOpen, userMenuOpen)}
           >
-            <img className="profilePicture" src={userInfo?.profilePic} alt="Profile" />
+            <img className="profilePicture" src={currUserInfo?.profilePic} alt="Profile" />
           </button>
 
           {/* Account button dropdown menu */}
           {userMenuOpen && (
             <DropDownUserMenu 
               userMenuRef={userMenuRef}
-              userInfo={userInfo}
+              userInfo={currUserInfo}
               setUserMenuOpen={setUserMenuOpen}
               setEditProfileOpen={setEditProfileOpen}
             />
@@ -95,6 +92,7 @@ export default App;
 
 /**
  * The component containing the dropdown menu that appears when clicking profile picture
+ * @component
  * @param userMenuRef - The ref object for this component
  * @param userInfo - The info stored about the current user
  * @param setUserMenuOpen - The setter to determine whether the dropdown menu is visible
@@ -102,7 +100,7 @@ export default App;
  * @returns The DropDownUserMenu React component
  */
 function DropDownUserMenu({userMenuRef, userInfo, setUserMenuOpen, setEditProfileOpen} : { userMenuRef: DivRefObject,
-userInfo: UserInfo | null, setUserMenuOpen: SetStateBoolean, setEditProfileOpen: SetStateBoolean }): JSX.Element {
+userInfo: UserData | null, setUserMenuOpen: SetStateBoolean, setEditProfileOpen: SetStateBoolean }): JSX.Element {
   return (
     <div className = "userMenu" ref={userMenuRef}>
       {/* The bar across the top of the dropdown menu */}
@@ -173,21 +171,4 @@ function outsideUserMenuClick(menuRef: DivRefObject, setUserMenuOpen: SetStateBo
 function handleProfileButtonClick(event: ReactButtonClick, setUserMenuOpen: SetStateBoolean, userMenuOpen: boolean) {
   event.stopPropagation(); // Stop outsideUserMenuClick from triggering
   setUserMenuOpen(!userMenuOpen) // Hides or shows the dropdown menu depending on current state
-}
-
-/**
- * Listener to record any updates to user info
- * @param userAuth - The authentication of the current user
- * @param setOtherUserInfo - The setter to update information about other users
- * @returns 
- */
-function listenToUserInfo(userAuth: User | null | undefined, setOtherUserInfo: SetStateUserDict): () => void {
-  if (userAuth) {
-    // Add event listener on new user
-    const unsubscribe = subscribeToUserInfo(userAuth.uid, setOtherUserInfo)
-
-    // Remove event listener on changing user/disconnect
-    return () => { unsubscribe() }
-  }
-  return () => { return }
 }

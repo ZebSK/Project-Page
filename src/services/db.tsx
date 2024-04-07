@@ -13,8 +13,8 @@ import { db, auth } from './firebase';
 import { createDefaultProfilePic } from "../utils/user-profiles";
 import { getProfilePic, saveProfilePic } from "./storage";
 
-import { MessageBlock, UserInfo } from "../types/interfaces";
-import { DocsSnapshot, SetStateMsgBlockList, SetStateUserDict, SetStateUserInfoNull } from "../types/aliases";
+import { MessageBlock, UserData } from "../types/interfaces";
+import { DocsSnapshot, SetStateMsgBlockList, SetStateUserDict, SetStateUserData } from "../types/aliases";
 
 
 /** 
@@ -101,7 +101,7 @@ export function subscribeToMessages (messagesRef: CollectionReference, startTime
  * Add user to database if new, or retrieve current info about user if not
  * @param setUserInfo - The setter for info about the user
  */
-export async function handleSignIn (setUserInfo: SetStateUserInfoNull) {
+export async function handleSignIn (setUserInfo: SetStateUserData) {
   if (!auth.currentUser) { return; }
   const uid = auth.currentUser.uid;
 
@@ -110,7 +110,7 @@ export async function handleSignIn (setUserInfo: SetStateUserInfoNull) {
   
   // If user already in database, retrieve user data
   if (userSnap.exists()) {
-    let userData = userSnap.data() as UserInfo;
+    let userData = userSnap.data() as UserData;
 
     // Get profile pic
     if (!userData.profilePic) {
@@ -144,7 +144,7 @@ export async function handleSignIn (setUserInfo: SetStateUserInfoNull) {
 
     // Set user info to defaults
     if (!displayName) {displayName = "Anonymous"}
-    const userInfo: UserInfo = {
+    const userInfo: UserData = {
       uid: uid,
       displayName: displayName,
       defaultProfilePic: true,
@@ -163,7 +163,7 @@ export async function handleSignIn (setUserInfo: SetStateUserInfoNull) {
  * @param newUserInfo - The new information to store in the database
  * @param userInfo - The previous user information
  */
-export function updateUserInfo(newUserInfo: UserInfo, userInfo: UserInfo | null) {
+export function updateUserInfo(newUserInfo: UserData, userInfo: UserData | null) {
   // Sets path to profile pic in storage
   let profilePic: string | null = "profilePictures/" + newUserInfo.uid + ".png"
   if (newUserInfo.defaultProfilePic) { 
@@ -199,7 +199,7 @@ export function subscribeToUserInfo (currentUserUID: string, setOtherUserInfo: S
     onSnapshot(q, (snapshot) => {
       snapshot.docChanges().forEach((change) => {
         if (change.type === "added" || change.type === "modified") {
-          let userData = change.doc.data() as UserInfo;
+          let userData = change.doc.data() as UserData;
 
           setOtherUserInfo((prevOtherUserInfo) => {
             // Store previously loaded user info
