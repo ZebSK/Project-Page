@@ -7,19 +7,25 @@
  * @exports MessageScreen - The parent component holding the entire message screen
  */ 
 
-// External libraries
+// External Libraries
 import { useState, useRef, useEffect } from 'react';
-import { FieldValue } from '@firebase/firestore';
 
-// Internal modules and styles
-import { scrollToBottom } from '../../utils/scrolling';
-import { messagesRef, sendMessage, loadPastMessages, subscribeToMessages } from '../../services/db';
+// Firebase
+import { messagesRef, sendMessage } from '../../services/db';
 import { auth } from '../../services/firebase';
-import './message-screen.css';
-import { markdownToHTML } from '../../utils/text-formatting';
-import { MessageBlock } from "../../types/interfaces";;
+
+// Functions and Contexts
+import { markdownLaTeXToHTML } from '../../utils/text-formatting';
+import { scrollToBottom } from '../../utils/scrolling';
 import { useUsers } from '../../contexts/users-context';
-import { DivRefObject, SetStateBoolean, SetStateMsgBlockList, SetStateString, TextAreaRefObject } from '../../types/aliases';
+
+// Types
+import { MessageBlock } from "../../types/interfaces";;
+import { DivRefObject, SetStateBoolean, SetStateString, TextAreaRefObject } from '../../types/aliases';
+
+//Styles
+import './message-screen.css';
+import { useMessages } from '../../contexts/messages-context';
 
 
 
@@ -35,8 +41,10 @@ function MessageScreen(): JSX.Element {
   const messageContainerRef = useRef<HTMLDivElement>(null);
   const inputBoxRef = useRef<HTMLTextAreaElement>(null);
 
+  // Fetch messages from context
+  const {messageBlocks} = useMessages()
+
   // useStates for determining state variables
-  const [messageBlocks, setMessageBlocks] = useState<MessageBlock[]>([]);
   const [inputBoxValue, setInputBoxValue] = useState("");
   const [scrollButtonVisible, setScrollButtonVisible] = useState(false);
   const [scrollButtonHeight, setScrollButtonHeight] = useState("0px");
@@ -46,7 +54,6 @@ function MessageScreen(): JSX.Element {
   useEffect(() => { scrollOnNewMessage(messageContainerRef) }, [messageBlocks]);
   useEffect(() => { handleInputBoxExpand(messageContainerRef, inputBoxRef, setScrollButtonHeight) }, []);
   useEffect(() => { determineScrollButtonHeight(inputBoxRef, setScrollButtonHeight) }, []);
-  useEffect(() => { listenToMessages(messageBlocks, setMessageBlocks, messageContainerRef) }, [] )
 
   // The JSX Element
   return (
@@ -72,6 +79,7 @@ export default MessageScreen
 
 /**
  * InputBox component to enter and send messages
+ * @component
  * @param inputBoxValue - The value of the text currently inside the input box
  * @param setInputBoxValue - The setter for the input box value#
  * @param inputBoxRef - The reference for the input box
@@ -111,6 +119,7 @@ function InputBox({ inputBoxValue, setInputBoxValue, inputBoxRef } : { inputBoxV
 
 /**
  * MessageBlock component holding all messages in a block (same owner)
+ * @component
  * @param messageContents - An array containing the contents of the messages
  * @param uid - The user id of the person who sent the message
  * @returns The MessageBlock component
@@ -132,6 +141,7 @@ function MessageBlock({ messageContents, uid }: { messageContents: string[]; uid
 
 /**
  * Message component holding each individual message
+ * @component
  * @param isYoursIndicator - Determines which side of the screen to display the message
  * @param messageContent - The content of the message
  * @returns The Message component
@@ -139,7 +149,7 @@ function MessageBlock({ messageContents, uid }: { messageContents: string[]; uid
 function Message({ isYoursIndicator, messageContent }: { isYoursIndicator: string; messageContent: string }): JSX.Element {
   return(
     <div className = {"messageBubble" + " " + isYoursIndicator}>
-      {markdownToHTML(messageContent)}
+      {markdownLaTeXToHTML(messageContent)}
     </div>
   );
 }
@@ -287,40 +297,6 @@ function handleEnter(textValue: string, setInputBoxValue: SetStateString) {
   setInputBoxValue("");
 }
 
-/**
- * Function handling adding of messages to MessageBlocks
- * @param messageBlocks - The current messageBlocks
- * @param setMessageBlocks - The setter to update messageBlocks
- * @param textValue - The new message to be added
- * @param uid - The user id who sent the message
- */
-export function addMessageToBlocks(messageBlocks: MessageBlock[], setMessageBlocks: SetStateMsgBlockList, textValue: string, uid: string) {
-  if (messageBlocks) { }
-  const appendToRecentBlock = (messageBlocks: MessageBlock[], textValue: string) => {
-    let finalBlock: MessageBlock = { ...messageBlocks[messageBlocks.length - 1] }
-    finalBlock.messageContents = [...messageBlocks[messageBlocks.length - 1].messageContents, textValue]
-
-    return [
-      ...messageBlocks.slice(0, -1),  // Keep all items except last the same
-      finalBlock
-    ]
-  }
-  const appendNewBlock = (messageBlocks: MessageBlock[], textValue: string, uid: string) => [
-    ...messageBlocks,
-    {
-      uid: uid,
-      messageContents: [textValue],
-    }
-  ]
-        
-  setMessageBlocks(prevBlocks => {
-    if (prevBlocks.length > 0 && prevBlocks[prevBlocks.length - 1].uid === uid) {
-      return appendToRecentBlock(prevBlocks, textValue);
-    } else {
-      return appendNewBlock(prevBlocks, textValue, uid);
-    }
-  });
-}
 
 /**
  * Function determining the height of input box to fit around the text entered
@@ -339,44 +315,4 @@ function fitInputBoxToText(inputBoxRef: TextAreaRefObject, setInputBoxHeight: Se
   inputBoxElement.style.height = minHeight; // forces recalculation of scroll height
   setInputBoxHeight(inputBoxElement.scrollHeight - padding + 'px' ); // sets height to the size of the text
   inputBoxElement.style.height = inputBoxElement.scrollHeight - padding + 'px'
-}
-
-/**
- * Function which loads the last 25 messages sent and listens for any more sent
- * @param messageBlocks - The messages currently on screen
- * @param setMessageBlocks - The setter to set messageBlocks 
- * @param messageContainerRef - The ref for the message container holding the messages
- */
-async function listenToMessages(messageBlocks: MessageBlock[], setMessageBlocks: SetStateMsgBlockList, messageContainerRef: DivRefObject) {
-  let startListening: FieldValue | null = null
-  if ( messageBlocks.length === 0 ) { // Checks if messages already loaded
-    // Load past 25 messages onto screen
-    const pastMessages = await loadPastMessages( messagesRef )
-
-    // Add messages in reverse order from least recent to most
-    for (let i = pastMessages.length - 1; i >= 0; i--) {
-      const data = pastMessages[i].data();
-      const textValue = data.text;
-      const uid = data.uid;
-
-      addMessageToBlocks(messageBlocks, setMessageBlocks, textValue, uid)
-
-      if ( i === 0 ) { 
-        startListening = data.createdAt; // Start listening from time of last message sent
-      }
-    }
-  }
-  // Set listener which loads any new messages and adds them to messageBlocks
-  const unsubscribe = subscribeToMessages(messagesRef, startListening, messageBlocks, setMessageBlocks, addMessageToBlocks)
-
-  // Wait for messages to load then scroll to the bottom
-  setTimeout(() => { 
-    scrollToBottom(messageContainerRef)
-  }, 10)
-
-  // Cleanup function to remove the event listener when the component unmounts
-  return () => {
-    unsubscribe()
-  }
-
 }

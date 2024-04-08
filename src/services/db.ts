@@ -25,7 +25,8 @@ import {
   doc, collection, // Document and collection references
   query, orderBy, limit, where, // Query operations
   onSnapshot, Unsubscribe, // Real-time listeners
-  FieldValue, CollectionReference // Firestore types
+  FieldValue, CollectionReference, // Firestore types
+  documentId
 } from "firebase/firestore"; 
 
 // Internal Modules
@@ -209,7 +210,7 @@ export function updateUserInfo(newUserInfo: UserData, userInfo: UserData | null)
  */
 export function subscribeToUserInfo (currentUserUID: string, setOtherUserInfo: SetStateUserDict) : Unsubscribe {
   // Query all users except current one (change to all users friended later)
-  const q = query(collection(db, "users"), where("uid", "!=", currentUserUID));
+  const q = query(collection(db, "users"), where(documentId(), "!=", currentUserUID));
 
   return (
     onSnapshot(q, (snapshot) => {

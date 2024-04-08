@@ -15,6 +15,7 @@ import App from './App.tsx'
 
 // Contexts
 import { UsersProvider } from './contexts/users-context.tsx'
+import { MessagesProvider } from './contexts/messages-context.tsx';
 
 // Styles
 import './styles/index.css'
@@ -30,7 +31,9 @@ import './styles/index.css'
  */
 const ContextProviders = ({ children }: { children: JSX.Element }) => (
   <UsersProvider>
-    {children}
+    <MessagesProvider>
+      {children}
+    </MessagesProvider>
   </UsersProvider>
 );
 

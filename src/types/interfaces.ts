@@ -6,6 +6,8 @@
  * These interfaces define the structure of data within the application
  * 
  * @exports UsersContext - Represents the structure of the useContext for user information
+ * @exports MessagesContext - Represents the structure of the useContext for message information
+ * 
  * @exports UserData - Represents the structure of information about the user
  * @exports UserDictionary - Represents a dictionary of user's unique identifiers and their corresponding information
  * @exports MessageBlock - Represents the structure of information stored about a message
@@ -13,7 +15,7 @@
 
 // Internal Modules
 import { User } from "firebase/auth";
-import { SetStateUserDataNull, SetStateUserDict } from "./aliases";
+import { SetStateMsgBlockList, SetStateUserDataNull, SetStateUserDict } from "./aliases";
 
 
 
@@ -30,6 +32,14 @@ export interface UsersContext {
 
   otherUserInfo: UserDictionary;
   setOtherUserInfo: SetStateUserDict;
+}
+
+/**
+ * Interface representing the structure of the useContext for message information
+ */
+export interface MessagesContext {
+  messageBlocks: MessageBlock[];
+  setMessageBlocks: SetStateMsgBlockList
 }
 
 

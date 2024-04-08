@@ -20,7 +20,7 @@ import Latex from 'react-latex-next';
  * @param text The text to convert
  * @returns The React component containing the markdown text
  */
-export function markdownToHTML(text: string): ReactElement<any, any> {
+export function markdownLaTeXToHTML(text: string): ReactElement<any, any> {
   // Prevents collapsing of whitespace
   const lines = text.split("\n")
   for (let i = 0; i < lines.length; i++) {
