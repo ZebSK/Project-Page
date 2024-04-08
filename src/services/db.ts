@@ -34,8 +34,8 @@ import { db, auth } from './firebase';
 import { createDefaultProfilePic } from "../utils/profile-pictures";
 import { getProfilePic, saveProfilePic } from "./storage";
 
-import { MessageBlock, UserData } from "../types/interfaces";
-import { DocsSnapshot, SetStateMsgBlockList, SetStateUserDict, SetStateUserDataNull } from "../types/aliases";
+import { MessageBlock, UserData, UserSettings } from "../types/interfaces";
+import { DocsSnapshot, SetStateMsgBlockList, SetStateUserDict, SetStateUserDataNull, setStateUserSettings } from "../types/aliases";
 
 
 
@@ -43,7 +43,6 @@ import { DocsSnapshot, SetStateMsgBlockList, SetStateUserDict, SetStateUserDataN
 export const roomRef = doc(db, 'rooms', 'main');
 setDoc(roomRef, { name: "main" }, { merge: true });
 export const messagesRef = collection(db, "rooms", "main", "messages")
-export const usersRef = collection(db, "rooms", "main", "users")
 
 
 
@@ -118,16 +117,20 @@ export function subscribeToMessages (messagesRef: CollectionReference, startTime
  * Add user to database if new, or retrieve current info about user if not
  * @param setUserInfo - The setter for info about the user
  */
-export async function handleSignIn (setUserInfo: SetStateUserDataNull) {
+export async function handleSignIn (setUserInfo: SetStateUserDataNull, setUserSettings: setStateUserSettings) {
   if (!auth.currentUser) { return; }
   const uid = auth.currentUser.uid;
 
   const userRef = doc(db, "users", uid);
   const userSnap = await getDoc(userRef);
+
+  const settingsRef = doc(db, "settings", uid);
+  const settingsSnap = await getDoc(settingsRef)
   
   // If user already in database, retrieve user data
   if (userSnap.exists()) {
     let userData = userSnap.data() as UserData;
+    let settingsData = settingsSnap.data() as UserSettings;
 
     // Get profile pic
     if (!userData.profilePic) {
@@ -138,6 +141,7 @@ export async function handleSignIn (setUserInfo: SetStateUserDataNull) {
       userData = {...userData, profilePic: profilePicURL}
     }
     setUserInfo(userData)
+    setUserSettings(settingsData)
   } else {
     // If user not in database, add to database with default settings
     let displayName = auth.currentUser.displayName
@@ -147,6 +151,11 @@ export async function handleSignIn (setUserInfo: SetStateUserDataNull) {
     var colour = "#";
     for (let i = 0; i < 6; i++) { colour += letters[Math.floor(Math.random() * 16)]; }
     const defaultProfilePic = createDefaultProfilePic(displayName, colour)
+
+    // Default settings
+    const defaultSettings: UserSettings = {
+      darkMode: false
+    }
 
     // Save user to database
     setDoc(doc(db, "users", uid), {
@@ -159,6 +168,8 @@ export async function handleSignIn (setUserInfo: SetStateUserDataNull) {
       bio: null
     });
 
+    setDoc(doc(db, "settings", uid), defaultSettings)
+
     // Set user info to defaults
     if (!displayName) {displayName = "Anonymous"}
     const userInfo: UserData = {
@@ -169,9 +180,10 @@ export async function handleSignIn (setUserInfo: SetStateUserDataNull) {
       colour: colour,
       pronouns: null,
       bio: null
-      
     };
+
     setUserInfo(userInfo);
+    setUserSettings(defaultSettings)
   }
 }
 
@@ -199,6 +211,20 @@ export function updateUserInfo(newUserInfo: UserData, userInfo: UserData | null)
     colour: newUserInfo.colour,
     pronouns: newUserInfo.pronouns,
     bio: newUserInfo.bio
+  })
+}
+
+/**
+ * Updates user settings in database 
+ * @param newUserSettings - The new settings to store in the database
+ */
+export function updateUserSettings(newUserSettings: UserSettings) {7
+  if (!auth.currentUser) { return }
+  const uid = auth.currentUser.uid;
+
+  // Updates user settings in db
+  updateDoc(doc(db, "settings", uid), {
+    darkMode: newUserSettings.darkMode
   })
 }
 

@@ -14,6 +14,7 @@ import { useEffect, useState } from "react";
 import { useUsers } from "../../contexts/users-context";
 import { SetStateBoolean, setStateUserSettings } from "../../types/aliases";
 import { UserSettings } from "../../types/interfaces";
+import { updateUserSettings } from "../../services/db";
  
 
 
@@ -76,9 +77,9 @@ setNewUserSettings: setStateUserSettings, setSettingsOpen: SetStateBoolean}) : J
     // Update locally stored user info
     setNewUserSettings({...newUserSettings, darkMode: currUserSettings.darkMode});
     setCurrUserSettings({...newUserSettings, darkMode: currUserSettings.darkMode});
-    
-    console.log(newUserSettings)
-    console.log(currUserSettings)
+
+    // Update settings in database
+    updateUserSettings({...newUserSettings, darkMode: currUserSettings.darkMode})
 
     // Hides save button
     setShowSaveButton(false);

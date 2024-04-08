@@ -46,7 +46,7 @@ export const UsersProvider = ({ children }: { children: JSX.Element }): JSX.Elem
   const [currUserSettings, setCurrUserSettings] = useState<UserSettings>(defaultSettings)
 
   // useEffects that run on login/logout
-  useEffect(() => { handleSignIn(setCurrUserInfo) }, [userAuth])
+  useEffect(() => { handleSignIn(setCurrUserInfo, setCurrUserSettings) }, [userAuth])
   useEffect(() => { listenToUserInfo(userAuth, setOtherUserInfo) }, [userAuth])
 
   return (
