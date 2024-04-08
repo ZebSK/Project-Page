@@ -11,7 +11,7 @@ import { Dispatch, SetStateAction } from "react"
 import { QueryDocumentSnapshot } from "firebase/firestore"
 
 // Internal Interface Types
-import { UserData, UserDictionary } from "./interfaces"
+import { UserData, UserDictionary, UserSettings } from "./interfaces"
 import { MessageBlock } from "./interfaces"
 
 
@@ -25,6 +25,7 @@ export type SetStateString = Dispatch<SetStateAction<string>>
 export type SetStateUserData = Dispatch<SetStateAction<UserData>>
 export type SetStateUserDataNull = Dispatch<SetStateAction<UserData | null>>
 export type SetStateUserDict = Dispatch<SetStateAction<UserDictionary>>
+export type setStateUserSettings = Dispatch<SetStateAction<UserSettings>>
 
 export type SetStateMsgBlockList = Dispatch<SetStateAction<MessageBlock[]>>
 

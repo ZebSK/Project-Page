@@ -18,7 +18,7 @@ import { User } from "firebase/auth";
 import { handleSignIn, subscribeToUserInfo } from "../services/db";
 import { auth } from "../services/firebase";
 
-import { UserData, UserDictionary, UsersContext } from "../types/interfaces";
+import { UserData, UserDictionary, UserSettings, UsersContext } from "../types/interfaces";
 import { SetStateUserDict } from "../types/aliases";
 
 
@@ -27,6 +27,11 @@ import { SetStateUserDict } from "../types/aliases";
 
 // Creates and defines the structure of the UsersContext object
 const UserContext = createContext<UsersContext>({} as UsersContext);
+
+const defaultSettings: UserSettings = {
+  darkMode: false
+}
+
 
 /**
  * The provider for information about users throughout the component tree
@@ -38,13 +43,14 @@ export const UsersProvider = ({ children }: { children: JSX.Element }): JSX.Elem
   const [userAuth] = useAuthState(auth); // Check if signed in
   const [currUserInfo, setCurrUserInfo] = useState<UserData | null>(null)
   const [otherUserInfo, setOtherUserInfo] = useState<UserDictionary>({})
+  const [currUserSettings, setCurrUserSettings] = useState<UserSettings>(defaultSettings)
 
   // useEffects that run on login/logout
   useEffect(() => { handleSignIn(setCurrUserInfo) }, [userAuth])
   useEffect(() => { listenToUserInfo(userAuth, setOtherUserInfo) }, [userAuth])
 
   return (
-    <UserContext.Provider value = {{ userAuth, currUserInfo, setCurrUserInfo, otherUserInfo, setOtherUserInfo }}>
+    <UserContext.Provider value = {{ userAuth, currUserInfo, setCurrUserInfo, otherUserInfo, setOtherUserInfo, currUserSettings, setCurrUserSettings }}>
       { children }
     </UserContext.Provider>
   )

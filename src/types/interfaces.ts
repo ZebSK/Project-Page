@@ -10,12 +10,13 @@
  * 
  * @exports UserData - Represents the structure of information about the user
  * @exports UserDictionary - Represents a dictionary of user's unique identifiers and their corresponding information
+ * @exports UserSettings - Represents the structure of information about the user's settings
  * @exports MessageBlock - Represents the structure of information stored about a message
  */
 
 // Internal Modules
 import { User } from "firebase/auth";
-import { SetStateMsgBlockList, SetStateUserDataNull, SetStateUserDict } from "./aliases";
+import { SetStateMsgBlockList, SetStateUserDataNull, SetStateUserDict, setStateUserSettings } from "./aliases";
 
 
 
@@ -29,6 +30,9 @@ export interface UsersContext {
 
   currUserInfo: UserData | null;
   setCurrUserInfo: SetStateUserDataNull;
+
+  currUserSettings: UserSettings;
+  setCurrUserSettings: setStateUserSettings;
 
   otherUserInfo: UserDictionary;
   setOtherUserInfo: SetStateUserDict;
@@ -66,6 +70,13 @@ export interface UserData {
  */
 export interface UserDictionary {
   [uid: string]: UserData;
+}
+
+/**
+ * Interface representing the structure of information about the user's settings
+ */
+export interface UserSettings {
+  darkMode: boolean;
 }
 
 
