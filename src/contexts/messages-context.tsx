@@ -79,11 +79,9 @@ async function listenToMessages(messageBlocks: MessageBlock[], setMessageBlocks:
   }
   // Set listener which loads any new messages and adds them to messageBlocks
   const unsubscribe = subscribeToMessages(messagesRef, startListening, messageBlocks, setMessageBlocks, addMessageToBlocks)
-  console.log("Subbed")
 
   // Cleanup function to remove the event listener when the component unmounts
   return () => {
-    console.log("Unsubbed")
     unsubscribe()
   }
 
