@@ -112,6 +112,7 @@ setNewUserSettings: setStateUserSettings, setSettingsOpen: SetStateBoolean}) : J
 
 /**
  * The slider to switch between dark and light mode
+ * @component
  * @param newUserSettings - The updated user settings
  * @param setNewUserSettings - The setter for the updated user settings 
  * @returns The slider to change between dark/light mode
@@ -127,7 +128,7 @@ function DarkModeSwitch ({ currUserSettings, setCurrUserSettings } : { currUserS
   // The JSX element
   return (
     <div className="inline-slider-switch">
-    <span>Dark Mode</span>
+    <span className="inline-text">Dark Mode</span>
     <label className="slider-switch">
       <input type="checkbox" checked={currUserSettings.darkMode} onChange={handleChange} />
       <span className="slider"></span>

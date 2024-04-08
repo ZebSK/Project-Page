@@ -134,3 +134,65 @@ p, ul, ol { /* Remove additional spacing around paragraphs and lists*/
 ::-webkit-scrollbar-thumb:hover { /* Style of scroll bar thumb when hovered over */
   background: var(--object-colour-2);
 }  
+
+
+
+/* CLASSES */
+
+/* Slider styles */
+.slider-switch {
+  /* Layout and Dimensions */
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+.slider-switch input { /* Hide the original checkbox */
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* Styles for the slider ball */
+.slider {
+  /* Positioning */
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  /* Design */
+  background-color: var(--object-colour-3);
+  cursor: pointer;
+  border-radius: 34px;
+
+  /* Animation */
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+.slider:before { /* The "false" slider ball positioning */
+  /* Positioning and Dimensions */
+  position: absolute;
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+
+  /* Design */
+  content: "";
+  background-color: #ffffff;
+  border-radius: 50%;
+
+  /* Animation */
+  -webkit-transition: .4s;
+  transition: .5s;
+}
+input:checked + .slider { /* The design for the slider ball when "true" */
+  background-color: #2299ff;
+}
+input:checked + .slider:before { /* The animation for the slider moving when clicked */
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
