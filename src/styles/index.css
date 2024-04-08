@@ -12,13 +12,6 @@
   font-weight: 400;
   font-size: 20px;
 
-  /* Colour Variables */
-  --primary-text-colour: #383838;
-  --primary-background-colour: #ffffff;
-  --object-background-colour: #e1e1e1;
-  --object-lighter-highlight: #d3d3d3;
-  --object-darker-highlight: #c5c5c5; 
-
   /* Design */
   color: var(--primary-text-colour); /* Default text colour */
   background-color: var(--primary-background-colour);
@@ -77,11 +70,11 @@ button {
   border-radius: 20px; /* Rounded corners */
   cursor: pointer;
 
-  background-color: var(--object-background-colour);
+  background-color: var(--object-colour-1);
   color: currentColor;
 }
 button:hover { /* Style when hovered over */
-  box-shadow: 0 0 5px var(--object-darker-highlight);
+  box-shadow: 0 0 5px var(--object-colour-3);
 }
 button:focus, button:focus-visible { /* Style when clicked or tabbed to */
   box-shadow: 0 0 5px var(--primary-text-colour);
@@ -98,8 +91,8 @@ textarea {
 
   /* Design */
   color: currentColor;
-  background-color: var(--object-background-colour);
-  border: 5px solid var(--object-background-colour);
+  background-color: var(--object-colour-1);
+  border: 5px solid var(--object-colour-1);
   border-radius: 10px;
   outline: none;
 
@@ -107,13 +100,13 @@ textarea {
   font-size: 1em;
 }
 textarea:focus { /* Style when selected or tabbed to */
-  box-shadow: 0 0 5px var(--object-darker-highlight);
+  box-shadow: 0 0 5px var(--object-colour-3);
 }
 textarea::-webkit-scrollbar-thumb{ /* Style of scroll bar thumb */
-  background: var(--object-lighter-highlight);
+  background: var(--object-colour-2);
 }
 textarea::-webkit-scrollbar-thumb:hover { /* Style of scroll bar thumb when hovered over */
-  background: var(--object-darker-highlight);
+  background: var(--object-colour-3);
 }
   
 /* Override Markdown formatting */
@@ -135,9 +128,9 @@ p, ul, ol { /* Remove additional spacing around paragraphs and lists*/
   background-color: transparent;
 }
 ::-webkit-scrollbar-thumb { /* Style of thumb of scrollbar */
-  background: var(--object-background-colour);
+  background: var(--object-colour-1);
   border-radius: 5px;
 }
 ::-webkit-scrollbar-thumb:hover { /* Style of scroll bar thumb when hovered over */
-  background: var(--object-lighter-highlight);
+  background: var(--object-colour-2);
 }  
