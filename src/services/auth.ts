@@ -1,17 +1,23 @@
+/** 
+ * @file auth.ts
+ * 
+ * @description
+ * This file contains everything that requires accessing Firebase Authentication
+ * 
+ * @exports signInWithGoogle - Function opening a popup allowing the user to sign in with Google
+ * @exports handleLogout - Function logging the user out from auth
+ */ 
+
+
 // External Libraries
 import { signInWithPopup, GoogleAuthProvider, signOut } from "firebase/auth";
 
 // Internal Modules
 import { auth } from "./firebase"
 
-/** 
- * @file This module contains everything that requires accessing Firebase Authentication 
- * @module Auth
- */ 
 
 // Sets up google provider
 const provider = new GoogleAuthProvider();
-
 
 /**
  * Function opening a popup allowing the user to sign in with Google

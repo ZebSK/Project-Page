@@ -1,8 +1,14 @@
 /**
- * @file This module contains useful functions for automatic scrolling
- * @module ScrollingUtils
- * @exports scrollToBottom
+ * @file scrolling.ts
+ * 
+ * @description
+ * Utility functions related to scrolling elements
+ * 
+ * @exports scrollToBottom - Function to scroll to the bottom of an element
  */
+
+// Internal Modules
+import { DivRefObject } from "../types/aliases";
 
 
 
@@ -11,7 +17,7 @@
  * @param elementRef - The React element to scroll to the bottom of
  * @param smooth - Whether the scroll is gradual or instant
  */
-export function scrollToBottom(elementRef: React.RefObject<HTMLDivElement>, smooth: boolean = false) {
+export function scrollToBottom(elementRef: DivRefObject, smooth: boolean = false) {
   // Access the current value of the Ref
   const element = elementRef.current;
   if (!element) { return; }

@@ -1,3 +1,23 @@
+/** 
+ * @file db.ts
+ * 
+ * @description
+ * This file contains everything that requires accessing Firebase Firestore 
+ * 
+ * @exports roomRef
+ * @exports messagesRef
+ * @exports usersRef
+ * 
+ * @exports sendMessage - Adds a message to the database
+ * @exports loadPastMessages - Loads the most recent 25 messages
+ * @exports subscribeToMessages - Function adding a listener to the database for new messages in chat
+ * 
+ * @exports handleSignIn - Add user to database if new, or retrieve current info about user if not
+ * @exports updatedUserInfo - Updates user info in database 
+ * @exports subscribeToUserInfo - Function adding a listener to the database for changes in user data
+ */ 
+
+
 // External Libraries
 import { 
   setDoc, addDoc, // Database write operations
@@ -5,22 +25,19 @@ import {
   doc, collection, // Document and collection references
   query, orderBy, limit, where, // Query operations
   onSnapshot, Unsubscribe, // Real-time listeners
-  QueryDocumentSnapshot, FieldValue, CollectionReference // Firestore types
+  FieldValue, CollectionReference, // Firestore types
+  documentId
 } from "firebase/firestore"; 
 
-import { Dispatch, SetStateAction } from 'react';
-
 // Internal Modules
-import { db, auth } from '../services/firebase';
-import { MessageBlock, UserDictionary } from "../App";
-import { createDefaultProfilePic } from "../utils/user-profiles";
+import { db, auth } from './firebase';
+import { createDefaultProfilePic } from "../utils/profile-pictures";
 import { getProfilePic, saveProfilePic } from "./storage";
-import { UserInfo } from "../App";
 
-/** 
- * @file This module contains everything that requires accessing Firebase Firestore 
- * @module DB
- */ 
+import { MessageBlock, UserData } from "../types/interfaces";
+import { DocsSnapshot, SetStateMsgBlockList, SetStateUserDict, SetStateUserDataNull } from "../types/aliases";
+
+
 
 // Temp code until rooms set up
 export const roomRef = doc(db, 'rooms', 'main');
@@ -58,7 +75,7 @@ export function sendMessage(messagesRef: CollectionReference, messageContents: s
  * @param messagesRef - The ref to the message chat to load messages from
  * @returns The docs for the past 25 messages
  */
-export async function loadPastMessages(messagesRef: CollectionReference): Promise<QueryDocumentSnapshot[]> {
+export async function loadPastMessages(messagesRef: CollectionReference): DocsSnapshot {
   const q = query(messagesRef, orderBy("createdAt", "desc"), limit(25));
   const querysnapshot = await getDocs(q);
   const pastMessages = querysnapshot.docs;
@@ -74,8 +91,8 @@ export async function loadPastMessages(messagesRef: CollectionReference): Promis
  * @param addMessageToBlocks - Function adding new message to blocks
  * @returns Function to add listener and unsubscribe from it
  */
-export function subscribeToMessages (messagesRef: CollectionReference, startTime: FieldValue | null, messageBlocks: MessageBlock[], setMessageBlocks: Dispatch<SetStateAction<MessageBlock[]>>,
-  addMessageToBlocks: (messageBlocks: MessageBlock[], setMessageBlocks: Dispatch<SetStateAction<MessageBlock[]>>, textValue: string, uid: string) => void) : Unsubscribe {
+export function subscribeToMessages (messagesRef: CollectionReference, startTime: FieldValue | null, messageBlocks: MessageBlock[], setMessageBlocks: SetStateMsgBlockList,
+  addMessageToBlocks: (messageBlocks: MessageBlock[], setMessageBlocks: SetStateMsgBlockList, textValue: string, uid: string) => void) : Unsubscribe {
     // Start listening from set time, or all messages if not set (no previous messages)
     const q = startTime? query(messagesRef, where('createdAt', '>', startTime)) : query(messagesRef); 
 
@@ -101,7 +118,7 @@ export function subscribeToMessages (messagesRef: CollectionReference, startTime
  * Add user to database if new, or retrieve current info about user if not
  * @param setUserInfo - The setter for info about the user
  */
-export async function handleSignIn (setUserInfo: Dispatch<SetStateAction<UserInfo | null>>) {
+export async function handleSignIn (setUserInfo: SetStateUserDataNull) {
   if (!auth.currentUser) { return; }
   const uid = auth.currentUser.uid;
 
@@ -110,7 +127,7 @@ export async function handleSignIn (setUserInfo: Dispatch<SetStateAction<UserInf
   
   // If user already in database, retrieve user data
   if (userSnap.exists()) {
-    let userData = userSnap.data() as UserInfo;
+    let userData = userSnap.data() as UserData;
 
     // Get profile pic
     if (!userData.profilePic) {
@@ -144,7 +161,7 @@ export async function handleSignIn (setUserInfo: Dispatch<SetStateAction<UserInf
 
     // Set user info to defaults
     if (!displayName) {displayName = "Anonymous"}
-    const userInfo: UserInfo = {
+    const userInfo: UserData = {
       uid: uid,
       displayName: displayName,
       defaultProfilePic: true,
@@ -163,7 +180,7 @@ export async function handleSignIn (setUserInfo: Dispatch<SetStateAction<UserInf
  * @param newUserInfo - The new information to store in the database
  * @param userInfo - The previous user information
  */
-export function updateUserInfo(newUserInfo: UserInfo, userInfo: UserInfo | null) {
+export function updateUserInfo(newUserInfo: UserData, userInfo: UserData | null) {
   // Sets path to profile pic in storage
   let profilePic: string | null = "profilePictures/" + newUserInfo.uid + ".png"
   if (newUserInfo.defaultProfilePic) { 
@@ -191,15 +208,15 @@ export function updateUserInfo(newUserInfo: UserInfo, userInfo: UserInfo | null)
  * @param setOtherUserInfo - The setter to change stored info of other users
  * @returns Function to add listener and unsubscribe from it
  */
-export function subscribeToUserInfo (currentUserUID: string, setOtherUserInfo: Dispatch<SetStateAction<UserDictionary>>) : Unsubscribe {
+export function subscribeToUserInfo (currentUserUID: string, setOtherUserInfo: SetStateUserDict) : Unsubscribe {
   // Query all users except current one (change to all users friended later)
-  const q = query(collection(db, "users"), where("uid", "!=", currentUserUID));
+  const q = query(collection(db, "users"), where(documentId(), "!=", currentUserUID));
 
   return (
     onSnapshot(q, (snapshot) => {
       snapshot.docChanges().forEach((change) => {
         if (change.type === "added" || change.type === "modified") {
-          let userData = change.doc.data() as UserInfo;
+          let userData = change.doc.data() as UserData;
 
           setOtherUserInfo((prevOtherUserInfo) => {
             // Store previously loaded user info

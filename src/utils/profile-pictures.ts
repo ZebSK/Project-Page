@@ -1,8 +1,12 @@
 /**
- * @file This module contains useful functions for user profiles
- * @module UserProfiles
+ * @file profile-pictures.ts
+ * 
+ * @description
+ * Utility functions for creating, compressing, and cropping profile pictures
+ * 
+ * @exports createDefaultProfilePic - Creates a default profile picture containing the letters of the user's display name on a random colour background
+ * @exports compressAndCropProfilePicture - A function to make the profile pic a 256*256 image
  */
-
 
 
 /**

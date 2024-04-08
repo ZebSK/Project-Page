@@ -1,50 +1,31 @@
-// External libraries
-import {useAuthState } from 'react-firebase-hooks/auth';
-import { useEffect, useState, useRef, Dispatch, SetStateAction } from 'react';
-
-// Internal modules
-import MessageScreen from './components/message-screen.tsx';
-import SignInScreen from './components/sign-in-screen.tsx';
-import EditProfileScreen from './components/edit-profile-screen.tsx';
-
-import { auth } from './services/firebase.tsx';
-import { handleLogout } from './services/auth.tsx';
-import { handleSignIn, subscribeToUserInfo } from './services/db.tsx';
-
-
-
-// INTERFACE DEFINITIONS
-
 /**
- * UserInfo interface representing the structure of information about the user
+ * @file App.tsx
+ * 
+ * @description
+ * The main parent component for the entire app
+ * This contains the logic and code for which components to display
+ * 
+ * @exports App - The React component for the app 
  */
-export interface UserInfo {
-  uid: string; // Unique identifier
-  displayName: string; 
 
-  defaultProfilePic: boolean; // Indicates whether user is using the default profile picture
-  profilePic: string; // The URL for the user's profile picture
-  colour: string; // The colour to be used for design elements for that user
+// External Libraries
+import { useEffect, useState, useRef } from 'react';
 
-  pronouns: string | null;
-  bio: string | null;
-}
+// Components
+import MessageScreen from './components/MessageScreen/MessageScreen';
+import SignInScreen from './components/SignInScreen/SignInScreen';
+import EditProfileScreen from './components/EditProfileScreen/EditProfileScreen';
 
-/**
- * UserDictionary interface containing a dictionary of user's unique identifiers and their corresponding information
- */
-export interface UserDictionary {
-  [uid: string]: UserInfo;
-}
+// Styles
+import './styles/app.css';
 
-/**
- * MessageBlock interface describing the structure of information stored about a message
- */
-export interface MessageBlock {
-  uid: string;
-  messageContents: string[]; // Contains a list of strings for each message
-}
+// Types
+import { UserData } from './types/interfaces';
+import { SetStateBoolean, DivRefObject, ReactButtonClick } from './types/aliases';
 
+// Services
+import { handleLogout } from './services/auth';
+import { useUsers } from './contexts/users-context';
 
 
 
@@ -52,66 +33,106 @@ export interface MessageBlock {
 
 /**
  * Main parent component for the app
+ * @component
  * @returns The App Component
  */
 function App(): JSX.Element {
-  // useRefs for reference objects that persist across re-renders
+  // Reference objects that persist across re-renders
   const userMenuRef = useRef<HTMLDivElement>(null);
 
-  // useStates for determining state variables
-  const [userAuth] = useAuthState(auth); // Check if signed in
-  const [userInfo, setUserInfo] = useState<UserInfo | null>(null)
-  const [otherUserInfo, setOtherUserInfo] = useState<UserDictionary>({})
+  // User information state variables
+  const { userAuth, currUserInfo } = useUsers()
+
+  // Visible components state variables
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const [editProfileOpen, setEditProfileOpen] = useState(false)
 
-  // useEffects that run every time the dependencies change
-  useEffect(() => { handleSignIn(setUserInfo) }, [userAuth])
+  // useEffects that run on app starting
   useEffect(() => { outsideUserMenuClick(userMenuRef, setUserMenuOpen) }, [])
-  useEffect(() => { if (userAuth) {
-    const unsubscribe = subscribeToUserInfo(userAuth.uid, setOtherUserInfo)
-    return () => { unsubscribe() }
-  } }, [userAuth])
 
+  // The JSX element for the app
   return (
     <div className='App'>
-      {
-        !userAuth ? 
-        <SignInScreen/> 
-        : 
+      { !userAuth ? ( 
+          // Display sign in screen if not logged in 
+          <SignInScreen/> 
+        ) : (
         <div className='appScreen'>
           {/* Main section of screen */}
-          {editProfileOpen? 
-            <EditProfileScreen userInfo = {userInfo} setUserInfo = {setUserInfo} setEditProfileOpen = {setEditProfileOpen}/> :  
-            <MessageScreen userInfo = {userInfo} otherUserInfo = {otherUserInfo}/>}
+          { editProfileOpen? (
+            <EditProfileScreen setEditProfileOpen={setEditProfileOpen}/>
+          ) : (
+            <MessageScreen/>
+          )}
 
           {/* Account button */}
-          <button className = "accountButton" onClick={(event) => handleProfileButtonClick(event, setUserMenuOpen, userMenuOpen)}>
-            <img className = "profilePicture" src = {userInfo?.profilePic} alt = "Profile" />
+          <button 
+            className="accountButton"
+            onClick={(event) => handleProfileButtonClick(event, setUserMenuOpen, userMenuOpen)}
+          >
+            <img className="profilePicture" src={currUserInfo?.profilePic} alt="Profile" />
           </button>
 
-          {/* Dropdown menu */}
+          {/* Account button dropdown menu */}
           {userMenuOpen && (
-            <div className = "userMenu" ref={userMenuRef}>
-              <div className= "menuBar" style={{background: "linear-gradient(to bottom, " + userInfo?.colour + " 50%, transparent 50%)"}}>
-                <img className="profilePicture" src={userInfo?.profilePic} alt="Profile" style={{width:"80px", border:"5px solid #FFF"}}/>
-              </div>
-              <div className = "profileInfo">
-                <h2>{userInfo?.displayName}</h2>
-                <div style={{fontStyle:"italic"}}>{userInfo?.pronouns}</div>
-                <div style={{whiteSpace:"pre-line"}}>{userInfo?.bio}</div>
-              </div>
-              <button onClick={()=> {setUserMenuOpen(false), setEditProfileOpen(true)}}>Edit Profile</button>
-              <button onClick={()=> {handleLogout() ;setUserMenuOpen(false)}}>Log Out</button>
-            </div>
+            <DropDownUserMenu 
+              userMenuRef={userMenuRef}
+              userInfo={currUserInfo}
+              setUserMenuOpen={setUserMenuOpen}
+              setEditProfileOpen={setEditProfileOpen}
+            />
           )}
         </div>
-      }
+      )}
     </div>
   );
 }
 
 export default App;
+
+/**
+ * The component containing the dropdown menu that appears when clicking profile picture
+ * @component
+ * @param userMenuRef - The ref object for this component
+ * @param userInfo - The info stored about the current user
+ * @param setUserMenuOpen - The setter to determine whether the dropdown menu is visible
+ * @param setEditProfileOpen - The setter to determine if the edit profile screen is open 
+ * @returns The DropDownUserMenu React component
+ */
+function DropDownUserMenu({userMenuRef, userInfo, setUserMenuOpen, setEditProfileOpen} : { userMenuRef: DivRefObject,
+userInfo: UserData | null, setUserMenuOpen: SetStateBoolean, setEditProfileOpen: SetStateBoolean }): JSX.Element {
+  return (
+    <div className = "userMenu" ref={userMenuRef}>
+      {/* The bar across the top of the dropdown menu */}
+      <div 
+        className= "menuBar" 
+        style={{background: "linear-gradient(to bottom, " + userInfo?.colour + " 50%, transparent 50%)"}}
+      >
+        <img
+          className="profilePicture"
+          src={userInfo?.profilePic}
+          alt="Profile"
+          style={{width:"80px", border:"5px solid #FFF"}}
+        />
+      </div>
+
+      {/* The profile info about the user */}
+      <div className = "profileInfo">
+        <h2>{userInfo?.displayName}</h2>
+        <div style={{fontStyle:"italic"}}>{userInfo?.pronouns}</div>
+        <div style={{whiteSpace:"pre-line"}}>{userInfo?.bio}</div>
+      </div>
+
+      {/* The buttons to access other screens */}
+      <button onClick={()=> {setUserMenuOpen(false), setEditProfileOpen(true)}}>
+        Edit Profile
+      </button>
+      <button onClick={()=> {handleLogout() ;setUserMenuOpen(false)}}>
+        Log Out
+      </button>
+    </div>
+  )
+}
 
 
 
@@ -122,7 +143,7 @@ export default App;
  * @param menuRef - Reference to user menu
  * @param setUserMenuOpen - Setter to set whether menu is hidden
  */
-function outsideUserMenuClick(menuRef: React.RefObject<HTMLDivElement>, setUserMenuOpen: Dispatch<SetStateAction<boolean>>) {
+function outsideUserMenuClick(menuRef: DivRefObject, setUserMenuOpen: SetStateBoolean) {
   /**
    * Function to check if menu is open and close if click event not on menu
    * @param event - Mouse clicking event
@@ -147,7 +168,7 @@ function outsideUserMenuClick(menuRef: React.RefObject<HTMLDivElement>, setUserM
  * @param setUserMenuOpen - The setter to determine if the menu is showing
  * @param userMenuOpen - The variable for whether the menu is showing
  */
-function handleProfileButtonClick(event: React.MouseEvent<HTMLButtonElement>, setUserMenuOpen: Dispatch<SetStateAction<boolean>>, userMenuOpen: boolean) {
+function handleProfileButtonClick(event: ReactButtonClick, setUserMenuOpen: SetStateBoolean, userMenuOpen: boolean) {
   event.stopPropagation(); // Stop outsideUserMenuClick from triggering
-  setUserMenuOpen(!userMenuOpen)
+  setUserMenuOpen(!userMenuOpen) // Hides or shows the dropdown menu depending on current state
 }
