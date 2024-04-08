@@ -42,6 +42,8 @@ if (import.meta.env.API_KEY) {
   };
 }
 
+console.log(firebaseConfig)
+
 // Initialize Firebase
 const firebaseApp: FirebaseApp = initializeApp(firebaseConfig);
 const auth = getAuth();
