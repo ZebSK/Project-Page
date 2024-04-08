@@ -1,12 +1,22 @@
+/** 
+ * @file firebase.ts
+ * 
+ * @description
+ * This module contains everything required to initialise Firebase
+ * 
+ * @exports firebaseApp - The firebase app
+ * @exports auth - The auth instance associated with the firebase app
+ * @exports db - The firestore database instance associated with the firebase app
+ * @exports storage - The storage instance associated with the firebase app
+ */ 
+
+
 import { initializeApp, FirebaseApp } from "firebase/app";
 // Add SDKs for Firebase products
 import { getAuth, connectAuthEmulator } from "firebase/auth";
 import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
 import { getStorage, connectStorageEmulator } from 'firebase/storage';
 
-/** 
- * This module contains everything required to initialise Firebase
- */ 
 
 // Set up web app's Firebase configuration
 let firebaseConfig = {};

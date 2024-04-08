@@ -1,24 +1,29 @@
+/** 
+ * @file EditProfileScreen.tsx
+ * 
+ * @description
+ * This module contains everything located on the edit profile screen of the app
+ * 
+ * @exports EditProfileScreen - The parent component holding the entire edit profile screen
+ */ 
+
 // External libraries
 import { useState, useRef, useEffect } from 'react';
 
 // Internal modules and styles
 import './edit-profile-screen.css';
 import { UserData } from '../../types/interfaces';
-import { compressAndCropProfilePicture, createDefaultProfilePic } from '../../utils/user-profiles';
+import { compressAndCropProfilePicture, createDefaultProfilePic } from '../../utils/profile-pictures';
 import { updateUserInfo } from '../../services/db';
 import { ReactInputChange, SetStateBoolean, SetStateUserData } from '../../types/aliases';
 import { useUsers } from '../../contexts/users-context';
 
-/** 
- * @file This module contains everything located on the edit profile screen of the app
- * @module EditProfileScreen
- */ 
 
 
 // REACT COMPONENTS
 
 /**
- * The parent component holding the entire message screen
+ * The parent component holding the entire edit profile screen
  * @component
  * @param setEditProfileOpen - The setter for determining whether this component is visible
  * @returns The MessageScreen component

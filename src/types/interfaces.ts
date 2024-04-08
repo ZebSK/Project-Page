@@ -1,14 +1,14 @@
 /**
- * interfaces.ts
+ * @file interfaces.ts
  * 
+ * @description
  * This file contains any interfaces used
  * These interfaces define the structure of data within the application
  * 
- * Interfaces:
- * - UsersContext:    Represents the structure of the useContext for user information
- * - UserInfo:        Represents the structure of information about the user
- * - UserDictionary:  Represents a dictionary of user's unique identifiers and their corresponding information
- * - MessageBlock:    Represents the structure of information stored about a message
+ * @exports UsersContext - Represents the structure of the useContext for user information
+ * @exports UserData - Represents the structure of information about the user
+ * @exports UserDictionary - Represents a dictionary of user's unique identifiers and their corresponding information
+ * @exports MessageBlock - Represents the structure of information stored about a message
  */
 
 // Internal Modules

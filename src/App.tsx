@@ -1,11 +1,11 @@
 /**
- * App.tsx
+ * @file App.tsx
  * 
+ * @description
  * The main parent component for the entire app
  * This contains the logic and code for which components to display
  * 
- * Exports:
- * - App: The React component for the app 
+ * @exports App - The React component for the app 
  */
 
 // External Libraries

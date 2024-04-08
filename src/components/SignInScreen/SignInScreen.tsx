@@ -1,13 +1,17 @@
+/** 
+ * @file SignInScreen.tsx
+ * 
+ * @description 
+ * This module contains the sign-in screen that appears if not logged in
+ * 
+ * @exports SignInScreen - The parent component holding the entire sign-in screen
+ */ 
+
 // Internal Modules
 import { signInWithGoogle } from "../../services/auth"
 
 import './sign-in-screen.css';
 import googleLogo from '../../assets/google-logo.jpg';
-
-/** 
- * @file This module contains the sign-in screen that appears if not logged in
- * @module SignInScreen
- */ 
 
 
 

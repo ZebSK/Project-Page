@@ -1,3 +1,12 @@
+/** 
+ * @file MessageScreen.tsx
+ * 
+ * @description
+ * This module contains everything located on the central message screen of the app
+ * 
+ * @exports MessageScreen - The parent component holding the entire message screen
+ */ 
+
 // External libraries
 import { useState, useRef, useEffect } from 'react';
 import { FieldValue } from '@firebase/firestore';
@@ -12,10 +21,6 @@ import { MessageBlock } from "../../types/interfaces";;
 import { useUsers } from '../../contexts/users-context';
 import { DivRefObject, SetStateBoolean, SetStateMsgBlockList, SetStateString, TextAreaRefObject } from '../../types/aliases';
 
-/** 
- * @file This module contains everything located on the central message screen of the app
- * @module MessageScreen
- */ 
 
 
 // REACT COMPONENTS

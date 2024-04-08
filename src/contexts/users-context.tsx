@@ -1,12 +1,12 @@
 /**
- * users-context.tsx
+ * @file users-context.tsx
  * 
+ * @description
  * This file contains everything related to the useContext object for user information
  * This includes the current authentication state, user information, and the listeners to update these
  * 
- * Exports:
- * - UsersProvider:   The provider for information about users throughout the component tree
- * - useUsers:        A hook to retrieve the current context value of UsersContext
+ * @exports UsersProvider - The provider for information about users throughout the component tree
+ * @exports useUsers - A hook to retrieve the current context value of UsersContext
  */
 
 // External Libraries

@@ -1,3 +1,23 @@
+/** 
+ * @file db.ts
+ * 
+ * @description
+ * This file contains everything that requires accessing Firebase Firestore 
+ * 
+ * @exports roomRef
+ * @exports messagesRef
+ * @exports usersRef
+ * 
+ * @exports sendMessage - Adds a message to the database
+ * @exports loadPastMessages - Loads the most recent 25 messages
+ * @exports subscribeToMessages - Function adding a listener to the database for new messages in chat
+ * 
+ * @exports handleSignIn - Add user to database if new, or retrieve current info about user if not
+ * @exports updatedUserInfo - Updates user info in database 
+ * @exports subscribeToUserInfo - Function adding a listener to the database for changes in user data
+ */ 
+
+
 // External Libraries
 import { 
   setDoc, addDoc, // Database write operations
@@ -10,16 +30,12 @@ import {
 
 // Internal Modules
 import { db, auth } from './firebase';
-import { createDefaultProfilePic } from "../utils/user-profiles";
+import { createDefaultProfilePic } from "../utils/profile-pictures";
 import { getProfilePic, saveProfilePic } from "./storage";
 
 import { MessageBlock, UserData } from "../types/interfaces";
 import { DocsSnapshot, SetStateMsgBlockList, SetStateUserDict, SetStateUserDataNull } from "../types/aliases";
 
-
-/** 
- * This file contains everything that requires accessing Firebase Firestore 
- */ 
 
 
 // Temp code until rooms set up

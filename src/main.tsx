@@ -1,6 +1,7 @@
 /**
- * index.tsx
+ * @file index.tsx
  * 
+ * @description
  * Entry point for rendering the main React application.
  * This file mounts the <App /> component into the HTML element with the id 'root'
  * and provides context providers to the application.

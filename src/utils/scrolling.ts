@@ -1,7 +1,10 @@
 /**
- * @file This module contains useful functions for automatic scrolling
- * @module ScrollingUtils
- * @exports scrollToBottom
+ * @file scrolling.ts
+ * 
+ * @description
+ * Utility functions related to scrolling elements
+ * 
+ * @exports scrollToBottom - Function to scroll to the bottom of an element
  */
 
 
