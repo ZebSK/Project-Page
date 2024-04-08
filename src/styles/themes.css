@@ -1,0 +1,31 @@
+/* 
+  Variables for colours across the project
+  This includes light/dark mode and themes
+*/
+
+
+/* LIGHT/DARK MODE */
+
+/* Default Light Mode */
+:root {
+  --primary-text-colour: #383838;
+  --primary-background-colour: #ffffff;
+  
+  --object-colour-1: #e1e1e1;
+  --object-colour-2: #d3d3d3;
+  --object-colour-3: #c5c5c5;
+
+  --save-button-colour: #B7E9C1;
+}
+
+/* Toggleable Dark mode */
+.dark-mode {
+  --primary-text-colour: #f5f5f5;
+  --primary-background-colour: #222222;
+  
+  --object-colour-1: #333333;
+  --object-colour-2: #444444;
+  --object-colour-3: #555555; 
+
+  --save-button-colour: #16461f;
+}

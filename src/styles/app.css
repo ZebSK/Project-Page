@@ -11,6 +11,10 @@
   width: 100vw;
   min-width: 500px;
   position: relative;
+
+  /* Design */
+  color: var(--primary-text-colour);
+  background-color: var(--primary-background-colour);
 }
 
 /* The component for the account button in the bottom left */
@@ -48,8 +52,8 @@
   padding: 10px;
 
   /* Design */
-  background-color: white;
-  box-shadow: 0 0 5px var(--object-darker-highlight);
+  background-color: var(--primary-background-colour);
+  box-shadow: 0 0 5px var(--object-colour-3);
 }
 .userMenu button { /* Each button within the menu */
   /* Dimensions and Layout */
@@ -63,7 +67,7 @@
 }
 .userMenu button:hover {
   /* Design */
-  background-color: var(--object-background-colour);
+  background-color: var(--object-colour-1);
 }
 .menuBar { /* Bar across top of menu */
   /* Positioning and layout */

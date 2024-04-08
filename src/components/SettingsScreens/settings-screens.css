@@ -1,11 +1,11 @@
 /* 
-  Styles for the edit profile screen
-  This component displays and permits editing of the user's profile
+  Styles for all the settings screens
+  These components display and permit editing of the user's profile and settings
 */
 
 
-/* Styles for entire edit profile screen component */
-.editProfileScreen {
+/* Styles for entire settings components */
+.settingsScreen {
   /* Positioning */
   position: relative; /* Other components' positions are measured relative to this */
   top: 50%; /* Move 50% from the top */
@@ -26,7 +26,24 @@
 }
 
 
-/* DESIGNS */
+/* GENERAL SETTINGS */
+
+/* The buttons to return to message screen */
+.exitButtons {
+  /* Positioning */
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+.exitButtons .saveButton { /* The save button */
+  /* Design and Positioning */
+  background-color: var(--save-button-colour);
+  margin-right: 10px;
+}
+
+
+
+/* EDIT PROFILE SCREEN */
 
 /* Bar across top of screen */
 .topBar {
@@ -47,8 +64,8 @@
   border-radius: 60px;
 
   /* Design */
-  border: 5px solid #FFF;
-  background-color: #FFF;
+  border: 5px solid var(--primary-background-colour);
+  background-color: var(--primary-background-colour);
 }
 .profilePictureOverlay { /* The + button that appears over the profile pic when hovering */
   /* Positioning */
@@ -126,21 +143,31 @@
   display: block;
   overflow: hidden;
   border: none;
+  background-color: var(--primary-background-colour);
 
   /* Dimensions */
   height: 50px;
   width: 100px;
 }
 
-/* The buttons to return to message screen */
-.exitButtons {
-  /* Positioning */
-  position: absolute;
-  top: 10px;
-  right: 10px;
+
+
+/* MAIN SETTINGS SCREEN */
+
+/* The component containing both text and a slider */
+.inline-slider-switch {
+  /* Layout */
+  padding: 10px;
+  display: flex;
+
+  /* Design */
+  border-bottom: 1px solid var(--object-colour-3);
+  border-top: 1px solid var(--object-colour-3);
 }
-.exitButtons .saveButton { /* The save button */
-  /* Design and Positioning */
-  background-color: #B7E9C1;
-  margin-right: 10px;
+
+/* The inline text pushing slider all the way to right */
+.inline-text {
+  /* Layout */
+  flex: 1;
+  margin-right: 20px
 }

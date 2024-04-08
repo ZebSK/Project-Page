@@ -11,7 +11,7 @@
 import { useState, useRef, useEffect } from 'react';
 
 // Internal modules and styles
-import './edit-profile-screen.css';
+import './settings-screens.css';
 import { UserData } from '../../types/interfaces';
 import { compressAndCropProfilePicture, createDefaultProfilePic } from '../../utils/profile-pictures';
 import { updateUserInfo } from '../../services/db';
@@ -26,7 +26,7 @@ import { useUsers } from '../../contexts/users-context';
  * The parent component holding the entire edit profile screen
  * @component
  * @param setEditProfileOpen - The setter for determining whether this component is visible
- * @returns The MessageScreen component
+ * @returns The EditProfileScreen component
  */
 function EditProfileScreen({ setEditProfileOpen }:{ setEditProfileOpen: SetStateBoolean }): JSX.Element {
   // Get userInfo from context
@@ -44,7 +44,7 @@ function EditProfileScreen({ setEditProfileOpen }:{ setEditProfileOpen: SetState
 
   // The JSX Element
   return (
-    <div className='editProfileScreen'>
+    <div className='settingsScreen editProfileScreen'>
       <h2> My Profile </h2>
       <ExitButtons newUserInfo={newUserInfo} setEditProfileOpen={setEditProfileOpen}/>
       <TopBar newUserInfo={newUserInfo} setNewUserInfo={setNewUserInfo}/>
