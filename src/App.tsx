@@ -14,9 +14,10 @@ import { useEffect, useState, useRef } from 'react';
 // Components
 import MessageScreen from './components/MessageScreen/MessageScreen';
 import SignInScreen from './components/SignInScreen/SignInScreen';
-import EditProfileScreen from './components/EditProfileScreen/EditProfileScreen';
+import EditProfileScreen from './components/SettingsScreens/EditProfileScreen';
 
 // Styles
+import './styles/themes.css';
 import './styles/app.css';
 
 // Types
@@ -26,6 +27,7 @@ import { SetStateBoolean, DivRefObject, ReactButtonClick } from './types/aliases
 // Services
 import { handleLogout } from './services/auth';
 import { useUsers } from './contexts/users-context';
+import MainSettingsScreen from './components/SettingsScreens/MainSettingsScreen';
 
 
 
@@ -41,18 +43,20 @@ function App(): JSX.Element {
   const userMenuRef = useRef<HTMLDivElement>(null);
 
   // User information state variables
-  const { userAuth, currUserInfo } = useUsers()
+  const { userAuth, currUserInfo, currUserSettings } = useUsers()
 
   // Visible components state variables
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const [editProfileOpen, setEditProfileOpen] = useState(false)
+  const [settingsOpen, setSettingsOpen] = useState(false)
+
 
   // useEffects that run on app starting
   useEffect(() => { outsideUserMenuClick(userMenuRef, setUserMenuOpen) }, [])
 
   // The JSX element for the app
   return (
-    <div className='App'>
+    <div className={currUserSettings.darkMode? 'App dark-mode': 'App'}>
       { !userAuth ? ( 
           // Display sign in screen if not logged in 
           <SignInScreen/> 
@@ -61,9 +65,11 @@ function App(): JSX.Element {
           {/* Main section of screen */}
           { editProfileOpen? (
             <EditProfileScreen setEditProfileOpen={setEditProfileOpen}/>
+          ) : ( settingsOpen? (
+            <MainSettingsScreen setSettingsOpen={setSettingsOpen}/>
           ) : (
             <MessageScreen/>
-          )}
+          ))}
 
           {/* Account button */}
           <button 
@@ -80,6 +86,7 @@ function App(): JSX.Element {
               userInfo={currUserInfo}
               setUserMenuOpen={setUserMenuOpen}
               setEditProfileOpen={setEditProfileOpen}
+              setSettingsOpen={setSettingsOpen}
             />
           )}
         </div>
@@ -99,8 +106,8 @@ export default App;
  * @param setEditProfileOpen - The setter to determine if the edit profile screen is open 
  * @returns The DropDownUserMenu React component
  */
-function DropDownUserMenu({userMenuRef, userInfo, setUserMenuOpen, setEditProfileOpen} : { userMenuRef: DivRefObject,
-userInfo: UserData | null, setUserMenuOpen: SetStateBoolean, setEditProfileOpen: SetStateBoolean }): JSX.Element {
+function DropDownUserMenu({userMenuRef, userInfo, setUserMenuOpen, setEditProfileOpen, setSettingsOpen} : { userMenuRef: DivRefObject,
+userInfo: UserData | null, setUserMenuOpen: SetStateBoolean, setEditProfileOpen: SetStateBoolean, setSettingsOpen: SetStateBoolean }): JSX.Element {
   return (
     <div className = "userMenu" ref={userMenuRef}>
       {/* The bar across the top of the dropdown menu */}
@@ -112,7 +119,7 @@ userInfo: UserData | null, setUserMenuOpen: SetStateBoolean, setEditProfileOpen:
           className="profilePicture"
           src={userInfo?.profilePic}
           alt="Profile"
-          style={{width:"80px", border:"5px solid #FFF"}}
+          style={{width:"80px", border:"5px solid var(--primary-background-colour)"}}
         />
       </div>
 
@@ -124,8 +131,11 @@ userInfo: UserData | null, setUserMenuOpen: SetStateBoolean, setEditProfileOpen:
       </div>
 
       {/* The buttons to access other screens */}
-      <button onClick={()=> {setUserMenuOpen(false), setEditProfileOpen(true)}}>
+      <button onClick={()=> {setUserMenuOpen(false), setSettingsOpen(false), setEditProfileOpen(true)}}>
         Edit Profile
+      </button>
+      <button onClick={()=> {setUserMenuOpen(false), setEditProfileOpen(false), setSettingsOpen(true)}}>
+        Settings
       </button>
       <button onClick={()=> {handleLogout() ;setUserMenuOpen(false)}}>
         Log Out

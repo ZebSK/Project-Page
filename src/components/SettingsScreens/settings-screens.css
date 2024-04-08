@@ -1,11 +1,11 @@
 /* 
-  Styles for the edit profile screen
-  This component displays and permits editing of the user's profile
+  Styles for all the settings screens
+  These components display and permit editing of the user's profile and settings
 */
 
 
-/* Styles for entire edit profile screen component */
-.editProfileScreen {
+/* Styles for entire settings components */
+.settingsScreen {
   /* Positioning */
   position: relative; /* Other components' positions are measured relative to this */
   top: 50%; /* Move 50% from the top */
@@ -26,7 +26,24 @@
 }
 
 
-/* DESIGNS */
+/* GENERAL SETTINGS */
+
+/* The buttons to return to message screen */
+.exitButtons {
+  /* Positioning */
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+.exitButtons .saveButton { /* The save button */
+  /* Design and Positioning */
+  background-color: var(--save-button-colour);
+  margin-right: 10px;
+}
+
+
+
+/* EDIT PROFILE SCREEN */
 
 /* Bar across top of screen */
 .topBar {
@@ -47,8 +64,8 @@
   border-radius: 60px;
 
   /* Design */
-  border: 5px solid #FFF;
-  background-color: #FFF;
+  border: 5px solid var(--primary-background-colour);
+  background-color: var(--primary-background-colour);
 }
 .profilePictureOverlay { /* The + button that appears over the profile pic when hovering */
   /* Positioning */
@@ -126,21 +143,63 @@
   display: block;
   overflow: hidden;
   border: none;
+  background-color: var(--primary-background-colour);
 
   /* Dimensions */
   height: 50px;
   width: 100px;
 }
 
-/* The buttons to return to message screen */
-.exitButtons {
-  /* Positioning */
-  position: absolute;
-  top: 10px;
-  right: 10px;
+
+
+/* MAIN SETTINGS SCREEN */
+
+.inline-slider-switch {
+  display: flex;
 }
-.exitButtons .saveButton { /* The save button */
-  /* Design and Positioning */
-  background-color: #B7E9C1;
-  margin-right: 10px;
+
+.slider-switch {
+  margin-left: 10px;
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+.slider-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--object-colour-3);
+  -webkit-transition: .4s;
+  transition: .4s;
+  border-radius: 34px;
+}
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: #ffffff;
+  -webkit-transition: .4s;
+  transition: .5s;
+  border-radius: 50%;
+}
+input:checked + .slider {
+  background-color: #2196F3;
+}
+input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
 }

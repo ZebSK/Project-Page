@@ -75,7 +75,7 @@
 }
 .messageBubble.left { /* Messages received by user */
   /* Design */
-  background-color: var(--object-background-colour);
+  background-color: var(--object-colour-1);
   color: var(--primary-text-colour);
 
   /* Layout */
@@ -118,7 +118,7 @@
 
   /* Design */
   color: color-mix(in srgb, var(--primary-text-colour) 80%, transparent);
-  background-color: color-mix(in srgb, var(--object-background-colour) 80%, transparent);
+  background-color: color-mix(in srgb, var(--object-colour-1) 80%, transparent);
   font-size: 0.8em
 }
   
