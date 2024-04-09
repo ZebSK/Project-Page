@@ -28,6 +28,7 @@ import { SetStateBoolean, DivRefObject, ReactButtonClick } from './types/aliases
 import { handleLogout } from './services/auth';
 import { useUsers } from './contexts/users-context';
 import MainSettingsScreen from './components/SettingsScreens/MainSettingsScreen';
+import MessagesSideBar from './components/MessagesSideBar/MessagesSideBar';
 
 
 
@@ -63,6 +64,7 @@ function App(): JSX.Element {
         ) : (
         <div className='appScreen'>
           {/* Main section of screen */}
+          <MessagesSideBar/>
           { editProfileOpen? (
             <EditProfileScreen setEditProfileOpen={setEditProfileOpen}/>
           ) : ( settingsOpen? (

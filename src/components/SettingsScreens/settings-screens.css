@@ -8,20 +8,18 @@
 .settingsScreen {
   /* Positioning */
   position: relative; /* Other components' positions are measured relative to this */
-  top: 50%; /* Move 50% from the top */
-  left: 50%; /* Move 50% from the left */
-  transform: translate(-50%, -50%); /* Adjust position to center */
 
   /* Layout */
   display: flex; 
   flex-direction: column;
   justify-content: flex-start;
   overflow-y: scroll; 
+  padding: 0px 20px;
 
   /* Dimensions */
   min-width: 300px;
-  width: 50vw; /* 50% of the viewport width */
-  height: 99vh; /* 99% of the viewport height */
+  flex-grow: 1;
+  height: 99% - 1px; /* 99% of the viewport height */
   overflow-x: hidden;
 }
 

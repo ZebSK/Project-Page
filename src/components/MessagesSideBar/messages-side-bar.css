@@ -1,0 +1,27 @@
+/* 
+  Styles for the messages side bar
+  This component allows users to switch between chats
+*/
+
+/* Styles for entire messages side bar component */
+.messagesSideBar {
+  /* Positioning and Layout */
+  position: relative; /* Other components' positions are measured relative to this */
+  display: flex; 
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+
+  /* Adjustable width */
+  resize: horizontal;
+  overflow: auto;
+
+  /* Dimensions */
+  min-width: 70px;
+  max-width: 50%;
+  width: 30%;
+  height: 100%; /* 99% of the viewport height */
+
+  /* Design */
+  background-color: var(--object-colour-1);
+}

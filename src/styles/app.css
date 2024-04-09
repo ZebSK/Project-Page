@@ -11,6 +11,10 @@
   width: 100vw;
   min-width: 500px;
   position: relative;
+  
+  /* Layout */
+  display: flex;
+  flex-direction: row;
 
   /* Design */
   color: var(--primary-text-colour);
@@ -37,6 +41,7 @@
   width: 100%;
   height: 100%;
   border-radius: 50%;
+  background-color: var(--object-colour-1);
 }
 
 /* The dropdown menu the appears when clicking the profile picture */
