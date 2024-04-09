@@ -16,6 +16,8 @@ import { MessageBlock, MessagesContext } from "../types/interfaces";
 import { SetStateMsgBlockList } from "../types/aliases";
 import { FieldValue } from "firebase/firestore";
 import { loadPastMessages, messagesRef, subscribeToMessages } from "../services/db";
+import { useUsers } from "./users-context";
+import { auth } from "../services/firebase";
 
 
 
@@ -30,10 +32,28 @@ const MessageContext = createContext<MessagesContext>({} as MessagesContext);
  * @returns The JSX element representing the provider with its children.
  */
 export const MessagesProvider = ({ children }: { children: JSX.Element }): JSX.Element => {
-  // User information state variables
+  // User information state variable
   const [messageBlocks, setMessageBlocks] = useState<MessageBlock[]>([])
+ const { userAuth } = useUsers()
 
-  useEffect(() => { listenToMessages(messageBlocks, setMessageBlocks) }, [] )
+  useEffect(() => { 
+    if (userAuth) {
+      const listener = async () => {
+        const unsubFunction = await listenToMessages(messageBlocks, setMessageBlocks); 
+        return unsubFunction
+      }
+  
+      const unsub = listener()
+
+      return () => { 
+        unsub.then((unsubFunction) => {
+          if (typeof unsubFunction === 'function') {
+            unsubFunction();
+          }
+        })
+      }
+    }
+  }, [userAuth] )
 
   return (
     <MessageContext.Provider value = {{ messageBlocks, setMessageBlocks }}>
@@ -79,10 +99,12 @@ async function listenToMessages(messageBlocks: MessageBlock[], setMessageBlocks:
   }
   // Set listener which loads any new messages and adds them to messageBlocks
   const unsubscribe = subscribeToMessages(messagesRef, startListening, messageBlocks, setMessageBlocks, addMessageToBlocks)
-
+  window.addEventListener('beforeunload', unsubscribe)
   // Cleanup function to remove the event listener when the component unmounts
   return () => {
     unsubscribe()
+    window.removeEventListener('beforeunload', unsubscribe)
+    console.log(auth.currentUser)
   }
 
 }
