@@ -47,7 +47,14 @@ export const UsersProvider = ({ children }: { children: JSX.Element }): JSX.Elem
 
   // useEffects that run on login/logout
   useEffect(() => { handleSignIn(setCurrUserInfo, setCurrUserSettings) }, [userAuth])
-  useEffect(() => { listenToUserInfo(userAuth, setOtherUserInfo) }, [userAuth])
+
+  useEffect(() => {
+    // Subscribes to users when logged in
+    if (userAuth) {
+      const unsubFunction = listenToUserInfo(userAuth, setOtherUserInfo); 
+      return () => { unsubFunction(); }
+    } 
+  }, [userAuth])
 
   return (
     <UserContext.Provider value = {{ userAuth, currUserInfo, setCurrUserInfo, otherUserInfo, setOtherUserInfo, currUserSettings, setCurrUserSettings }}>
@@ -77,9 +84,13 @@ function listenToUserInfo(userAuth: User | null | undefined, setOtherUserInfo: S
   if (userAuth) {
     // Add event listener on new user
     const unsubscribe = subscribeToUserInfo(userAuth.uid, setOtherUserInfo)
+    window.addEventListener('beforeunload', unsubscribe)
 
     // Remove event listener on changing user/disconnect
-    return () => { unsubscribe() }
+    return () => { 
+      unsubscribe()
+      window.removeEventListener('beforeunload', unsubscribe)
+    }
   }
   return () => { return }
 }

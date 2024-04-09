@@ -17,7 +17,6 @@ import { SetStateMsgBlockList } from "../types/aliases";
 import { FieldValue } from "firebase/firestore";
 import { loadPastMessages, messagesRef, subscribeToMessages } from "../services/db";
 import { useUsers } from "./users-context";
-import { auth } from "../services/firebase";
 
 
 
@@ -36,20 +35,17 @@ export const MessagesProvider = ({ children }: { children: JSX.Element }): JSX.E
   const [messageBlocks, setMessageBlocks] = useState<MessageBlock[]>([])
  const { userAuth } = useUsers()
 
+ // Listen to messages hook
   useEffect(() => { 
     if (userAuth) {
-      const listener = async () => {
-        const unsubFunction = await listenToMessages(messageBlocks, setMessageBlocks); 
-        return unsubFunction
-      }
-  
+      // Handles listenToMessages being async by fetching unsub in an async function
+      const listener = async () => { return await listenToMessages(messageBlocks, setMessageBlocks); }
       const unsub = listener()
 
+      // Cleanup on userAuth change
       return () => { 
         unsub.then((unsubFunction) => {
-          if (typeof unsubFunction === 'function') {
-            unsubFunction();
-          }
+          if (typeof unsubFunction === 'function') { unsubFunction(); }
         })
       }
     }
@@ -104,7 +100,6 @@ async function listenToMessages(messageBlocks: MessageBlock[], setMessageBlocks:
   return () => {
     unsubscribe()
     window.removeEventListener('beforeunload', unsubscribe)
-    console.log(auth.currentUser)
   }
 
 }
