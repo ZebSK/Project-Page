@@ -9,15 +9,12 @@
   position: relative; /* Other components' positions are measured relative to this */
   align-items: center;
   justify-content: flex-start;
-
-  /* Adjustable width */
-  resize: horizontal;
-  overflow: auto;
+  z-index: 1; /* Appear in front of message screen */ 
 
   /* Dimensions */
   min-width: 70px;
-  max-width: 500px;
-  width: 300px;
+  max-width: 400px;
+  width: 30%;
   height: 100%; /* 99% of the viewport height */
 
   /* Design */
@@ -62,4 +59,81 @@
   /* Text */
   font-size: small;
   font-weight: normal;
+}
+
+
+
+/* ACCOUNT BUTTON */
+
+/* The component for the account button in the bottom left */
+.accountButton {
+  /* Positioning */
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+
+  /* Dimensions and Layout */
+  width: 50px;
+  height: 50px;
+  border-radius: 25px;
+  overflow: hidden;
+  padding: 0;
+  margin: 0;
+}
+.profilePicture { /* The image within the account button */
+  /* Dimensions */
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: var(--object-colour-1);
+}
+
+/* The dropdown menu the appears when clicking the profile picture */
+.userMenu {
+  /* Positioning */
+  position: absolute;
+  bottom: 80px;
+  left: 10px;
+
+  /* Dimensions and Layout */
+  width: 300px;
+  border-radius: 20px;
+  padding: 10px;
+
+  /* Design */
+  background-color: var(--primary-background-colour);
+  box-shadow: 0 0 5px var(--object-colour-3);
+}
+.userMenu button { /* Each button within the menu */
+  /* Dimensions and Layout */
+  display: block; /* Display buttons vertically */
+  width: 100%;
+  padding: 10px;
+
+  /* Design */
+  background-color: transparent;
+  text-align: left;
+}
+.userMenu button:hover {
+  /* Design */
+  background-color: var(--object-colour-1);
+}
+.menuBar { /* Bar across top of menu */
+  /* Positioning and layout */
+  position: relative;
+  height: 80px;
+  border-radius: 20px;
+  padding:10px;
+}
+.profileInfo { /* Info about user in dropdown menu */
+  /* Design and Spacing */
+  word-wrap: break-word;
+  padding-bottom: 20px;
+  font-size: 15px;
+}
+.profileInfo h2 { /* Display name in dropdown menu*/
+  /* Design and Spacing */
+  font-size: 30px;
+  margin-block-start: 0px;
+  margin-block-end: 0px;
 }
