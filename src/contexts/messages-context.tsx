@@ -15,7 +15,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { MessageBlock, MessageRoom, MessageRooms, MessagesContext } from "../types/interfaces";
 import { SetStateMsgRooms } from "../types/aliases";
 import { FieldValue } from "firebase/firestore";
-import { getMessagesRef, loadPastMessages, messagesRef, subscribeToMessages } from "../services/db";
+import { getMessagesRef, loadPastMessages, subscribeToMessages } from "../services/db";
 import { useUsers } from "./users-context";
 
 
@@ -33,6 +33,7 @@ const MessageContext = createContext<MessagesContext>({} as MessagesContext);
 export const MessagesProvider = ({ children }: { children: JSX.Element }): JSX.Element => {
   // User information state variable
   const [messageRooms, setMessageRooms] = useState<MessageRooms>({})
+  const [currRoomID, setCurrRoomID] = useState("main")
   const { userAuth, currUserListeners } = useUsers()
 
  // Listen to messages hook
@@ -60,13 +61,8 @@ export const MessagesProvider = ({ children }: { children: JSX.Element }): JSX.E
     }
   }, [userAuth, currUserListeners.roomIDs] )
 
-  useEffect(() => {
-    console.log(messageRooms);
-  }, [messageRooms]);
-  
-
   return (
-    <MessageContext.Provider value = {{ messageRooms, setMessageRooms }}>
+    <MessageContext.Provider value = {{ messageRooms, setMessageRooms, currRoomID, setCurrRoomID }}>
       { children }
     </MessageContext.Provider>
   )
@@ -110,7 +106,7 @@ async function listenToMessages(roomID: string, setMessageRooms: SetStateMsgRoom
     }
   }
   // Set listener which loads any new messages and adds them to messageBlocks
-  const unsubscribe = subscribeToMessages(messagesRef, startListening, messageBlocks, setMessageRooms, roomID, addMessageToBlocks)
+  const unsubscribe = subscribeToMessages(roomInfo.messagesRef, startListening, messageBlocks, setMessageRooms, roomID, addMessageToBlocks)
   window.addEventListener('beforeunload', unsubscribe)
   // Cleanup function to remove the event listener when the component unmounts
   return () => {

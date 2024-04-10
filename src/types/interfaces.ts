@@ -20,7 +20,7 @@
 
 // Internal Modules
 import { User } from "firebase/auth";
-import { SetStateMsgRooms, SetStateUserDataNull, SetStateUserDict, setStateUserListeners, setStateUserSettings } from "./aliases";
+import { SetStateMsgRooms, SetStateString, SetStateUserDataNull, SetStateUserDict, setStateUserListeners, setStateUserSettings } from "./aliases";
 import { CollectionReference } from "firebase/firestore";
 
 
@@ -52,6 +52,9 @@ export interface UsersContext {
 export interface MessagesContext {
   messageRooms: MessageRooms;
   setMessageRooms: SetStateMsgRooms;
+
+  currRoomID: string;
+  setCurrRoomID: SetStateString;
 }
 
 

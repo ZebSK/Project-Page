@@ -11,7 +11,8 @@
 
 
 // Internal Modules
-import { useUsers } from '../../contexts/users-context';
+import { useMessages } from '../../contexts/messages-context';
+
 import './messages-side-bar.css';
  
 
@@ -25,13 +26,17 @@ import './messages-side-bar.css';
  * @returns The MessagesSideBar component
  */
 function MessagesSideBar(): JSX.Element {
-  const { currUserListeners } = useUsers()
+  const { setCurrRoomID, messageRooms } = useMessages()
 
   // The JSX Element
   return (
     // Map function to create multiple MessageBlock components and assign messageContents to them
     <div className="messagesSideBar">
-      {currUserListeners.roomIDs}
+      {Object.keys(messageRooms).map( key => (
+          <button key={key} onClick={() => setCurrRoomID(key)}>
+            {key}
+          </button>
+        ))}
     </div>
   )
 }

@@ -4,10 +4,7 @@
  * @description
  * This file contains everything that requires accessing Firebase Firestore 
  * 
- * @exports roomRef
- * @exports messagesRef
- * @exports usersRef
- * 
+ * @exports getMessagesRef - Gets the collection reference to the messages in a room from the db
  * @exports sendMessage - Adds a message to the database
  * @exports loadPastMessages - Loads the most recent 25 messages
  * @exports subscribeToMessages - Function adding a listener to the database for new messages in chat
@@ -39,17 +36,16 @@ import { DocsSnapshot, SetStateUserDict, SetStateUserDataNull, setStateUserSetti
 
 
 
-// Temp code until rooms set up
-export const roomRef = doc(db, 'rooms', 'main');
-setDoc(roomRef, { name: "main" }, { merge: true });
-export const messagesRef = collection(db, "rooms", "main", "messages")
-
-export function getMessagesRef(uid: string) {
-  return collection(db, "rooms", uid, "messages")
-}
-
-
 // MESSAGES
+
+/**
+ * Gets the collection reference to the messages in a room from the db
+ * @param roomID - The id of the message room
+ * @returns The reference to the message room in the database
+ */
+export function getMessagesRef(roomID: string): CollectionReference {
+  return collection(db, "rooms", roomID, "messages")
+}
 
 /**
  * Adds a message to the database
@@ -135,7 +131,6 @@ export async function handleSignIn (setUserInfo: SetStateUserDataNull, setUserSe
     let userData = userSnap.data() as UserData;
     let settingsData = settingsSnap.data() as UserSettings;
     let listenersData = settingsSnap.data() as UserListeners;
-    console.log(settingsSnap.data() )
 
     // Get profile pic
     if (!userData.profilePic) {

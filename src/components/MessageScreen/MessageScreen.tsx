@@ -11,7 +11,7 @@
 import { useState, useRef, useEffect } from 'react';
 
 // Firebase
-import { messagesRef, sendMessage } from '../../services/db';
+import { getMessagesRef, sendMessage } from '../../services/db';
 import { auth } from '../../services/firebase';
 
 // Functions and Contexts
@@ -40,16 +40,16 @@ function MessageScreen(): JSX.Element {
   // useRefs for reference objects that persist across re-renders
   const messageContainerRef = useRef<HTMLDivElement>(null);
   const inputBoxRef = useRef<HTMLTextAreaElement>(null);
-
-  // Fetch messages from context
-  const {messageRooms} = useMessages()
-  const messageBlocks: MessageBlock[] = messageRooms["main"]? messageRooms["main"]?.messageBlocks : []
-
+  
   // useStates for determining state variables
   const [inputBoxValue, setInputBoxValue] = useState("");
   const [scrollButtonVisible, setScrollButtonVisible] = useState(false);
   const [scrollButtonHeight, setScrollButtonHeight] = useState("0px");
-
+  
+  // Fetch messages from context
+  const {messageRooms, currRoomID} = useMessages()
+  const messageBlocks: MessageBlock[] = messageRooms[currRoomID]? messageRooms[currRoomID]?.messageBlocks : []
+  
   // useEffects that run every time the dependencies change
   useEffect(() => { showScrollButton(messageContainerRef, setScrollButtonVisible) }, []);
   useEffect(() => { scrollOnNewMessage(messageContainerRef) }, [messageBlocks]);
@@ -71,7 +71,7 @@ function MessageScreen(): JSX.Element {
         onClick={() => scrollToBottom(messageContainerRef, true)}
         style = {{bottom: scrollButtonHeight}} 
         > ▼ </button>}
-      <InputBox inputBoxValue={inputBoxValue} setInputBoxValue={setInputBoxValue} inputBoxRef={inputBoxRef}/>
+      <InputBox currRoomID={currRoomID} inputBoxValue={inputBoxValue} setInputBoxValue={setInputBoxValue} inputBoxRef={inputBoxRef}/>
     </div>
   )
 }
@@ -86,7 +86,7 @@ export default MessageScreen
  * @param inputBoxRef - The reference for the input box
  * @returns The InputBox component
  */
-function InputBox({ inputBoxValue, setInputBoxValue, inputBoxRef } : { inputBoxValue: string; 
+function InputBox({ currRoomID, inputBoxValue, setInputBoxValue, inputBoxRef } : { currRoomID: string, inputBoxValue: string; 
   setInputBoxValue: SetStateString; inputBoxRef: TextAreaRefObject}): JSX.Element {
     // Allows adjustment of height to fit around the text entered
     const [inputBoxHeight, setInputBoxHeight] = useState<string> ("");
@@ -109,7 +109,7 @@ function InputBox({ inputBoxValue, setInputBoxValue, inputBoxRef } : { inputBoxV
           // Handles sending of messages if enter is pressed without shift being held down
           onKeyDown={(event) => {
             if (event.key === "Enter" && !event.shiftKey) {
-              handleEnter(event.currentTarget.value, setInputBoxValue)
+              handleEnter(currRoomID, event.currentTarget.value, setInputBoxValue)
               event.preventDefault(); // prevents addition of a new line to textarea when sending message
             }
           }}
@@ -287,10 +287,12 @@ function determineScrollButtonHeight(inputBoxRef: TextAreaRefObject, setScrollBu
 
 /**
  * Function handling result of pressing enter in input box
+ * @param currRoomID - The roomID currently opened
  * @param textValue - The new message to be added
  * @param setInputBoxValue - The setter to clear the input box
  */
-function handleEnter(textValue: string, setInputBoxValue: SetStateString) {
+function handleEnter(currRoomID: string, textValue: string, setInputBoxValue: SetStateString) {
+  const messagesRef = getMessagesRef(currRoomID)
   sendMessage(messagesRef, textValue)
   if (!auth.currentUser) { return; }
   let displayName = auth.currentUser.displayName
