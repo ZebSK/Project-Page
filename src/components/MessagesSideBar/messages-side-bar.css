@@ -7,10 +7,8 @@
 .messagesSideBar {
   /* Positioning and Layout */
   position: relative; /* Other components' positions are measured relative to this */
-  display: flex; 
-  flex-direction: column;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: flex-start;
 
   /* Adjustable width */
   resize: horizontal;
@@ -18,10 +16,50 @@
 
   /* Dimensions */
   min-width: 70px;
-  max-width: 50%;
-  width: 30%;
+  max-width: 500px;
+  width: 300px;
   height: 100%; /* 99% of the viewport height */
 
   /* Design */
   background-color: var(--object-colour-1);
+}
+
+
+
+/* MESSAGE ROOMS */
+
+/* Styles for the list of message rooms */
+.messageRooms {
+  /* Layout */
+  display: flex; 
+  flex-direction: column;
+}
+
+/* Styles for each button to switch message rooms */
+.roomButton {
+  /* Layout and Design */
+  margin: 2px 5px;
+  border-radius: 10px;
+  text-align: left;
+}
+.roomButton.currentRoom { /* Styles for the button corresponding to the currently opened room */
+  /* Design */
+  background-color: var(--object-colour-2); 
+}
+.roomButton:focus { /* Overrides focused button styles */
+  /* Design */
+  box-shadow: none;
+}
+
+/* Styles for the text on roomButtons */
+.roomInfo {
+  /* Overflow */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.roomInfo.smallText { /* Subheading containing last sent message */
+  /* Text */
+  font-size: small;
+  font-weight: normal;
 }
