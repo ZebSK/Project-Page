@@ -11,12 +11,17 @@
  * @exports UserData - Represents the structure of information about the user
  * @exports UserDictionary - Represents a dictionary of user's unique identifiers and their corresponding information
  * @exports UserSettings - Represents the structure of information about the user's settings
+ * @exports UserListeners - Contains the uids of docs/collections for the user to listen to in the db
+ * 
+ * @exports MessageRoom - Contains all information about one message room
+ * @exports MessageRooms - Contains all message rooms
  * @exports MessageBlock - Represents the structure of information stored about a message
  */
 
 // Internal Modules
 import { User } from "firebase/auth";
-import { SetStateMsgBlockList, SetStateUserDataNull, SetStateUserDict, setStateUserSettings } from "./aliases";
+import { SetStateMsgRooms, SetStateUserDataNull, SetStateUserDict, setStateUserListeners, setStateUserSettings } from "./aliases";
+import { CollectionReference } from "firebase/firestore";
 
 
 
@@ -34,6 +39,9 @@ export interface UsersContext {
   currUserSettings: UserSettings;
   setCurrUserSettings: setStateUserSettings;
 
+  currUserListeners: UserListeners;
+  setCurrUserListeners: setStateUserListeners;
+
   otherUserInfo: UserDictionary;
   setOtherUserInfo: SetStateUserDict;
 }
@@ -42,8 +50,8 @@ export interface UsersContext {
  * Interface representing the structure of the useContext for message information
  */
 export interface MessagesContext {
-  messageBlocks: MessageBlock[];
-  setMessageBlocks: SetStateMsgBlockList
+  messageRooms: MessageRooms;
+  setMessageRooms: SetStateMsgRooms;
 }
 
 
@@ -79,9 +87,31 @@ export interface UserSettings {
   darkMode: boolean;
 }
 
+/**
+ * Interface containing the uids of docs/collections for the user to listen to in the db
+ */
+export interface UserListeners {
+  roomIDs: string[];
+}
+
 
 
 // MESSAGES
+
+/**
+ * Interface containing all information about one message room
+ */
+export interface MessageRoom {
+  messagesRef: CollectionReference;
+  messageBlocks: MessageBlock[];
+}
+
+/**
+ * Interface containing all message rooms
+ */
+export interface MessageRooms {
+  [roomID: string]: MessageRoom;
+}
 
 /**
  * Interface representing the structure of information stored about a message

@@ -34,8 +34,8 @@ import { db, auth } from './firebase';
 import { createDefaultProfilePic } from "../utils/profile-pictures";
 import { getProfilePic, saveProfilePic } from "./storage";
 
-import { MessageBlock, UserData, UserSettings } from "../types/interfaces";
-import { DocsSnapshot, SetStateMsgBlockList, SetStateUserDict, SetStateUserDataNull, setStateUserSettings } from "../types/aliases";
+import { MessageBlock, UserData, UserListeners, UserSettings } from "../types/interfaces";
+import { DocsSnapshot, SetStateUserDict, SetStateUserDataNull, setStateUserSettings, setStateUserListeners, SetStateMsgRooms } from "../types/aliases";
 
 
 
@@ -44,6 +44,9 @@ export const roomRef = doc(db, 'rooms', 'main');
 setDoc(roomRef, { name: "main" }, { merge: true });
 export const messagesRef = collection(db, "rooms", "main", "messages")
 
+export function getMessagesRef(uid: string) {
+  return collection(db, "rooms", uid, "messages")
+}
 
 
 // MESSAGES
@@ -90,8 +93,8 @@ export async function loadPastMessages(messagesRef: CollectionReference): DocsSn
  * @param addMessageToBlocks - Function adding new message to blocks
  * @returns Function to add listener and unsubscribe from it
  */
-export function subscribeToMessages (messagesRef: CollectionReference, startTime: FieldValue | null, messageBlocks: MessageBlock[], setMessageBlocks: SetStateMsgBlockList,
-  addMessageToBlocks: (messageBlocks: MessageBlock[], setMessageBlocks: SetStateMsgBlockList, textValue: string, uid: string) => void) : Unsubscribe {
+export function subscribeToMessages (messagesRef: CollectionReference, startTime: FieldValue | null, messageBlocks: MessageBlock[], setMessageRooms: SetStateMsgRooms, roomID: string,
+  addMessageToBlocks: (messageBlocks: MessageBlock[], setMessageRooms: SetStateMsgRooms, textValue: string, uid: string, roomID: string) => void) : Unsubscribe {
     // Start listening from set time, or all messages if not set (no previous messages)
     const q = startTime? query(messagesRef, where('createdAt', '>', startTime)) : query(messagesRef); 
 
@@ -101,7 +104,7 @@ export function subscribeToMessages (messagesRef: CollectionReference, startTime
           // Listens for new messages sent and adds them to messageBlocks
           if (change.type === "added") {
             const data = change.doc.data()
-            addMessageToBlocks(messageBlocks, setMessageBlocks, data.text, data.uid)
+            addMessageToBlocks(messageBlocks, setMessageRooms, data.text, data.uid, roomID)
           }
         });
       })
@@ -117,7 +120,7 @@ export function subscribeToMessages (messagesRef: CollectionReference, startTime
  * Add user to database if new, or retrieve current info about user if not
  * @param setUserInfo - The setter for info about the user
  */
-export async function handleSignIn (setUserInfo: SetStateUserDataNull, setUserSettings: setStateUserSettings) {
+export async function handleSignIn (setUserInfo: SetStateUserDataNull, setUserSettings: setStateUserSettings, setUserListeners: setStateUserListeners) {
   if (!auth.currentUser) { return; }
   const uid = auth.currentUser.uid;
 
@@ -131,6 +134,8 @@ export async function handleSignIn (setUserInfo: SetStateUserDataNull, setUserSe
   if (userSnap.exists()) {
     let userData = userSnap.data() as UserData;
     let settingsData = settingsSnap.data() as UserSettings;
+    let listenersData = settingsSnap.data() as UserListeners;
+    console.log(settingsSnap.data() )
 
     // Get profile pic
     if (!userData.profilePic) {
@@ -140,8 +145,11 @@ export async function handleSignIn (setUserInfo: SetStateUserDataNull, setUserSe
       const profilePicURL = await getProfilePic(userData.profilePic)
       userData = {...userData, profilePic: profilePicURL}
     }
+
     setUserInfo(userData)
     setUserSettings(settingsData)
+    setUserListeners(listenersData)
+
   } else {
     // If user not in database, add to database with default settings
     let displayName = auth.currentUser.displayName
@@ -157,6 +165,10 @@ export async function handleSignIn (setUserInfo: SetStateUserDataNull, setUserSe
       darkMode: false
     }
 
+    const defaultListeners: UserListeners = {
+      roomIDs: ["main", "second"]
+    }
+
     // Save user to database
     setDoc(doc(db, "users", uid), {
       uid: auth.currentUser.uid,
@@ -168,7 +180,7 @@ export async function handleSignIn (setUserInfo: SetStateUserDataNull, setUserSe
       bio: null
     });
 
-    setDoc(doc(db, "settings", uid), defaultSettings)
+    setDoc(doc(db, "settings", uid), {...defaultSettings, ...defaultListeners})
 
     // Set user info to defaults
     if (!displayName) {displayName = "Anonymous"}
@@ -183,7 +195,8 @@ export async function handleSignIn (setUserInfo: SetStateUserDataNull, setUserSe
     };
 
     setUserInfo(userInfo);
-    setUserSettings(defaultSettings)
+    setUserSettings(defaultSettings);
+    setUserListeners(defaultListeners)
   }
 }
 

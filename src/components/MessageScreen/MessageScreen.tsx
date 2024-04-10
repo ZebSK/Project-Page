@@ -42,7 +42,8 @@ function MessageScreen(): JSX.Element {
   const inputBoxRef = useRef<HTMLTextAreaElement>(null);
 
   // Fetch messages from context
-  const {messageBlocks} = useMessages()
+  const {messageRooms} = useMessages()
+  const messageBlocks: MessageBlock[] = messageRooms["main"]? messageRooms["main"]?.messageBlocks : []
 
   // useStates for determining state variables
   const [inputBoxValue, setInputBoxValue] = useState("");

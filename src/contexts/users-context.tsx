@@ -18,7 +18,7 @@ import { User } from "firebase/auth";
 import { handleSignIn, subscribeToUserInfo } from "../services/db";
 import { auth } from "../services/firebase";
 
-import { UserData, UserDictionary, UserSettings, UsersContext } from "../types/interfaces";
+import { UserData, UserDictionary, UserListeners, UserSettings, UsersContext } from "../types/interfaces";
 import { SetStateUserDict } from "../types/aliases";
 
 
@@ -30,6 +30,10 @@ const UserContext = createContext<UsersContext>({} as UsersContext);
 
 const defaultSettings: UserSettings = {
   darkMode: false
+}
+
+const defaultListeners: UserListeners = {
+  roomIDs: []
 }
 
 
@@ -44,9 +48,10 @@ export const UsersProvider = ({ children }: { children: JSX.Element }): JSX.Elem
   const [currUserInfo, setCurrUserInfo] = useState<UserData | null>(null)
   const [otherUserInfo, setOtherUserInfo] = useState<UserDictionary>({})
   const [currUserSettings, setCurrUserSettings] = useState<UserSettings>(defaultSettings)
+  const [currUserListeners, setCurrUserListeners] = useState<UserListeners>(defaultListeners)
 
   // useEffects that run on login/logout
-  useEffect(() => { handleSignIn(setCurrUserInfo, setCurrUserSettings) }, [userAuth])
+  useEffect(() => { handleSignIn(setCurrUserInfo, setCurrUserSettings, setCurrUserListeners) }, [userAuth])
 
   useEffect(() => {
     // Subscribes to users when logged in
@@ -57,7 +62,13 @@ export const UsersProvider = ({ children }: { children: JSX.Element }): JSX.Elem
   }, [userAuth])
 
   return (
-    <UserContext.Provider value = {{ userAuth, currUserInfo, setCurrUserInfo, otherUserInfo, setOtherUserInfo, currUserSettings, setCurrUserSettings }}>
+    <UserContext.Provider value = {{ 
+      userAuth, 
+      currUserInfo, setCurrUserInfo, 
+      otherUserInfo, setOtherUserInfo, 
+      currUserSettings, setCurrUserSettings,
+      currUserListeners, setCurrUserListeners
+    }}>
       { children }
     </UserContext.Provider>
   )

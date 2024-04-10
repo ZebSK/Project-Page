@@ -12,10 +12,10 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
 // Internal Modules
-import { MessageBlock, MessagesContext } from "../types/interfaces";
-import { SetStateMsgBlockList } from "../types/aliases";
+import { MessageBlock, MessageRoom, MessageRooms, MessagesContext } from "../types/interfaces";
+import { SetStateMsgRooms } from "../types/aliases";
 import { FieldValue } from "firebase/firestore";
-import { loadPastMessages, messagesRef, subscribeToMessages } from "../services/db";
+import { getMessagesRef, loadPastMessages, messagesRef, subscribeToMessages } from "../services/db";
 import { useUsers } from "./users-context";
 
 
@@ -32,27 +32,41 @@ const MessageContext = createContext<MessagesContext>({} as MessagesContext);
  */
 export const MessagesProvider = ({ children }: { children: JSX.Element }): JSX.Element => {
   // User information state variable
-  const [messageBlocks, setMessageBlocks] = useState<MessageBlock[]>([])
- const { userAuth } = useUsers()
+  const [messageRooms, setMessageRooms] = useState<MessageRooms>({})
+  const { userAuth, currUserListeners } = useUsers()
 
  // Listen to messages hook
   useEffect(() => { 
     if (userAuth) {
-      // Handles listenToMessages being async by fetching unsub in an async function
-      const listener = async () => { return await listenToMessages(messageBlocks, setMessageBlocks); }
-      const unsub = listener()
+      const unsubList: Promise<() => void>[]  = []
+
+      currUserListeners.roomIDs.forEach(function (roomID) {
+        const roomInfo: MessageRoom = {messagesRef: getMessagesRef(roomID), messageBlocks: []}
+        setMessageRooms(prevRooms => ({...prevRooms, [roomID]: roomInfo}));
+
+        // Handles listenToMessages being async by fetching unsub in an async function
+        const listener = async () => { return await listenToMessages(roomID, setMessageRooms, roomInfo); }
+        unsubList.push( listener() )
+      })
 
       // Cleanup on userAuth change
       return () => { 
-        unsub.then((unsubFunction) => {
-          if (typeof unsubFunction === 'function') { unsubFunction(); }
+        unsubList.forEach(function (unsub) {
+          unsub.then((unsubFunction) => {
+            if (typeof unsubFunction === 'function') { unsubFunction(); }
+          })
         })
       }
     }
-  }, [userAuth] )
+  }, [userAuth, currUserListeners.roomIDs] )
+
+  useEffect(() => {
+    console.log(messageRooms);
+  }, [messageRooms]);
+  
 
   return (
-    <MessageContext.Provider value = {{ messageBlocks, setMessageBlocks }}>
+    <MessageContext.Provider value = {{ messageRooms, setMessageRooms }}>
       { children }
     </MessageContext.Provider>
   )
@@ -74,11 +88,13 @@ export const useMessages = () => useContext(MessageContext)
  * @param setMessageBlocks - The setter to set messageBlocks 
  * @param messageContainerRef - The ref for the message container holding the messages
  */
-async function listenToMessages(messageBlocks: MessageBlock[], setMessageBlocks: SetStateMsgBlockList) {
+async function listenToMessages(roomID: string, setMessageRooms: SetStateMsgRooms, roomInfo: MessageRoom) {
   let startListening: FieldValue | null = null
+  let messageBlocks = roomInfo.messageBlocks
+
   if ( messageBlocks.length === 0 ) { // Checks if messages already loaded
     // Load past 25 messages onto screen
-    const pastMessages = await loadPastMessages( messagesRef )
+    const pastMessages = await loadPastMessages( roomInfo.messagesRef )
 
     // Add messages in reverse order from least recent to most
     for (let i = pastMessages.length - 1; i >= 0; i--) {
@@ -86,7 +102,7 @@ async function listenToMessages(messageBlocks: MessageBlock[], setMessageBlocks:
       const textValue = data.text;
       const uid = data.uid;
 
-      addMessageToBlocks(messageBlocks, setMessageBlocks, textValue, uid)
+      addMessageToBlocks(messageBlocks, setMessageRooms, textValue, uid, roomID)
 
       if ( i === 0 ) { 
         startListening = data.createdAt; // Start listening from time of last message sent
@@ -94,7 +110,7 @@ async function listenToMessages(messageBlocks: MessageBlock[], setMessageBlocks:
     }
   }
   // Set listener which loads any new messages and adds them to messageBlocks
-  const unsubscribe = subscribeToMessages(messagesRef, startListening, messageBlocks, setMessageBlocks, addMessageToBlocks)
+  const unsubscribe = subscribeToMessages(messagesRef, startListening, messageBlocks, setMessageRooms, roomID, addMessageToBlocks)
   window.addEventListener('beforeunload', unsubscribe)
   // Cleanup function to remove the event listener when the component unmounts
   return () => {
@@ -111,7 +127,7 @@ async function listenToMessages(messageBlocks: MessageBlock[], setMessageBlocks:
  * @param textValue - The new message to be added
  * @param uid - The user id who sent the message
  */
-export function addMessageToBlocks(messageBlocks: MessageBlock[], setMessageBlocks: SetStateMsgBlockList, textValue: string, uid: string) {
+export function addMessageToBlocks(messageBlocks: MessageBlock[], setMessageRooms: SetStateMsgRooms, textValue: string, uid: string, roomID: string) {
   if (messageBlocks) { }
   const appendToRecentBlock = (messageBlocks: MessageBlock[], textValue: string) => {
     let finalBlock: MessageBlock = { ...messageBlocks[messageBlocks.length - 1] }
@@ -130,11 +146,14 @@ export function addMessageToBlocks(messageBlocks: MessageBlock[], setMessageBloc
     }
   ]
         
-  setMessageBlocks(prevBlocks => {
+  setMessageRooms(prevRooms => {
+    const prevBlocks = prevRooms[roomID].messageBlocks
+    let newBlocks = []
     if (prevBlocks.length > 0 && prevBlocks[prevBlocks.length - 1].uid === uid) {
-      return appendToRecentBlock(prevBlocks, textValue);
+      newBlocks = appendToRecentBlock(prevBlocks, textValue);
     } else {
-      return appendNewBlock(prevBlocks, textValue, uid);
+      newBlocks = appendNewBlock(prevBlocks, textValue, uid);
     }
+    return {...prevRooms, [roomID]: {...prevRooms[roomID], messageBlocks: newBlocks}}
   });
 }
