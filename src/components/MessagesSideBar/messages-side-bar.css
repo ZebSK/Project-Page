@@ -35,9 +35,12 @@
 /* Styles for each button to switch message rooms */
 .roomButton {
   /* Layout and Design */
+  height: 60px;
   margin: 2px 5px;
   border-radius: 10px;
+  padding: 5px;
   text-align: left;
+  display: flex;
 }
 .roomButton.currentRoom { /* Styles for the button corresponding to the currently opened room */
   /* Design */
@@ -48,14 +51,25 @@
   box-shadow: none;
 }
 
+.roomPicture { /* The image within each room button */
+  /* Dimensions */
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: var(--object-colour-1);
+  margin-right: 20px
+}
+
 /* Styles for the text on roomButtons */
 .roomInfo {
+  flex: 1;
+
   /* Overflow */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.roomInfo.smallText { /* Subheading containing last sent message */
+.smallText { /* Subheading containing last sent message */
   /* Text */
   font-size: small;
   font-weight: normal;

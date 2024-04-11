@@ -8,18 +8,18 @@
  */
 
 // External Libraries
-
+import { useEffect, useRef, useState } from 'react';
 
 // Internal Modules
-import { useEffect, useRef, useState } from 'react';
 import { useMessages } from '../../contexts/messages-context';
+import { useUsers } from '../../contexts/users-context';
+
+import { DivRefObject, ReactButtonClick, SetStateBoolean } from '../../types/aliases';
+import { UserData } from '../../types/interfaces';
 
 import './messages-side-bar.css';
-import { useUsers } from '../../contexts/users-context';
-import { DivRefObject, ReactButtonClick, SetStateBoolean } from '../../types/aliases';
 import { handleLogout } from '../../services/auth';
-import { UserData } from '../../types/interfaces';
- 
+import { createDefaultProfilePic } from '../../utils/profile-pictures';
 
 
 
@@ -74,8 +74,11 @@ function MessagesSideBar({setEditProfileOpen, setSettingsOpen} : {setEditProfile
       <div className='messageRooms'>
         {Object.keys(messageRooms).map( key => (
             <button key={key} onClick={() => setCurrRoomID(key)} className ={(currRoomID===key)? 'roomButton currentRoom' : 'roomButton'}>
-              <div className='roomInfo'>{key}</div>
-              <div className='roomInfo smallText'>{lastMessages[key]}</div>
+              <img className="roomPicture" src={createDefaultProfilePic(key, "#999999")} alt="Profile" />
+              <div className='roomInfo'>
+                <div>{key}</div>
+                <div className='roomInfo smallText'>{lastMessages[key]}</div>
+              </div>
             </button>
         ))}
       </div>

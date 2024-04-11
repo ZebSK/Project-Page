@@ -55,6 +55,7 @@ function MessageScreen(): JSX.Element {
   useEffect(() => { scrollOnNewMessage(messageContainerRef) }, [messageBlocks]);
   useEffect(() => { handleInputBoxExpand(messageContainerRef, inputBoxRef, setScrollButtonHeight) }, []);
   useEffect(() => { determineScrollButtonHeight(inputBoxRef, setScrollButtonHeight) }, []);
+  useEffect(() => { scrollToBottom(messageContainerRef) }, [currRoomID])
 
   // The JSX Element
   return (
