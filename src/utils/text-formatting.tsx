@@ -35,7 +35,7 @@ export function markdownLaTeXToHTML(text: string): ReactElement<any, any> {
     <>
       {sections.map((str, index) => {
         if (str.startsWith("$")) {
-          return <Latex key={index}>{str}</Latex>
+          return <span key={index} className='latex'><Latex>{str}</Latex></span>;
         } else {
           return <ReactMarkdown key={index}>{str}</ReactMarkdown>;
         }

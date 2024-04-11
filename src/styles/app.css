@@ -19,3 +19,18 @@
   color: var(--primary-text-colour);
   background-color: var(--primary-background-colour);
 }
+
+
+
+/* Latex Support */
+.latex {
+  /* Prevents long lines of LaTeX going outside of the message bubble */
+  display: block;
+  overflow-x: auto;
+}
+.latex::-webkit-scrollbar-thumb { /* Design for the scrollbar that appears (transparent to work with any message bubble colour) */
+  background-color: #00000022;
+}
+.latex::-webkit-scrollbar-thumb:hover {
+  background-color: #00000033;
+}
