@@ -47,6 +47,8 @@ function MessagesSideBar({setEditProfileOpen, setSettingsOpen} : {setEditProfile
 
   // useStates
   const [lastMessages, setLastMessages] = useState<{[roomID: string]: string}>({})
+  const [roomPictures, setRoomPictures] = useState<{[roomID: string]: string}>({})
+  const [searchValue, setSearchValue] = useState<string>("")
 
   // Determine the last message sent to each room
   useEffect(() => {
@@ -64,43 +66,71 @@ function MessagesSideBar({setEditProfileOpen, setSettingsOpen} : {setEditProfile
         const lastMessage = lastMessageUser + ": " + lastMessageContents
         setLastMessages((prevLastMessages) => ({ ...prevLastMessages, [roomID]: lastMessage}))
       }
+      setRoomPictures((prevRoomPictures) => ({ ...prevRoomPictures, [roomID]: createDefaultProfilePic(roomID, "#999999")}))
     })
   }, [messageRooms, otherUserInfo])
+
+  // Empties the search box when room changes
+  useEffect(() => {setSearchValue("")}, [currRoomID])
 
   // The JSX Element
   return (
     // Map function to create multiple MessageBlock components and assign messageContents to them
     <div className="messagesSideBar">
+
+      {/* Top Bar */}
+      <div className='roomsOptions'>
+        <textarea 
+          className='roomsSearch' 
+          placeholder="Find a Conversation..."
+          value={searchValue}
+
+          // Handles response to typing in the box
+          onChange={(event) => { setSearchValue(event.currentTarget.value); }}
+          onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); }}} // Prevents new lines
+        ></textarea>
+      </div>
+
+      {/* Message Rooms List */}
       <div className='messageRooms'>
         {Object.keys(messageRooms).map( key => (
+          // If something is entered into the search box, check if contained within name
+          key.toLowerCase().includes(searchValue.toLowerCase()) && (
             <button key={key} onClick={() => setCurrRoomID(key)} className ={(currRoomID===key)? 'roomButton currentRoom' : 'roomButton'}>
-              <img className="roomPicture" src={createDefaultProfilePic(key, "#999999")} alt="Profile" />
+              <img className="roomPicture" src={roomPictures[key]} alt="Profile" />
               <div className='roomInfo'>
-                <div>{key}</div>
+                <div className='roomInfo'>{key}</div>
                 <div className='roomInfo smallText'>{lastMessages[key]}</div>
               </div>
             </button>
+          )
         ))}
       </div>
 
       {/* Account button */}
-      <button 
-        className="accountButton"
-        onClick={(event) => handleProfileButtonClick(event, setUserMenuOpen, userMenuOpen)}
-      >
-        <img className="profilePicture" src={currUserInfo?.profilePic} alt="Profile" />
-      </button>
+      <div className='userMenuButton'>
+        <button 
+          className="roomButton"
+          onClick={(event) => handleProfileButtonClick(event, setUserMenuOpen, userMenuOpen)}
+        >
+          <img className="roomPicture" src={currUserInfo?.profilePic} alt="Profile" />
+          <div className='roomInfo'>
+            <div className='roomInfo'>{currUserInfo?.displayName}</div>
+            <div className='roomInfo smallText'>{currUserInfo?.bio? currUserInfo?.bio: "Online"}</div>
+          </div>
+        </button>
 
-      {/* Account button dropdown menu */}
-      {userMenuOpen && (
-        <DropDownUserMenu 
-          userMenuRef={userMenuRef}
-          userInfo={currUserInfo}
-          setUserMenuOpen={setUserMenuOpen}
-          setEditProfileOpen={setEditProfileOpen}
-          setSettingsOpen={setSettingsOpen}
-        />
-      )}
+        {/* Account button dropdown menu */}
+        {userMenuOpen && (
+          <DropDownUserMenu 
+            userMenuRef={userMenuRef}
+            userInfo={currUserInfo}
+            setUserMenuOpen={setUserMenuOpen}
+            setEditProfileOpen={setEditProfileOpen}
+            setSettingsOpen={setSettingsOpen}
+          />
+        )}
+      </div>
     </div>
   )
 }
