@@ -152,6 +152,37 @@
   filter: invert(100%);
 }
 
+/* Styles for the menu to add reacts */
+.addEmojiMenu {
+  /* Positioning and Layout */
+  z-index: 1;
+  position: absolute;
+  top: -80px;
+  width: 165px;
+  padding: 5px;
+
+  /* Design */
+  background-color: var(--object-colour-1);
+  border-radius: 20px;
+}
+.addEmojiMenu.left { /* Messages received by the user */
+  right: -155px;
+}
+.addEmojiMenu.right { /* Messages sent by the user */
+  left: -155px;
+}
+
+/* Styles for each button to add a react within the menu */
+.emojiOptionButton {
+  /* Design */
+  font-size: 150%;
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
+
+
+
 /* OTHER COMPONENTS */
 
 /* Styles for input box to enter messages */

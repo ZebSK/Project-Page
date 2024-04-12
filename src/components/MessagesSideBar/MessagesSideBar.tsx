@@ -20,6 +20,7 @@ import { UserData } from '../../types/interfaces';
 import './messages-side-bar.css';
 import { handleLogout } from '../../services/auth';
 import { createDefaultProfilePic } from '../../utils/profile-pictures';
+import { outsideObjectClick } from '../../utils/mouse-events';
 
 
 
@@ -39,7 +40,7 @@ function MessagesSideBar({setEditProfileOpen, setSettingsOpen} : {setEditProfile
   const [userMenuOpen, setUserMenuOpen] = useState(false)
 
   // useEffects that run on app starting
-  useEffect(() => { outsideUserMenuClick(userMenuRef, setUserMenuOpen) }, [])
+  useEffect(() => { outsideObjectClick(userMenuRef, setUserMenuOpen) }, [])
 
   // Get current information from contexts
   const { currRoomID, setCurrRoomID, messageRooms } = useMessages()
@@ -188,30 +189,6 @@ function DropDownUserMenu({userMenuRef, userInfo, setUserMenuOpen, setEditProfil
   
   
   // FUNCTIONS
-  
-  /**
-   * Sets up a listener to hide user menu if clicking outside of it
-   * @param menuRef - Reference to user menu
-   * @param setUserMenuOpen - Setter to set whether menu is hidden
-   */
-  function outsideUserMenuClick(menuRef: DivRefObject, setUserMenuOpen: SetStateBoolean) {
-    /**
-     * Function to check if menu is open and close if click event not on menu
-     * @param event - Mouse clicking event
-     */
-    function handleOutsideUserMenuCLick(event: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setUserMenuOpen(false);
-      }
-    }
-    // Add event listener
-    document.addEventListener("click", handleOutsideUserMenuCLick);
-  
-    // Remove event listener on disconnect
-    return () => {
-      document.removeEventListener("click", handleOutsideUserMenuCLick);
-    }
-  }
   
   /**
    * Function to handle the clicking of the profile picture button

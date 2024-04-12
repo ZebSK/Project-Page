@@ -27,6 +27,7 @@ import { DivRefObject, SetStateBoolean, SetStateString, TextAreaRefObject } from
 import './message-screen.css';
 import { useMessages } from '../../contexts/messages-context';
 import pixilEmoji from '../../assets/pixil-emoji.png';
+import { outsideObjectClick } from '../../utils/mouse-events';
 
 
 
@@ -150,11 +151,17 @@ function MessageBlock({ messages, uid }: { messages: Message[]; uid: string }): 
  * @returns The Message component
  */
 function Message({ isYoursIndicator, message }: { isYoursIndicator: string; message: Message }): JSX.Element {
-  // Determine whether the mouse is inline with the message
+  // useStates
   const [isHovered, setIsHovered] = useState<boolean>(false)
+  const [showReactMenu, setShowReactMenu] = useState<boolean>(false)
+  
+  const reactMenuRef = useRef<HTMLDivElement>(null)
+  const reactMenuButtonRef = useRef<HTMLButtonElement>(null)
+
+  useEffect(() => { outsideObjectClick(reactMenuRef, setShowReactMenu, reactMenuButtonRef) }, [])
 
   return(
-    <div className='messageLine' onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
+    <div className={"messageLine" + " " + isYoursIndicator} onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
       <div className={"message" + " " + isYoursIndicator}>
         {/* The Message Bubble */}
         {checkIfOnlyEmoji(message.content)?
@@ -163,9 +170,20 @@ function Message({ isYoursIndicator, message }: { isYoursIndicator: string; mess
         }
         {/* Add Reaction Button */}
         {isHovered &&
-          <button className={'addEmoji' + " " + isYoursIndicator}>
+          <button 
+            className={'addEmoji' + " " + isYoursIndicator}
+            onClick={() => {setShowReactMenu(true)}}
+            ref={reactMenuButtonRef}
+          >
             <img className='addEmojiImage' src={pixilEmoji} alt="Add Emoji"/>
           </button> 
+        }
+        {showReactMenu &&
+          <div className={'addEmojiMenu' + " " + isYoursIndicator} ref={reactMenuRef}>
+            {["😠","🤨","🫤","😔","🙃","😶","😂","💖"].map((emoji, index) => (
+              <button key={index} className='emojiOptionButton'>{emoji}</button>
+            ))}
+          </div>
         }
       </div>
     </div>
@@ -217,17 +235,18 @@ function scrollOnNewMessage (messageContainerRef: DivRefObject) {
   // Finds the last message bubble if there is one
   const lastMessageBlock = container.lastElementChild as HTMLElement;
   if (lastMessageBlock) {
-    const lastMessageBubble = lastMessageBlock.lastElementChild as HTMLElement;
-    if (lastMessageBubble) {
+    const lastMessageLine = lastMessageBlock.lastElementChild as HTMLElement;
+    if (lastMessageLine) {
 
       // If last message from user, scroll to bottom
-      if (lastMessageBubble.className.split(" ")[1] === "right") {
+      console.log(lastMessageLine.className)
+      if (lastMessageLine.className.split(" ")[1] === "right") {
         scrollToBottom(messageContainerRef);
       }
 
       // If the distance from the bottom is the height of the last message, scroll to bottom
-      const lastMessageStyles = getComputedStyle(lastMessageBubble);
-      const lastMessageHeight = lastMessageBubble.offsetHeight + parseInt(lastMessageStyles.marginBottom) + 20; 
+      const lastMessageStyles = getComputedStyle(lastMessageLine);
+      const lastMessageHeight = lastMessageLine.offsetHeight + parseInt(lastMessageStyles.marginBottom) + 20; 
       if( container.scrollHeight - container.scrollTop - lastMessageHeight <= container.clientHeight) {
         scrollToBottom(messageContainerRef);
       }

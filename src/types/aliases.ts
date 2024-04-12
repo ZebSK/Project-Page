@@ -34,6 +34,7 @@ export type SetStateMsgRooms = Dispatch<SetStateAction<MessageRooms>>
 // useRef Objects
 export type DivRefObject = React.RefObject<HTMLDivElement>
 export type TextAreaRefObject = React.RefObject<HTMLTextAreaElement>
+export type ButtonRefObject = React.RefObject<HTMLButtonElement>
 
 // Firebase Types
 export type DocsSnapshot = Promise<QueryDocumentSnapshot[]>
