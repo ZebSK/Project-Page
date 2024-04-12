@@ -16,8 +16,10 @@
 
   /* Dimensions */
   min-width: 300px;
+  width: 70%;
   flex-grow: 1;
-  height: 99% - 1px; /* 99% of the viewport height */
+  box-sizing: border-box;
+  height: calc(99%); /* 99% of the viewport height */
 }
   
 
@@ -43,6 +45,7 @@
   display: flex;
   flex-direction: column;
   min-width: calc(300px - 10px);
+  max-width: 100%;
 }
   
 /* Styles for each individual message */
@@ -75,6 +78,13 @@
 
   /* Layout */
   align-self: flex-start; /* Aligns to left of messageScreen */
+}
+
+.emojiBubble {
+  font-size: 2em;
+}
+.emojiBubble.right {
+  align-self: flex-end;
 }
 
 /* Styles for display name above set of messages */

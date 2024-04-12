@@ -15,7 +15,7 @@ import { getMessagesRef, sendMessage } from '../../services/db';
 import { auth } from '../../services/firebase';
 
 // Functions and Contexts
-import { markdownLaTeXToHTML } from '../../utils/text-formatting';
+import { checkIfOnlyEmoji, markdownLaTeXToHTML } from '../../utils/text-formatting';
 import { scrollToBottom } from '../../utils/scrolling';
 import { useUsers } from '../../contexts/users-context';
 
@@ -150,9 +150,13 @@ function MessageBlock({ messageContents, uid }: { messageContents: string[]; uid
  */
 function Message({ isYoursIndicator, messageContent }: { isYoursIndicator: string; messageContent: string }): JSX.Element {
   return(
-    <div className = {"messageBubble" + " " + isYoursIndicator}>
-      {markdownLaTeXToHTML(messageContent)}
-    </div>
+    checkIfOnlyEmoji(messageContent)?
+      <div className={"emojiBubble" + " " + isYoursIndicator}>{messageContent}</div>
+      :
+      <div className = {"messageBubble" + " " + isYoursIndicator}>
+        {markdownLaTeXToHTML(messageContent)}
+      </div>
+    
   );
 }
 

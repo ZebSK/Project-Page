@@ -27,6 +27,8 @@
   /* Prevents long lines of LaTeX going outside of the message bubble */
   display: block;
   overflow-x: auto;
+  max-width: 100%;
+  word-break: break-word;
 }
 .latex::-webkit-scrollbar-thumb { /* Design for the scrollbar that appears (transparent to work with any message bubble colour) */
   background-color: #00000022;
