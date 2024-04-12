@@ -63,6 +63,7 @@ export function sendMessage(messagesRef: CollectionReference, messageContents: s
   // Add doc to database with random message id
   addDoc(messagesRef, {
     text: messageContents,
+    reacts: {},
     createdAt: time,
     uid: uid
   });

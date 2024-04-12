@@ -26,6 +26,7 @@ import { DivRefObject, SetStateBoolean, SetStateString, TextAreaRefObject } from
 //Styles
 import './message-screen.css';
 import { useMessages } from '../../contexts/messages-context';
+import pixilEmoji from '../../assets/pixil-emoji.png';
 
 
 
@@ -149,14 +150,25 @@ function MessageBlock({ messageContents, uid }: { messageContents: string[]; uid
  * @returns The Message component
  */
 function Message({ isYoursIndicator, messageContent }: { isYoursIndicator: string; messageContent: string }): JSX.Element {
+  // Determine whether the mouse is inline with the message
+  const [isHovered, setIsHovered] = useState<boolean>(false)
+
   return(
-    checkIfOnlyEmoji(messageContent)?
-      <div className={"emojiBubble" + " " + isYoursIndicator}>{messageContent}</div>
-      :
-      <div className = {"messageBubble" + " " + isYoursIndicator}>
-        {markdownLaTeXToHTML(messageContent)}
+    <div className='messageLine' onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
+      <div className={"message" + " " + isYoursIndicator}>
+        {/* The Message Bubble */}
+        {checkIfOnlyEmoji(messageContent)?
+          <span className={"messageBubble emojiBubble" + " " + isYoursIndicator}>{messageContent}</span>  :
+          <span className={"messageBubble" + " " + isYoursIndicator}>{markdownLaTeXToHTML(messageContent)}</span>
+        }
+        {/* Add Reaction Button */}
+        {isHovered &&
+          <button className={'addEmoji' + " " + isYoursIndicator}>
+            <img className='addEmojiImage' src={pixilEmoji} alt="Add Emoji"/>
+          </button> 
+        }
       </div>
-    
+    </div>
   );
 }
 

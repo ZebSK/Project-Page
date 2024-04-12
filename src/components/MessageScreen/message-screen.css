@@ -48,16 +48,35 @@
   max-width: 100%;
 }
   
+/* The horizontal line containing each message (for detecting hovering) */
+.messageLine {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
 /* Styles for each individual message */
-.messageBubble {
-  /* Dimensions and layout */
+.message {
+  display: flex;
   max-width: 70%;
   position: relative; /* Sets message contents relative to bubble */
+  align-items: center;
+}
+.message.left { /* Messages sent by other users */
+  align-self: flex-start;
+}
+.message.right { /* Messages sent by the user */
+  align-self: flex-end;
+}
 
+/* Styles for the design of the actual message bubble */
+.messageBubble {
   /* Bubble Shape */
   border-radius: 10px; /* Curved edges */
   padding: 10px; /* Space inside bubble*/
   margin-bottom: 5px; /* Space between bubbles */
+  box-sizing: border-box;
+  max-width: 100%;
   
   /* Text */
   word-wrap: break-word; /* Wraps long words */
@@ -65,26 +84,21 @@
 }
 .messageBubble.right { /* Messages sent by user */
   /* Design */
+  align-self: flex-end;
   background-color: #ff006f;
   color: #ffffff; /* Text colour */
-
-  /* Layout */
-  align-self: flex-end; /* Aligns to right of messageScreen */
 }
 .messageBubble.left { /* Messages received by user */
   /* Design */
+  align-self: flex-start;
   background-color: var(--object-colour-1);
   color: var(--primary-text-colour);
-
-  /* Layout */
-  align-self: flex-start; /* Aligns to left of messageScreen */
 }
-
-.emojiBubble {
+.messageBubble.emojiBubble { /* Styles for messages containing only emojis */
+  /* Design */
+  padding: 0px;
   font-size: 2em;
-}
-.emojiBubble.right {
-  align-self: flex-end;
+  background-color: transparent;
 }
 
 /* Styles for display name above set of messages */
@@ -100,7 +114,42 @@
   align-self: flex-end;
 }
 
+/* Styles for the button to add emoji reactions */
+.addEmoji {
+  /* Dimensions and Positioning */
+  padding: 10px;
+  position: absolute;
+  width: 30px;
+  height: 30px;
 
+  background-color: transparent;
+}
+.addEmoji:hover { /* Show button on hover */
+  background-color: var(--object-colour-1);
+}
+.addEmoji.left { /* Messages received by user */
+  right: -40px;
+}
+.addEmoji.right { /* Messages sent by user */
+  left: -40px;
+}
+
+/* The image for the add emoji reactions button */
+.addEmojiImage {
+  /* Positioning */
+  position: absolute;
+  left: 5px;
+  top: 5px;
+  width: 20px;
+  height: 20px;
+
+  /* Design */
+  opacity: 50%;
+}
+.dark-mode .addEmojiImage { /* Design differences for dark mode */
+  opacity: 30%;
+  filter: invert(100%);
+}
 
 /* OTHER COMPONENTS */
 
