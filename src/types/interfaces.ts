@@ -121,13 +121,14 @@ export interface MessageRooms {
  */
 export interface MessageBlock {
   uid: string;
-  messageContents: string[]; // Contains a list of strings for each message
+  messages: Message[]; // Contains a list of strings for each message
 }
 
 /**
  * Interface representing the structure of information stored about a message
  */
 export interface Message {
-  messageContents: string;
-  reacts: { [uid: string]: string[] }; // A list of emoji reacts for each user that has reacted
+  messageID: string;
+  content: string;
+  reacts: { [emoji: string]: string[] } | undefined; // A dict of users that have reacted each emoji
 }

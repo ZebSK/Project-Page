@@ -61,7 +61,7 @@ function MessagesSideBar({setEditProfileOpen, setSettingsOpen} : {setEditProfile
       } else {
         // Gets information about the last message sent
         const lastMessageBlocks = messageBlocks[messageBlocks.length - 1]
-        const lastMessageContents = lastMessageBlocks.messageContents[lastMessageBlocks.messageContents.length - 1]
+        const lastMessageContents = lastMessageBlocks.messages[lastMessageBlocks.messages.length - 1].content
         const lastMessageUser = otherUserInfo[lastMessageBlocks.uid]? otherUserInfo[lastMessageBlocks.uid]?.displayName : "Me"
         const lastMessage = lastMessageUser + ": " + lastMessageContents
         setLastMessages((prevLastMessages) => ({ ...prevLastMessages, [roomID]: lastMessage}))

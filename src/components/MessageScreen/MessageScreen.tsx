@@ -20,7 +20,7 @@ import { scrollToBottom } from '../../utils/scrolling';
 import { useUsers } from '../../contexts/users-context';
 
 // Types
-import { MessageBlock } from "../../types/interfaces";;
+import { Message, MessageBlock } from "../../types/interfaces";;
 import { DivRefObject, SetStateBoolean, SetStateString, TextAreaRefObject } from '../../types/aliases';
 
 //Styles
@@ -64,7 +64,7 @@ function MessageScreen(): JSX.Element {
     <div className='messageScreen'>
       <div className='messageContainer' ref={messageContainerRef}>
         {messageBlocks.map((messageBlock, index) => (
-          <MessageBlock key={index} messageContents={messageBlock.messageContents} uid={messageBlock.uid}/>
+          <MessageBlock key={index} messages={messageBlock.messages} uid={messageBlock.uid}/>
         ))}
       </div>
       {scrollButtonVisible && 
@@ -127,7 +127,7 @@ function InputBox({ currRoomID, inputBoxValue, setInputBoxValue, inputBoxRef } :
  * @param uid - The user id of the person who sent the message
  * @returns The MessageBlock component
  */
-function MessageBlock({ messageContents, uid }: { messageContents: string[]; uid: string }): JSX.Element {
+function MessageBlock({ messages, uid }: { messages: Message[]; uid: string }): JSX.Element {
   const { currUserInfo, otherUserInfo } = useUsers();
   const isYoursIndicator: string = uid === auth.currentUser?.uid? "right": "left"  // convert isYours boolean to string
   const displayName: string = uid === currUserInfo?.uid? currUserInfo.displayName : otherUserInfo[uid]?.displayName
@@ -135,8 +135,8 @@ function MessageBlock({ messageContents, uid }: { messageContents: string[]; uid
     // Second map function to map each message in the block
     <div className='messageBlock'>
       <div className={'messageDisplayName' + " " + isYoursIndicator}> {displayName} </div>
-      {messageContents.map((message, index) => (
-        <Message key={index} isYoursIndicator={isYoursIndicator} messageContent={message} />
+      {messages.map((message, index) => (
+        <Message key={index} isYoursIndicator={isYoursIndicator} message={message} />
       ))}
     </div>
   );
@@ -146,10 +146,10 @@ function MessageBlock({ messageContents, uid }: { messageContents: string[]; uid
  * Message component holding each individual message
  * @component
  * @param isYoursIndicator - Determines which side of the screen to display the message
- * @param messageContent - The content of the message
+ * @param message - The details of the message
  * @returns The Message component
  */
-function Message({ isYoursIndicator, messageContent }: { isYoursIndicator: string; messageContent: string }): JSX.Element {
+function Message({ isYoursIndicator, message }: { isYoursIndicator: string; message: Message }): JSX.Element {
   // Determine whether the mouse is inline with the message
   const [isHovered, setIsHovered] = useState<boolean>(false)
 
@@ -157,9 +157,9 @@ function Message({ isYoursIndicator, messageContent }: { isYoursIndicator: strin
     <div className='messageLine' onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
       <div className={"message" + " " + isYoursIndicator}>
         {/* The Message Bubble */}
-        {checkIfOnlyEmoji(messageContent)?
-          <span className={"messageBubble emojiBubble" + " " + isYoursIndicator}>{messageContent}</span>  :
-          <span className={"messageBubble" + " " + isYoursIndicator}>{markdownLaTeXToHTML(messageContent)}</span>
+        {checkIfOnlyEmoji(message.content)?
+          <span className={"messageBubble emojiBubble" + " " + isYoursIndicator}>{message.content}</span>  :
+          <span className={"messageBubble" + " " + isYoursIndicator}>{markdownLaTeXToHTML(message.content)}</span>
         }
         {/* Add Reaction Button */}
         {isHovered &&

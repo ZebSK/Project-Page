@@ -12,7 +12,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
 // Internal Modules
-import { MessageBlock, MessageRoom, MessageRooms, MessagesContext } from "../types/interfaces";
+import { Message, MessageBlock, MessageRoom, MessageRooms, MessagesContext } from "../types/interfaces";
 import { SetStateMsgRooms } from "../types/aliases";
 import { FieldValue } from "firebase/firestore";
 import { getMessagesRef, loadPastMessages, subscribeToMessages } from "../services/db";
@@ -95,10 +95,16 @@ async function listenToMessages(roomID: string, setMessageRooms: SetStateMsgRoom
     // Add messages in reverse order from least recent to most
     for (let i = pastMessages.length - 1; i >= 0; i--) {
       const data = pastMessages[i].data();
-      const textValue = data.text;
-      const uid = data.uid;
+      const messageID = pastMessages[i].id
+      const uid = data.uid
 
-      addMessageToBlocks(messageBlocks, setMessageRooms, textValue, uid, roomID)
+      const message: Message = {
+        messageID: messageID,
+        content: data.text,
+        reacts: data.reacts
+      }
+
+      addMessageToBlocks(messageBlocks, setMessageRooms, message, uid, roomID)
 
       if ( i === 0 ) { 
         startListening = data.createdAt; // Start listening from time of last message sent
@@ -123,22 +129,22 @@ async function listenToMessages(roomID: string, setMessageRooms: SetStateMsgRoom
  * @param textValue - The new message to be added
  * @param uid - The user id who sent the message
  */
-export function addMessageToBlocks(messageBlocks: MessageBlock[], setMessageRooms: SetStateMsgRooms, textValue: string, uid: string, roomID: string) {
+export function addMessageToBlocks(messageBlocks: MessageBlock[], setMessageRooms: SetStateMsgRooms, message: Message, uid: string, roomID: string) {
   if (messageBlocks) { }
-  const appendToRecentBlock = (messageBlocks: MessageBlock[], textValue: string) => {
+  const appendToRecentBlock = (messageBlocks: MessageBlock[], message: Message): MessageBlock[] => {
     let finalBlock: MessageBlock = { ...messageBlocks[messageBlocks.length - 1] }
-    finalBlock.messageContents = [...messageBlocks[messageBlocks.length - 1].messageContents, textValue]
+    finalBlock.messages = [...messageBlocks[messageBlocks.length - 1].messages, message]
 
     return [
       ...messageBlocks.slice(0, -1),  // Keep all items except last the same
       finalBlock
     ]
   }
-  const appendNewBlock = (messageBlocks: MessageBlock[], textValue: string, uid: string) => [
+  const appendNewBlock = (messageBlocks: MessageBlock[], message: Message, uid: string): MessageBlock[] => [
     ...messageBlocks,
     {
       uid: uid,
-      messageContents: [textValue],
+      messages: [message],
     }
   ]
         
@@ -146,9 +152,9 @@ export function addMessageToBlocks(messageBlocks: MessageBlock[], setMessageRoom
     const prevBlocks = prevRooms[roomID].messageBlocks
     let newBlocks = []
     if (prevBlocks.length > 0 && prevBlocks[prevBlocks.length - 1].uid === uid) {
-      newBlocks = appendToRecentBlock(prevBlocks, textValue);
+      newBlocks = appendToRecentBlock(prevBlocks, message);
     } else {
-      newBlocks = appendNewBlock(prevBlocks, textValue, uid);
+      newBlocks = appendNewBlock(prevBlocks, message, uid);
     }
     return {...prevRooms, [roomID]: {...prevRooms[roomID], messageBlocks: newBlocks}}
   });

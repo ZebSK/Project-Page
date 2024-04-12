@@ -31,7 +31,7 @@ import { db, auth } from './firebase';
 import { createDefaultProfilePic } from "../utils/profile-pictures";
 import { getProfilePic, saveProfilePic } from "./storage";
 
-import { MessageBlock, UserData, UserListeners, UserSettings } from "../types/interfaces";
+import { Message, MessageBlock, UserData, UserListeners, UserSettings } from "../types/interfaces";
 import { DocsSnapshot, SetStateUserDict, SetStateUserDataNull, setStateUserSettings, setStateUserListeners, SetStateMsgRooms } from "../types/aliases";
 
 
@@ -63,7 +63,6 @@ export function sendMessage(messagesRef: CollectionReference, messageContents: s
   // Add doc to database with random message id
   addDoc(messagesRef, {
     text: messageContents,
-    reacts: {},
     createdAt: time,
     uid: uid
   });
@@ -91,7 +90,7 @@ export async function loadPastMessages(messagesRef: CollectionReference): DocsSn
  * @returns Function to add listener and unsubscribe from it
  */
 export function subscribeToMessages (messagesRef: CollectionReference, startTime: FieldValue | null, messageBlocks: MessageBlock[], setMessageRooms: SetStateMsgRooms, roomID: string,
-  addMessageToBlocks: (messageBlocks: MessageBlock[], setMessageRooms: SetStateMsgRooms, textValue: string, uid: string, roomID: string) => void) : Unsubscribe {
+  addMessageToBlocks: (messageBlocks: MessageBlock[], setMessageRooms: SetStateMsgRooms, message: Message, uid: string, roomID: string) => void) : Unsubscribe {
     // Start listening from set time, or all messages if not set (no previous messages)
     const q = startTime? query(messagesRef, where('createdAt', '>', startTime)) : query(messagesRef); 
 
@@ -101,7 +100,14 @@ export function subscribeToMessages (messagesRef: CollectionReference, startTime
           // Listens for new messages sent and adds them to messageBlocks
           if (change.type === "added") {
             const data = change.doc.data()
-            addMessageToBlocks(messageBlocks, setMessageRooms, data.text, data.uid, roomID)
+            const messageID = change.doc.id
+            const uid = data.uid
+            const message: Message = {
+              messageID: messageID,
+              content: data.text,
+              reacts: data.reacts
+            }
+            addMessageToBlocks(messageBlocks, setMessageRooms, message, uid, roomID)
           }
         });
       })
