@@ -159,3 +159,17 @@ export function addMessageToBlocks(messageBlocks: MessageGroup[], setMessageRoom
     return {...prevRooms, [roomID]: {...prevRooms[roomID], messageBlocks: newBlocks}}
   });
 }
+
+export function updateMessageInfo(setMessageRooms: SetStateMsgRooms, message: Message, roomID: string) {
+  setMessageRooms(prevRooms => {
+    const updatedMessageRooms = {...prevRooms}
+    const room = updatedMessageRooms[roomID];
+    for (const messageBlock of room.messageBlocks) {
+      const msg: Message | undefined = messageBlock.messages.find(msg => msg.messageID === message.messageID);
+      if (msg) {
+        msg.reacts = message.reacts
+      }
+    } 
+    return updatedMessageRooms
+  })
+}

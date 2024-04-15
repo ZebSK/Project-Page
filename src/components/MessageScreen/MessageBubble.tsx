@@ -11,7 +11,7 @@
 import { useEffect, useRef, useState } from "react";
 
 // Types
-import { Message } from "../../types/interfaces";
+import { Message, UserData } from "../../types/interfaces";
 
 // Utils
 import { outsideObjectClick } from "../../utils/mouse-events";
@@ -20,6 +20,9 @@ import { markdownLaTeXToHTML } from "../../utils/text-formatting";
 // Images
 import pixilEmoji from '../../assets/pixil-emoji.png';
 import { defaultReactions } from "../../config/constants";
+import { useMessages } from "../../contexts/messages-context";
+import { useUsers } from "../../contexts/users-context";
+import { addReact } from "../../services/db";
 
 
 
@@ -39,6 +42,9 @@ function MessageBubble({ isYoursIndicator, message }: { isYoursIndicator: string
   
   const reactMenuRef = useRef<HTMLDivElement>(null)
   const reactMenuButtonRef = useRef<HTMLButtonElement>(null)
+  
+  const { currRoomID } = useMessages()
+  const { currUserInfo } = useUsers()
 
   useEffect(() => { outsideObjectClick(reactMenuRef, setShowReactMenu, reactMenuButtonRef) }, [])
 
@@ -54,7 +60,7 @@ function MessageBubble({ isYoursIndicator, message }: { isYoursIndicator: string
         {isHovered &&
           <button 
             className={'addEmoji' + " " + isYoursIndicator}
-            onClick={() => {setShowReactMenu(true)}}
+            onClick={() => setShowReactMenu(!showReactMenu)}
             ref={reactMenuButtonRef}
           >
             <img className='addEmojiImage' src={pixilEmoji} alt="Add Emoji"/>
@@ -63,7 +69,9 @@ function MessageBubble({ isYoursIndicator, message }: { isYoursIndicator: string
         {showReactMenu &&
           <div className={'addEmojiMenu' + " " + isYoursIndicator} ref={reactMenuRef}>
             {defaultReactions.map((emoji, index) => (
-              <button key={index} className='emojiOptionButton'>{emoji}</button>
+              <button key={index} className='emojiOptionButton' 
+              onClick={() => {addOrRemoveReact(message, emoji, currRoomID, currUserInfo); setShowReactMenu(false)}}
+              >{emoji}</button>
             ))}
           </div>
         }
@@ -87,6 +95,15 @@ export default MessageBubble
  * @param text - The contents of the message
  * @returns A boolean determining whether the message contains only emojis
  */
-export function checkIfOnlyEmoji(text:string): boolean {
+function checkIfOnlyEmoji(text:string): boolean {
   return /^[\p{Extended_Pictographic}]+$/u.test(text)
+}
+
+function addOrRemoveReact(message: Message, react: string, currRoomID: string, currUserInfo: UserData | null, remove: boolean = false) {
+  if (!currUserInfo) { return }
+  if (!message.reacts || !message.reacts[react] || !message.reacts[react].includes(currUserInfo.uid)) {
+    addReact(message, react, currRoomID, currUserInfo.uid)
+  } else if (remove) {
+    console.log("")
+  }
 }

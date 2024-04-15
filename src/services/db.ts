@@ -33,6 +33,7 @@ import { getProfilePic, saveProfilePic } from "./storage";
 
 import { Message, MessageGroup, UserData, UserListeners, UserSettings } from "../types/interfaces";
 import { DocsSnapshot, SetStateUserDict, SetStateUserDataNull, setStateUserSettings, setStateUserListeners, SetStateMsgRooms } from "../types/aliases";
+import { updateMessageInfo } from "../contexts/messages-context";
 
 
 
@@ -109,12 +110,35 @@ export function subscribeToMessages (messagesRef: CollectionReference, startTime
             }
             addMessageToBlocks(messageBlocks, setMessageRooms, message, uid, roomID)
           }
+          if (change.type === "modified") {
+            const data = change.doc.data()
+            const messageID = change.doc.id
+            const message: Message = {
+              messageID: messageID,
+              content: data.text,
+              reacts: data.reacts
+            }
+            updateMessageInfo(setMessageRooms, message, roomID);
+          }
         });
       })
     );
   };
 
+export function addReact(message: Message, react: string, currRoomID: string, currUserUID: string) {
+  let newReacts = message.reacts;
+  if (!newReacts) {
+    newReacts = {react: [currUserUID]}
+  } else if (newReacts[react]) {
+    newReacts[react].push(currUserUID);
+  } else {
+    newReacts[react] = [currUserUID]
+  }
 
+  updateDoc(doc(db, "rooms", currRoomID, "messages", message.messageID), {
+    reacts: newReacts
+  })
+}
 
 
 // USERS
