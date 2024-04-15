@@ -43,12 +43,3 @@ export function markdownLaTeXToHTML(text: string): ReactElement<any, any> {
     </>
   );
 }
-
-/**
- * A function to check if a message contains only emojis
- * @param text - The contents of the message
- * @returns A boolean determining whether the message contains only emojis
- */
-export function checkIfOnlyEmoji(text:string): boolean {
-  return /^[\p{Extended_Pictographic}]+$/u.test(text)
-}

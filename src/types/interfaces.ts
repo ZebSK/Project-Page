@@ -106,7 +106,7 @@ export interface UserListeners {
  */
 export interface MessageRoom {
   messagesRef: CollectionReference;
-  messageBlocks: MessageBlock[];
+  messageBlocks: MessageGroup[];
 }
 
 /**
@@ -119,7 +119,7 @@ export interface MessageRooms {
 /**
  * Interface representing the structure of information stored about a group of messages
  */
-export interface MessageBlock {
+export interface MessageGroup {
   uid: string;
   messages: Message[]; // Contains a list of strings for each message
 }

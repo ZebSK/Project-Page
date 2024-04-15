@@ -12,7 +12,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
 // Internal Modules
-import { Message, MessageBlock, MessageRoom, MessageRooms, MessagesContext } from "../types/interfaces";
+import { Message, MessageGroup, MessageRoom, MessageRooms, MessagesContext } from "../types/interfaces";
 import { SetStateMsgRooms } from "../types/aliases";
 import { FieldValue } from "firebase/firestore";
 import { getMessagesRef, loadPastMessages, subscribeToMessages } from "../services/db";
@@ -129,10 +129,10 @@ async function listenToMessages(roomID: string, setMessageRooms: SetStateMsgRoom
  * @param textValue - The new message to be added
  * @param uid - The user id who sent the message
  */
-export function addMessageToBlocks(messageBlocks: MessageBlock[], setMessageRooms: SetStateMsgRooms, message: Message, uid: string, roomID: string) {
+export function addMessageToBlocks(messageBlocks: MessageGroup[], setMessageRooms: SetStateMsgRooms, message: Message, uid: string, roomID: string) {
   if (messageBlocks) { }
-  const appendToRecentBlock = (messageBlocks: MessageBlock[], message: Message): MessageBlock[] => {
-    let finalBlock: MessageBlock = { ...messageBlocks[messageBlocks.length - 1] }
+  const appendToRecentBlock = (messageBlocks: MessageGroup[], message: Message): MessageGroup[] => {
+    let finalBlock: MessageGroup = { ...messageBlocks[messageBlocks.length - 1] }
     finalBlock.messages = [...messageBlocks[messageBlocks.length - 1].messages, message]
 
     return [
@@ -140,7 +140,7 @@ export function addMessageToBlocks(messageBlocks: MessageBlock[], setMessageRoom
       finalBlock
     ]
   }
-  const appendNewBlock = (messageBlocks: MessageBlock[], message: Message, uid: string): MessageBlock[] => [
+  const appendNewBlock = (messageBlocks: MessageGroup[], message: Message, uid: string): MessageGroup[] => [
     ...messageBlocks,
     {
       uid: uid,

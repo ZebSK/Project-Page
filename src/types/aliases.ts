@@ -12,7 +12,7 @@ import { QueryDocumentSnapshot } from "firebase/firestore"
 
 // Internal Interface Types
 import { MessageRooms, UserData, UserDictionary, UserListeners, UserSettings } from "./interfaces"
-import { MessageBlock } from "./interfaces"
+import { MessageGroup } from "./interfaces"
 
 
 
@@ -28,7 +28,7 @@ export type SetStateUserDict = Dispatch<SetStateAction<UserDictionary>>
 export type setStateUserSettings = Dispatch<SetStateAction<UserSettings>>
 export type setStateUserListeners = Dispatch<SetStateAction<UserListeners>>
 
-export type SetStateMsgBlockList = Dispatch<SetStateAction<MessageBlock[]>>
+export type SetStateMsgBlockList = Dispatch<SetStateAction<MessageGroup[]>>
 export type SetStateMsgRooms = Dispatch<SetStateAction<MessageRooms>>
 
 // useRef Objects

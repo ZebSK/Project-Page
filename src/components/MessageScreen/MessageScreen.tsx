@@ -15,19 +15,19 @@ import { getMessagesRef, sendMessage } from '../../services/db';
 import { auth } from '../../services/firebase';
 
 // Functions and Contexts
-import { checkIfOnlyEmoji, markdownLaTeXToHTML } from '../../utils/text-formatting';
 import { scrollToBottom } from '../../utils/scrolling';
 import { useUsers } from '../../contexts/users-context';
+import { useMessages } from '../../contexts/messages-context';
 
 // Types
-import { Message, MessageBlock } from "../../types/interfaces";;
+import { Message, MessageGroup } from "../../types/interfaces";;
 import { DivRefObject, SetStateBoolean, SetStateString, TextAreaRefObject } from '../../types/aliases';
 
 //Styles
 import './message-screen.css';
-import { useMessages } from '../../contexts/messages-context';
-import pixilEmoji from '../../assets/pixil-emoji.png';
-import { outsideObjectClick } from '../../utils/mouse-events';
+
+// Components
+import MessageBubble from './MessageBubble';
 
 
 
@@ -50,7 +50,7 @@ function MessageScreen(): JSX.Element {
   
   // Fetch messages from context
   const {messageRooms, currRoomID} = useMessages()
-  const messageBlocks: MessageBlock[] = messageRooms[currRoomID]? messageRooms[currRoomID]?.messageBlocks : []
+  const messageBlocks: MessageGroup[] = messageRooms[currRoomID]? messageRooms[currRoomID]?.messageBlocks : []
   
   // useEffects that run every time the dependencies change
   useEffect(() => { showScrollButton(messageContainerRef, setScrollButtonVisible) }, []);
@@ -98,26 +98,24 @@ function InputBox({ currRoomID, inputBoxValue, setInputBoxValue, inputBoxRef } :
     }, [inputBoxValue]);
        
     return (
-      <div>
-        <textarea
-          className="inputBox"
-          placeholder="..." // text shown in box when empty
-          value={ inputBoxValue }
-          style={{ height: inputBoxHeight }}
-          ref = {inputBoxRef}
+      <textarea
+        className="inputBox"
+        placeholder="..." // text shown in box when empty
+        value={ inputBoxValue }
+        style={{ height: inputBoxHeight }}
+        ref = {inputBoxRef}
 
-          // Handles response to any typing in the box
-          onChange={(event) => { setInputBoxValue(event.currentTarget.value); }}
+        // Handles response to any typing in the box
+        onChange={(event) => { setInputBoxValue(event.currentTarget.value); }}
 
-          // Handles sending of messages if enter is pressed without shift being held down
-          onKeyDown={(event) => {
-            if (event.key === "Enter" && !event.shiftKey) {
-              handleEnter(currRoomID, event.currentTarget.value, setInputBoxValue)
-              event.preventDefault(); // prevents addition of a new line to textarea when sending message
-            }
-          }}
-        ></textarea>
-      </div>
+        // Handles sending of messages if enter is pressed without shift being held down
+        onKeyDown={(event) => {
+          if (event.key === "Enter" && !event.shiftKey) {
+            handleEnter(currRoomID, event.currentTarget.value, setInputBoxValue)
+            event.preventDefault(); // prevents addition of a new line to textarea when sending message
+          }
+        }}
+      ></textarea>
     );
   }
 
@@ -137,55 +135,8 @@ function MessageBlock({ messages, uid }: { messages: Message[]; uid: string }): 
     <div className='messageBlock'>
       <div className={'messageDisplayName' + " " + isYoursIndicator}> {displayName} </div>
       {messages.map((message, index) => (
-        <Message key={index} isYoursIndicator={isYoursIndicator} message={message} />
+        <MessageBubble key={index} isYoursIndicator={isYoursIndicator} message={message} />
       ))}
-    </div>
-  );
-}
-
-/**
- * Message component holding each individual message
- * @component
- * @param isYoursIndicator - Determines which side of the screen to display the message
- * @param message - The details of the message
- * @returns The Message component
- */
-function Message({ isYoursIndicator, message }: { isYoursIndicator: string; message: Message }): JSX.Element {
-  // useStates
-  const [isHovered, setIsHovered] = useState<boolean>(false)
-  const [showReactMenu, setShowReactMenu] = useState<boolean>(false)
-  
-  const reactMenuRef = useRef<HTMLDivElement>(null)
-  const reactMenuButtonRef = useRef<HTMLButtonElement>(null)
-
-  useEffect(() => { outsideObjectClick(reactMenuRef, setShowReactMenu, reactMenuButtonRef) }, [])
-
-  return(
-    <div className={"messageLine" + " " + isYoursIndicator} onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
-      <div className={"message" + " " + isYoursIndicator}>
-        {/* The Message Bubble */}
-        {checkIfOnlyEmoji(message.content)?
-          <span className={"messageBubble emojiBubble" + " " + isYoursIndicator}>{message.content}</span>  :
-          <span className={"messageBubble" + " " + isYoursIndicator}>{markdownLaTeXToHTML(message.content)}</span>
-        }
-        {/* Add Reaction Button */}
-        {isHovered &&
-          <button 
-            className={'addEmoji' + " " + isYoursIndicator}
-            onClick={() => {setShowReactMenu(true)}}
-            ref={reactMenuButtonRef}
-          >
-            <img className='addEmojiImage' src={pixilEmoji} alt="Add Emoji"/>
-          </button> 
-        }
-        {showReactMenu &&
-          <div className={'addEmojiMenu' + " " + isYoursIndicator} ref={reactMenuRef}>
-            {["😠","🤨","🫤","😔","🙃","😶","😂","💖"].map((emoji, index) => (
-              <button key={index} className='emojiOptionButton'>{emoji}</button>
-            ))}
-          </div>
-        }
-      </div>
     </div>
   );
 }
@@ -239,7 +190,6 @@ function scrollOnNewMessage (messageContainerRef: DivRefObject) {
     if (lastMessageLine) {
 
       // If last message from user, scroll to bottom
-      console.log(lastMessageLine.className)
       if (lastMessageLine.className.split(" ")[1] === "right") {
         scrollToBottom(messageContainerRef);
       }

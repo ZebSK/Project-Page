@@ -190,7 +190,7 @@
   /* Dimensions and positioning */
   min-height: 30px;
   max-height: 120px;
-  width: 300px;
+  width: min(80%, 500px);
   padding: 10px;
   margin-bottom: 10px;
   margin-top: 10px;

@@ -31,7 +31,7 @@ import { db, auth } from './firebase';
 import { createDefaultProfilePic } from "../utils/profile-pictures";
 import { getProfilePic, saveProfilePic } from "./storage";
 
-import { Message, MessageBlock, UserData, UserListeners, UserSettings } from "../types/interfaces";
+import { Message, MessageGroup, UserData, UserListeners, UserSettings } from "../types/interfaces";
 import { DocsSnapshot, SetStateUserDict, SetStateUserDataNull, setStateUserSettings, setStateUserListeners, SetStateMsgRooms } from "../types/aliases";
 
 
@@ -89,8 +89,8 @@ export async function loadPastMessages(messagesRef: CollectionReference): DocsSn
  * @param addMessageToBlocks - Function adding new message to blocks
  * @returns Function to add listener and unsubscribe from it
  */
-export function subscribeToMessages (messagesRef: CollectionReference, startTime: FieldValue | null, messageBlocks: MessageBlock[], setMessageRooms: SetStateMsgRooms, roomID: string,
-  addMessageToBlocks: (messageBlocks: MessageBlock[], setMessageRooms: SetStateMsgRooms, message: Message, uid: string, roomID: string) => void) : Unsubscribe {
+export function subscribeToMessages (messagesRef: CollectionReference, startTime: FieldValue | null, messageBlocks: MessageGroup[], setMessageRooms: SetStateMsgRooms, roomID: string,
+  addMessageToBlocks: (messageBlocks: MessageGroup[], setMessageRooms: SetStateMsgRooms, message: Message, uid: string, roomID: string) => void) : Unsubscribe {
     // Start listening from set time, or all messages if not set (no previous messages)
     const q = startTime? query(messagesRef, where('createdAt', '>', startTime)) : query(messagesRef); 
 
