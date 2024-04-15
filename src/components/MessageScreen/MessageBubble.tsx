@@ -19,7 +19,7 @@ import { markdownLaTeXToHTML } from "../../utils/text-formatting";
 
 // Images
 import pixilEmoji from '../../assets/pixil-emoji.png';
-import { defaultReactions } from "../../config/emojiList";
+import { defaultReactions } from "../../config/constants";
 
 
 

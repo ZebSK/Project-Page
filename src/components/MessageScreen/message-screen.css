@@ -32,7 +32,9 @@
   bottom: 0; /* Position as low as possible within messageScreen (parent) */
   display: flex;
   flex-direction: column; 
-  overflow-y: overlay; /* Shows vertical scrollbar if overflows */
+  overflow-y: scroll; /* Shows vertical scrollbar if overflows */
+  flex-grow: 1;
+  justify-content: flex-end;
   
   /* Dimensions and Spacing */
   padding-right: 5px; /* Allows for addition of scroll bar */
