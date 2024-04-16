@@ -183,6 +183,15 @@
   border: 0;
 }
 
+.react {
+  padding: 2px;
+  margin: 1px;
+  border: 0;
+  width: fit-content;
+  border-radius: 5px;
+  color: var(--muted-text-colour);
+}
+
 
 
 /* OTHER COMPONENTS */

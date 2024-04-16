@@ -112,7 +112,7 @@ async function listenToMessages(roomID: string, setMessageRooms: SetStateMsgRoom
     }
   }
   // Set listener which loads any new messages and adds them to messageBlocks
-  const unsubscribe = subscribeToMessages(roomInfo.messagesRef, startListening, messageBlocks, setMessageRooms, roomID, addMessageToBlocks)
+  const unsubscribe = subscribeToMessages(roomInfo.messagesRef, startListening, messageBlocks, setMessageRooms, roomID, addMessageToBlocks, updateMessageInfo)
   window.addEventListener('beforeunload', unsubscribe)
   // Cleanup function to remove the event listener when the component unmounts
   return () => {

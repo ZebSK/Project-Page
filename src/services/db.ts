@@ -33,7 +33,6 @@ import { getProfilePic, saveProfilePic } from "./storage";
 
 import { Message, MessageGroup, UserData, UserListeners, UserSettings } from "../types/interfaces";
 import { DocsSnapshot, SetStateUserDict, SetStateUserDataNull, setStateUserSettings, setStateUserListeners, SetStateMsgRooms } from "../types/aliases";
-import { updateMessageInfo } from "../contexts/messages-context";
 
 
 
@@ -64,6 +63,7 @@ export function sendMessage(messagesRef: CollectionReference, messageContents: s
   // Add doc to database with random message id
   addDoc(messagesRef, {
     text: messageContents,
+    lastModified: time,
     createdAt: time,
     uid: uid
   });
@@ -91,10 +91,10 @@ export async function loadPastMessages(messagesRef: CollectionReference): DocsSn
  * @returns Function to add listener and unsubscribe from it
  */
 export function subscribeToMessages (messagesRef: CollectionReference, startTime: FieldValue | null, messageBlocks: MessageGroup[], setMessageRooms: SetStateMsgRooms, roomID: string,
-  addMessageToBlocks: (messageBlocks: MessageGroup[], setMessageRooms: SetStateMsgRooms, message: Message, uid: string, roomID: string) => void) : Unsubscribe {
+  addMessageToBlocks: (messageBlocks: MessageGroup[], setMessageRooms: SetStateMsgRooms, message: Message, uid: string, roomID: string) => void,
+  updateMessageInfo: (setMessageRooms: SetStateMsgRooms, message: Message, roomID: string) => void) : Unsubscribe {
     // Start listening from set time, or all messages if not set (no previous messages)
-    const q = startTime? query(messagesRef, where('createdAt', '>', startTime)) : query(messagesRef); 
-
+    const q = startTime? query(messagesRef, where('lastModified', '>', startTime), ) : query(messagesRef); 
     return (
       onSnapshot(q, (snapshot) => {
         snapshot.docChanges().forEach((change) => {
@@ -108,9 +108,13 @@ export function subscribeToMessages (messagesRef: CollectionReference, startTime
               content: data.text,
               reacts: data.reacts
             }
-            addMessageToBlocks(messageBlocks, setMessageRooms, message, uid, roomID)
+            if (data.createdAt.toMillis() === data.lastModified.toMillis()) {
+              addMessageToBlocks(messageBlocks, setMessageRooms, message, uid, roomID)
+            } else {
+              updateMessageInfo(setMessageRooms, message, roomID);
+            }
           }
-          if (change.type === "modified") {
+          if (change.type === "modified") { //TODO: doesn't work because not listening to previously sent messages
             const data = change.doc.data()
             const messageID = change.doc.id
             const message: Message = {
@@ -126,7 +130,7 @@ export function subscribeToMessages (messagesRef: CollectionReference, startTime
   };
 
 export function addReact(message: Message, react: string, currRoomID: string, currUserUID: string) {
-  let newReacts = message.reacts;
+  let newReacts = {...message.reacts};
   if (!newReacts) {
     newReacts = {react: [currUserUID]}
   } else if (newReacts[react]) {
@@ -134,9 +138,11 @@ export function addReact(message: Message, react: string, currRoomID: string, cu
   } else {
     newReacts[react] = [currUserUID]
   }
+  const time = serverTimestamp()
 
   updateDoc(doc(db, "rooms", currRoomID, "messages", message.messageID), {
-    reacts: newReacts
+    reacts: newReacts,
+    lastModified: time
   })
 }
 

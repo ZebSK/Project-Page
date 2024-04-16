@@ -39,12 +39,16 @@ function MessageBubble({ isYoursIndicator, message }: { isYoursIndicator: string
   // useStates
   const [isHovered, setIsHovered] = useState<boolean>(false)
   const [showReactMenu, setShowReactMenu] = useState<boolean>(false)
+  const [reacts, setReacts] = useState<{ [emoji: string]: string[] | undefined }>();
   
   const reactMenuRef = useRef<HTMLDivElement>(null)
   const reactMenuButtonRef = useRef<HTMLButtonElement>(null)
   
   const { currRoomID } = useMessages()
-  const { currUserInfo } = useUsers()
+  const { currUserInfo, otherUserInfo } = useUsers()
+
+  useEffect(() => { setReacts(message.reacts); }, [message.reacts]);
+
 
   useEffect(() => { outsideObjectClick(reactMenuRef, setShowReactMenu, reactMenuButtonRef) }, [])
 
@@ -56,6 +60,20 @@ function MessageBubble({ isYoursIndicator, message }: { isYoursIndicator: string
           <span className={"messageBubble emojiBubble" + " " + isYoursIndicator}>{message.content}</span>  :
           <span className={"messageBubble" + " " + isYoursIndicator}>{markdownLaTeXToHTML(message.content)}</span>
         }
+        {/* Reacts */}
+        <div style={{width:"100%", display: 'flex', justifyContent: 'inherit', flexWrap:"wrap"}}>
+          {reacts && Object.entries(reacts).map(([emoji, userList]) => (
+              <button
+              key={emoji} 
+              className="react"
+              title={emoji + " reacted by " + userList?.map(uid => uid === currUserInfo?.uid? currUserInfo.displayName : otherUserInfo[uid]?.displayName).join(', ')}
+              >
+                {emoji} {(userList?.length && userList.length > 1)? userList.length: ""}
+              </button>
+            ))
+          }
+        </div>
+
         {/* Add Reaction Button */}
         {isHovered &&
           <button 

@@ -9,6 +9,7 @@
 /* Default Light Mode */
 :root {
   --primary-text-colour: #383838;
+  --muted-text-colour: hsl(0, 0%, 44%);
   --primary-background-colour: #ffffff;
   
   --object-colour-1: #e1e1e1;
@@ -21,6 +22,7 @@
 /* Toggleable Dark mode */
 .dark-mode {
   --primary-text-colour: #f5f5f5;
+  --muted-text-colour: hsl(0, 0%, 72%);
   --primary-background-colour: #222222;
   
   --object-colour-1: #333333;
