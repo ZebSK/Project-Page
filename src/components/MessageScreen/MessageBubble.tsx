@@ -22,7 +22,7 @@ import pixilEmoji from '../../assets/pixil-emoji.png';
 import { defaultReactions } from "../../config/constants";
 import { useMessages } from "../../contexts/messages-context";
 import { useUsers } from "../../contexts/users-context";
-import { addReact } from "../../services/db";
+import { addReact, removeReact } from "../../services/db";
 
 
 
@@ -61,12 +61,14 @@ function MessageBubble({ isYoursIndicator, message }: { isYoursIndicator: string
           <span className={"messageBubble" + " " + isYoursIndicator}>{markdownLaTeXToHTML(message.content)}</span>
         }
         {/* Reacts */}
-        <div style={{width:"100%", display: 'flex', justifyContent: 'inherit', flexWrap:"wrap"}}>
+        <div className={"reactsLine" + " " + isYoursIndicator}>
           {reacts && Object.entries(reacts).map(([emoji, userList]) => (
               <button
               key={emoji} 
               className="react"
               title={emoji + " reacted by " + userList?.map(uid => uid === currUserInfo?.uid? currUserInfo.displayName : otherUserInfo[uid]?.displayName).join(', ')}
+              onClick={() => addOrRemoveReact(message, emoji, currRoomID, currUserInfo, true)}
+              style={{backgroundColor: currUserInfo?.uid && userList?.includes(currUserInfo.uid)? "var(--object-colour-1)": "var(--default-background-colour)"}}
               >
                 {emoji} {(userList?.length && userList.length > 1)? userList.length: ""}
               </button>
@@ -117,11 +119,19 @@ function checkIfOnlyEmoji(text:string): boolean {
   return /^[\p{Extended_Pictographic}]+$/u.test(text)
 }
 
+/**
+ * A function to add or remove an emoji react on a message
+ * @param message - The message to edit
+ * @param react - The react to be changed
+ * @param currRoomID - The ID of the message room containing the message
+ * @param currUserInfo - Information about the current user
+ * @param remove - Whether the emoji should be removed if it already exists
+ */
 function addOrRemoveReact(message: Message, react: string, currRoomID: string, currUserInfo: UserData | null, remove: boolean = false) {
   if (!currUserInfo) { return }
   if (!message.reacts || !message.reacts[react] || !message.reacts[react].includes(currUserInfo.uid)) {
     addReact(message, react, currRoomID, currUserInfo.uid)
   } else if (remove) {
-    console.log("")
+    removeReact(message, react, currRoomID, currUserInfo.uid)
   }
 }

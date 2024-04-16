@@ -55,6 +55,7 @@
   display: flex;
   flex-direction: column;
   width: 100%;
+  margin-bottom: 5px; /* Space between bubbles */
 }
 
 /* Styles for each individual message */
@@ -77,7 +78,6 @@
   /* Bubble Shape */
   border-radius: 10px; /* Curved edges */
   padding: 10px; /* Space inside bubble*/
-  margin-bottom: 5px; /* Space between bubbles */
   box-sizing: border-box;
   max-width: 100%;
   
@@ -183,12 +183,29 @@
   border: 0;
 }
 
+/* Styles for the line below the message containing the reacts */
+.reactsLine {
+  /* Dimensions and Layout */
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+.reactsLine.left { /* Switches the side the emojis are on for messages to the left */
+  justify-content: flex-start;
+}
+
+/* Styles for each react below a message */
 .react {
+  /* Dimensions and Layout */
   padding: 2px;
   margin: 1px;
   border: 0;
   width: fit-content;
-  border-radius: 5px;
+
+  /* Design */
+  border-radius: 10px;
+  box-shadow: 0 0 5px var(--object-colour-1);
   color: var(--muted-text-colour);
 }
 

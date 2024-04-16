@@ -108,6 +108,8 @@ export function subscribeToMessages (messagesRef: CollectionReference, startTime
               content: data.text,
               reacts: data.reacts
             }
+            console.log(data.createdAt.toMillis())
+            console.log(data.lastModified.toMillis())
             if (data.createdAt.toMillis() === data.lastModified.toMillis()) {
               addMessageToBlocks(messageBlocks, setMessageRooms, message, uid, roomID)
             } else {
@@ -129,6 +131,13 @@ export function subscribeToMessages (messagesRef: CollectionReference, startTime
     );
   };
 
+/**
+ * Adds a react to a message in the database 
+ * @param message - The message to add a react to
+ * @param react - The react to be added
+ * @param currRoomID - The room the message is located in
+ * @param currUserUID - The UID of the user to add the react
+ */
 export function addReact(message: Message, react: string, currRoomID: string, currUserUID: string) {
   let newReacts = {...message.reacts};
   if (!newReacts) {
@@ -138,6 +147,32 @@ export function addReact(message: Message, react: string, currRoomID: string, cu
   } else {
     newReacts[react] = [currUserUID]
   }
+  const time = serverTimestamp()
+
+  updateDoc(doc(db, "rooms", currRoomID, "messages", message.messageID), {
+    reacts: newReacts,
+    lastModified: time
+  })
+}
+
+/**
+ * Removes a react from a message in the database 
+ * @param message - The message to remove a react from
+ * @param react - The react to be removed
+ * @param currRoomID - The room the message is located in
+ * @param currUserUID - The UID of the user to remove the react
+ */
+export function removeReact(message: Message, react: string, currRoomID: string, currUserUID: string) {
+  let newReacts: { [x: string]: string[]; } | undefined = {...message.reacts};
+  if (newReacts && newReacts[react]) {
+    const reactIndex = newReacts[react].indexOf(currUserUID);
+    if (reactIndex !== -1) {
+      newReacts[react].splice(reactIndex, 1);
+    }
+    if (newReacts[react].length === 0) {
+      delete newReacts[react];
+    }
+  }  
   const time = serverTimestamp()
 
   updateDoc(doc(db, "rooms", currRoomID, "messages", message.messageID), {
