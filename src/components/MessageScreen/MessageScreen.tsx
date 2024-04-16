@@ -57,7 +57,7 @@ function MessageScreen(): JSX.Element {
   useEffect(() => { scrollOnNewMessage(messageContainerRef) }, [messageBlocks]);
   useEffect(() => { handleInputBoxExpand(messageContainerRef, inputBoxRef, setScrollButtonHeight) }, []);
   useEffect(() => { determineScrollButtonHeight(inputBoxRef, setScrollButtonHeight) }, []);
-  useEffect(() => { scrollToBottom(messageContainerRef) }, [currRoomID])
+  useEffect(() => { setTimeout(() => {scrollToBottom(messageContainerRef)}, 1)  }, [currRoomID])
 
   // The JSX Element
   return (
@@ -65,7 +65,7 @@ function MessageScreen(): JSX.Element {
     <div className='messageScreen'>
       <div className='messageContainer' ref={messageContainerRef}>
         {messageBlocks.map((messageBlock, index) => (
-          <MessageBlock key={index} messages={messageBlock.messages} uid={messageBlock.uid}/>
+          <MessageBlock key={index} messages={messageBlock.messages} uid={messageBlock.uid} messageContainerRef={messageContainerRef}/>
         ))}
       </div>
       {scrollButtonVisible && 
@@ -126,7 +126,7 @@ function InputBox({ currRoomID, inputBoxValue, setInputBoxValue, inputBoxRef } :
  * @param uid - The user id of the person who sent the message
  * @returns The MessageBlock component
  */
-function MessageBlock({ messages, uid }: { messages: Message[]; uid: string }): JSX.Element {
+function MessageBlock({ messages, uid, messageContainerRef }: { messages: Message[]; uid: string; messageContainerRef: DivRefObject }): JSX.Element {
   const { currUserInfo, otherUserInfo } = useUsers();
   const isYoursIndicator: string = uid === auth.currentUser?.uid? "right": "left"  // convert isYours boolean to string
   const displayName: string = uid === currUserInfo?.uid? currUserInfo.displayName : otherUserInfo[uid]?.displayName
@@ -135,7 +135,7 @@ function MessageBlock({ messages, uid }: { messages: Message[]; uid: string }): 
     <div className='messageBlock'>
       <div className={'messageDisplayName' + " " + isYoursIndicator}> {displayName} </div>
       {messages.map((message, index) => (
-        <MessageBubble key={index} isYoursIndicator={isYoursIndicator} message={message} />
+        <MessageBubble key={index} isYoursIndicator={isYoursIndicator} message={message} messageContainerRef={messageContainerRef} />
       ))}
     </div>
   );

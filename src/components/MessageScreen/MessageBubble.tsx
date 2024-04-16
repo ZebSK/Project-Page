@@ -23,6 +23,8 @@ import { defaultReactions } from "../../config/constants";
 import { useMessages } from "../../contexts/messages-context";
 import { useUsers } from "../../contexts/users-context";
 import { addReact, removeReact } from "../../services/db";
+import { DivRefObject } from "../../types/aliases";
+import { scrollToBottom } from "../../utils/scrolling";
 
 
 
@@ -35,7 +37,7 @@ import { addReact, removeReact } from "../../services/db";
  * @param message - The details of the message
  * @returns The Message component
  */
-function MessageBubble({ isYoursIndicator, message }: { isYoursIndicator: string; message: Message }): JSX.Element {
+function MessageBubble({ isYoursIndicator, message, messageContainerRef }: { isYoursIndicator: string; message: Message; messageContainerRef: DivRefObject }): JSX.Element {
   // useStates
   const [isHovered, setIsHovered] = useState<boolean>(false)
   const [showReactMenu, setShowReactMenu] = useState<boolean>(false)
@@ -48,8 +50,7 @@ function MessageBubble({ isYoursIndicator, message }: { isYoursIndicator: string
   const { currUserInfo, otherUserInfo } = useUsers()
 
   useEffect(() => { setReacts(message.reacts); }, [message.reacts]);
-
-
+  useEffect(() => { scrollOnReact(messageContainerRef, message.reacts) }, [message.reacts])
   useEffect(() => { outsideObjectClick(reactMenuRef, setShowReactMenu, reactMenuButtonRef) }, [])
 
   return(
@@ -135,3 +136,21 @@ function addOrRemoveReact(message: Message, react: string, currRoomID: string, c
     removeReact(message, react, currRoomID, currUserInfo.uid)
   }
 }
+
+function scrollOnReact(messageContainerRef: DivRefObject, reacts: { [emoji: string]: string[] } | undefined ) {
+  if (reacts && Object.keys(reacts).length === 1 && Object.values(reacts)[0].length === 1) {
+    setTimeout(() => {
+      
+      console.log("hbfvsj")
+      const container = messageContainerRef.current;
+      if (!container) { return; }
+    
+      console.log(container.scrollHeight - container.scrollTop - container.clientHeight)
+    
+      if( container.scrollHeight - container.scrollTop - 35 <= container.clientHeight) {
+        scrollToBottom(messageContainerRef);
+      }
+    }, 1);
+  }
+}
+  

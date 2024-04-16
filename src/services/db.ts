@@ -108,8 +108,6 @@ export function subscribeToMessages (messagesRef: CollectionReference, startTime
               content: data.text,
               reacts: data.reacts
             }
-            console.log(data.createdAt.toMillis())
-            console.log(data.lastModified.toMillis())
             if (data.createdAt.toMillis() === data.lastModified.toMillis()) {
               addMessageToBlocks(messageBlocks, setMessageRooms, message, uid, roomID)
             } else {

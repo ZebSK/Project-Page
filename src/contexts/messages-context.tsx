@@ -33,7 +33,7 @@ const MessageContext = createContext<MessagesContext>({} as MessagesContext);
 export const MessagesProvider = ({ children }: { children: JSX.Element }): JSX.Element => {
   // User information state variable
   const [messageRooms, setMessageRooms] = useState<MessageRooms>({})
-  const [currRoomID, setCurrRoomID] = useState("main")
+  const [currRoomID, setCurrRoomID] = useState("")
   const { userAuth, currUserListeners } = useUsers()
 
  // Listen to messages hook
@@ -49,6 +49,10 @@ export const MessagesProvider = ({ children }: { children: JSX.Element }): JSX.E
         const listener = async () => { return await listenToMessages(roomID, setMessageRooms, roomInfo); }
         unsubList.push( listener() )
       })
+
+      setTimeout(() => {
+        setCurrRoomID("main")
+      }, 500);
 
       // Cleanup on userAuth change
       return () => { 
